@@ -162,7 +162,7 @@ export function RecommendationsView({
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
-            className="fixed inset-x-3 bottom-[84px] z-30 mx-auto max-w-md lg:bottom-6 lg:left-[calc(260px+1.5rem)] lg:right-6 lg:mx-auto"
+            className="fixed bottom-[84px] left-3 right-[5.25rem] z-30 max-w-md sm:right-3 sm:mx-auto lg:bottom-6 lg:left-[calc(260px+1.5rem)] lg:right-6"
           >
             <div className="flex items-center gap-3 rounded-2xl bg-ink px-4 py-3 text-white shadow-2xl">
               <GitCompareArrows className="size-5 shrink-0 text-brand-300" aria-hidden />
