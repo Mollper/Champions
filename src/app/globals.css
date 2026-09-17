@@ -1,26 +1,148 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* =====================================================================
+   UniRoute design tokens
+   brand  — violet: primary actions, progress, "you are here"
+   route  — teal:   the path / success of the plan
+   coral  — accent: the ONE next action, deadlines
+   ===================================================================== */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@theme {
+  --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-unbounded), var(--font-onest), ui-sans-serif, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --color-canvas: #f6f6fb;
+  --color-surface: #ffffff;
+  --color-ink: #10122b;
+  --color-ink-soft: #3b3f62;
+  --color-muted: #6b7091;
+  --color-line: #e6e7f1;
+  --color-line-strong: #d4d6e6;
+
+  --color-brand-50: #f2f0ff;
+  --color-brand-100: #e4dfff;
+  --color-brand-200: #cac0ff;
+  --color-brand-300: #aa99ff;
+  --color-brand-400: #8b6fff;
+  --color-brand-500: #6d4cff;
+  --color-brand-600: #5a36f2;
+  --color-brand-700: #4a28d2;
+  --color-brand-800: #3c22a8;
+  --color-brand-900: #2d1b7e;
+
+  --color-route-50: #e8fbf7;
+  --color-route-100: #c9f4ec;
+  --color-route-400: #2fd1b7;
+  --color-route-500: #12b8a0;
+  --color-route-600: #0b9483;
+  --color-route-700: #0c7669;
+
+  --color-coral-50: #fff2ed;
+  --color-coral-100: #ffe1d5;
+  --color-coral-400: #ff875f;
+  --color-coral-500: #ff6a3d;
+  --color-coral-600: #eb5224;
+  --color-coral-700: #c43f17;
+
+  --color-success-50: #ebfbf1;
+  --color-success-500: #1fa855;
+  --color-success-700: #177a3f;
+  --color-warn-50: #fff8e6;
+  --color-warn-500: #f0a20b;
+  --color-warn-700: #a86a00;
+  --color-danger-50: #fff0f0;
+  --color-danger-500: #e5484d;
+  --color-danger-700: #b4262b;
+
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgb(16 18 43 / 0.04), 0 10px 30px -18px rgb(16 18 43 / 0.18);
+  --shadow-lift: 0 24px 60px -24px rgb(90 54 242 / 0.45);
+  --shadow-coral: 0 20px 50px -22px rgb(235 82 36 / 0.55);
+
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-brand-200);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+}
+
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-inline: 1rem;
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
+}
+
+@utility text-gradient {
+  background-image: linear-gradient(100deg, var(--color-brand-600) 10%, var(--color-brand-400) 45%, var(--color-route-500) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(16 18 43 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(16 18 43 / 0.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
