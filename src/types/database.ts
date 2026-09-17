@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      catalog_requests: {
+        Row: {
+          attempts: number
+          created_at: string
+          id: number
+          message: string | null
+          query: string
+          status: string
+          university_id: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          id?: never
+          message?: string | null
+          query: string
+          status?: string
+          university_id?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          id?: never
+          message?: string | null
+          query?: string
+          status?: string
+          university_id?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_requests_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catalog_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string
@@ -368,7 +419,9 @@ export type Database = {
           data_source: string | null
           data_updated_at: string | null
           description: string | null
+          enriched_at: string | null
           entrance_exams: string[]
+          field_sources: Json
           fields: string[]
           foundation_note: string | null
           highlights: string[]
@@ -385,6 +438,7 @@ export type Database = {
           min_toefl: number | null
           name: string
           name_ru: string | null
+          origin: string
           programs: string[]
           qs_rank: number | null
           requires_foundation: boolean
@@ -393,8 +447,10 @@ export type Database = {
           scholarship_level: string
           scholarship_note: string | null
           slug: string
+          status: string
           tuition_usd_per_year: number
           website_url: string
+          wikidata_id: string | null
         }
         Insert: {
           acceptance_rate?: number | null
@@ -408,7 +464,9 @@ export type Database = {
           data_source?: string | null
           data_updated_at?: string | null
           description?: string | null
+          enriched_at?: string | null
           entrance_exams?: string[]
+          field_sources?: Json
           fields?: string[]
           foundation_note?: string | null
           highlights?: string[]
@@ -425,6 +483,7 @@ export type Database = {
           min_toefl?: number | null
           name: string
           name_ru?: string | null
+          origin?: string
           programs?: string[]
           qs_rank?: number | null
           requires_foundation?: boolean
@@ -433,8 +492,10 @@ export type Database = {
           scholarship_level: string
           scholarship_note?: string | null
           slug: string
+          status?: string
           tuition_usd_per_year: number
           website_url: string
+          wikidata_id?: string | null
         }
         Update: {
           acceptance_rate?: number | null
@@ -448,7 +509,9 @@ export type Database = {
           data_source?: string | null
           data_updated_at?: string | null
           description?: string | null
+          enriched_at?: string | null
           entrance_exams?: string[]
+          field_sources?: Json
           fields?: string[]
           foundation_note?: string | null
           highlights?: string[]
@@ -465,6 +528,7 @@ export type Database = {
           min_toefl?: number | null
           name?: string
           name_ru?: string | null
+          origin?: string
           programs?: string[]
           qs_rank?: number | null
           requires_foundation?: boolean
@@ -473,8 +537,10 @@ export type Database = {
           scholarship_level?: string
           scholarship_note?: string | null
           slug?: string
+          status?: string
           tuition_usd_per_year?: number
           website_url?: string
+          wikidata_id?: string | null
         }
         Relationships: []
       }

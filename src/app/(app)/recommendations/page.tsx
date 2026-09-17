@@ -3,6 +3,8 @@ import { Minus, PenLine, Plus, RefreshCw } from "lucide-react";
 import { NextStage, PageHeader } from "@/components/app/page-header";
 import { ButtonLink } from "@/components/ui/button";
 import { DemoNote } from "@/components/ui/demo-note";
+import { AddUniversity, type RequestRow } from "@/components/university/add-university";
+import { createClient } from "@/lib/supabase/server";
 import { RecommendationsView } from "@/components/university/recommendations-view";
 import { getShortlistIds, getUserMatches } from "@/lib/data/matches";
 import { plural } from "@/lib/format";
@@ -14,7 +16,17 @@ const slugList = (v: string | string[] | undefined) => (typeof v === "string" &&
 export default async function RecommendationsPage({ searchParams }: PageProps<"/recommendations">) {
   const params = await searchParams;
   const { userId, recommended, others, universities } = await getUserMatches("/recommendations");
-  const shortlistIds = await getShortlistIds(userId);
+  const supabase = await createClient();
+  const [shortlistIds, { data: requests }] = await Promise.all([
+    getShortlistIds(userId),
+    supabase
+      .from("catalog_requests")
+      .select("id, query, status, message, university_id, created_at, universities(slug, name, status)")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(8),
+  ]);
+  const catalogRequests = (requests ?? []) as RequestRow[];
 
   const nameOf = (slug: string) => universities.find((u) => u.slug === slug)?.name;
   const added = slugList(params.added).map(nameOf).filter(Boolean);
@@ -64,6 +76,8 @@ export default async function RecommendationsPage({ searchParams }: PageProps<"/
       <DemoNote />
 
       <RecommendationsView recommended={recommended} others={others} shortlistIds={shortlistIds} />
+
+      <AddUniversity initialRequests={catalogRequests} processingEnabled={Boolean(process.env.SUPABASE_SECRET_KEY)} />
 
       <NextStage
         label="Этап 4 из 5"

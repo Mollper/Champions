@@ -321,7 +321,7 @@ export function CountriesStep({ draft, update, countryCounts }: StepProps) {
           Любая страна
         </Chip>
         <div className="grid gap-2.5 sm:grid-cols-2">
-          {COUNTRIES.map((c) => (
+          {COUNTRIES.filter((c) => (countryCounts[c.code] ?? 0) > 0 || draft.target_countries.includes(c.code)).map((c) => (
             <OptionCard
               key={c.code}
               selected={draft.target_countries.includes(c.code)}

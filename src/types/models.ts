@@ -33,9 +33,28 @@ export type ExamEntry = {
 export type LanguageEntry = { language: string; level: "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | "native" };
 export type ActivityEntry = { title: string; kind: string; level?: string };
 
-export type University = Omit<Tables<"universities">, "scholarship_level" | "application_deadlines"> & {
+/** Where a university field came from (catalog pipeline provenance). */
+export type FieldSource = {
+  kind: "wikidata" | "commons" | "page" | "scorecard" | "ai_estimate" | "default";
+  url?: string;
+  evidence?: string;
+};
+
+export type University = Omit<Tables<"universities">, "scholarship_level" | "application_deadlines" | "origin" | "status" | "field_sources"> & {
   scholarship_level: ScholarshipLevel;
   application_deadlines: MonthDay[];
+  origin: "curated" | "ai";
+  status: "published" | "draft";
+  field_sources: Partial<Record<string, FieldSource>>;
+};
+
+export type CatalogRequest = {
+  id: number;
+  query: string;
+  status: "queued" | "running" | "done" | "duplicate" | "not_found" | "failed";
+  message: string | null;
+  university_id: number | null;
+  created_at: string;
 };
 
 export type Scholarship = Omit<Tables<"scholarships">, "coverage" | "deadline"> & {

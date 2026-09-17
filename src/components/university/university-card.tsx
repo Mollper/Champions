@@ -19,6 +19,7 @@ import { formatDate, formatUsd } from "@/lib/format";
 import type { MatchResult } from "@/lib/engine/types";
 import { cn } from "@/lib/utils";
 import { ChanceFactors, ChanceRing, TIER_HINT, TierBadge } from "./chance";
+import { AiBadge, DataSources } from "./data-sources";
 
 type Props = {
   match: MatchResult;
@@ -49,6 +50,7 @@ export function UniversityCard({ match, inShortlist, pending, onToggleShortlist,
           <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
             {rank != null && <span className="rounded-pill bg-ink/80 px-2 py-0.5 text-[11px] font-bold text-white backdrop-blur">#{rank}</span>}
             {u.qs_rank && <span className="rounded-pill bg-white/90 px-2 py-0.5 text-[11px] font-bold text-ink backdrop-blur">QS #{u.qs_rank}</span>}
+            {u.origin === "ai" && <AiBadge />}
           </div>
         </div>
 
@@ -140,7 +142,7 @@ export function UniversityCard({ match, inShortlist, pending, onToggleShortlist,
               aria-expanded={open}
               className="inline-flex h-10 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-ink-soft hover:bg-canvas"
             >
-              Почему такой шанс
+              Шансы и источники
               <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} aria-hidden />
             </button>
             <a
@@ -169,6 +171,7 @@ export function UniversityCard({ match, inShortlist, pending, onToggleShortlist,
                   </p>
                   <ChanceFactors factors={match.chanceFactors} />
                   {u.foundation_note && <p className="text-xs text-muted">ℹ️ {u.foundation_note}</p>}
+                  <DataSources university={u} />
                   <DemoNote compact />
                 </div>
               </motion.div>

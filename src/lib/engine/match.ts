@@ -21,6 +21,22 @@ export const LANGUAGE_RU: Record<string, string> = {
   Korean: "Корейский",
   Italian: "Итальянский",
   Turkish: "Турецкий",
+  French: "Французский",
+  Spanish: "Испанский",
+  Japanese: "Японский",
+  Chinese: "Китайский",
+  Russian: "Русский",
+  Kazakh: "Казахский",
+  Dutch: "Нидерландский",
+  Swedish: "Шведский",
+  Polish: "Польский",
+  Hungarian: "Венгерский",
+  Malay: "Малайский",
+  Arabic: "Арабский",
+  Portuguese: "Португальский",
+  Finnish: "Финский",
+  Danish: "Датский",
+  Norwegian: "Норвежский",
 };
 const round5 = (v: number) => Math.round(v / 500) * 500;
 

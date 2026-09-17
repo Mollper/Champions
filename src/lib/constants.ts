@@ -34,6 +34,16 @@ export const COUNTRIES = [
   { code: "AU", name: "Австралия", hint: "Можно работать во время учёбы" },
   { code: "TR", name: "Турция", hint: "Merit-стипендии до 100%" },
   { code: "KZ", name: "Казахстан", hint: "Грант покрывает обучение в NU" },
+  { code: "CH", name: "Швейцария", hint: "Топовые технические вузы, дорогая жизнь" },
+  { code: "FR", name: "Франция", hint: "Государственные вузы с невысокой платой" },
+  { code: "ES", name: "Испания", hint: "Доступная жизнь, программы на английском растут" },
+  { code: "IE", name: "Ирландия", hint: "Английский язык, IT-компании Европы" },
+  { code: "HU", name: "Венгрия", hint: "Stipendium Hungaricum для граждан СНГ" },
+  { code: "PL", name: "Польша", hint: "Недорого, много программ на английском" },
+  { code: "JP", name: "Япония", hint: "Стипендии MEXT, программы на английском" },
+  { code: "CN", name: "Китай", hint: "Стипендии CSC, сильные технические вузы" },
+  { code: "MY", name: "Малайзия", hint: "Недорого, филиалы британских вузов" },
+  { code: "AE", name: "ОАЭ", hint: "Кампусы международных вузов, английский" },
 ] as const;
 
 export const COUNTRY_NAME: Record<string, string> = Object.fromEntries(COUNTRIES.map((c) => [c.code, c.name]));
@@ -73,7 +83,7 @@ export const LEVEL_LABEL: Record<LanguageEntry["level"], string> = {
   native: "Родной",
 };
 
-export const OTHER_LANGUAGES = ["Немецкий", "Корейский", "Итальянский", "Чешский", "Турецкий", "Французский", "Китайский"];
+export const OTHER_LANGUAGES = ["Немецкий", "Французский", "Испанский", "Итальянский", "Чешский", "Корейский", "Японский", "Китайский", "Турецкий"];
 
 export const EXAMS: {
   type: ExamEntry["type"];
