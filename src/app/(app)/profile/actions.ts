@@ -15,11 +15,16 @@ import {
   GRADES,
   LANGUAGE_LEVELS,
 } from "@/lib/constants";
+import { isRecommended, matchUniversities } from "@/lib/engine/match";
 import type { ProfileDraft } from "@/lib/engine/types";
+import { toDraft } from "@/lib/data/profile";
+import { getScholarships, getUniversities } from "@/lib/data/reference";
 import { createClient } from "@/lib/supabase/server";
-import type { ActivityEntry, ExamEntry, LanguageEntry } from "@/types/models";
+import type { ActivityEntry, ExamEntry, LanguageEntry, Profile } from "@/types/models";
 
-export type SaveResult = { ok: true; version: number; completed: boolean } | { ok: false; error: string };
+export type SaveResult =
+  | { ok: true; version: number; completed: boolean; added: string[]; removed: string[] }
+  | { ok: false; error: string };
 
 const pick = <T,>(value: unknown, allowed: readonly T[]): T | null => (allowed.includes(value as T) ? (value as T) : null);
 const subset = <T,>(values: unknown, allowed: readonly T[], max = 20): T[] =>
@@ -88,8 +93,20 @@ export async function saveProfile(input: ProfileDraft, complete: boolean): Promi
   const supabase = await createClient();
   const values = sanitize(input);
 
-  const { data: existing } = await supabase.from("profiles").select("completed_at").eq("user_id", userId).maybeSingle();
+  const [{ data: existing }, universities, scholarships] = await Promise.all([
+    supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
+    getUniversities(),
+    getScholarships(),
+  ]);
   const completedAt = existing?.completed_at ?? (complete ? new Date().toISOString() : null);
+
+  // What the student will notice: which universities enter or leave the recommendations.
+  const recommendedSlugs = (draft: ProfileDraft) =>
+    matchUniversities(draft, universities, scholarships)
+      .filter((m) => isRecommended(m, draft))
+      .map((m) => m.university.slug);
+  const before = existing?.completed_at ? recommendedSlugs(toDraft(existing as Profile)) : [];
+  const after = recommendedSlugs({ ...toDraft(null), ...values } as ProfileDraft);
 
   const { data, error } = await supabase
     .from("profiles")
@@ -104,5 +121,11 @@ export async function saveProfile(input: ProfileDraft, complete: boolean): Promi
   }
 
   revalidatePath("/", "layout");
-  return { ok: true, version: data.version, completed: Boolean(data.completed_at) };
+  return {
+    ok: true,
+    version: data.version,
+    completed: Boolean(data.completed_at),
+    added: existing?.completed_at ? after.filter((s) => !before.includes(s)) : [],
+    removed: before.filter((s) => !after.includes(s)),
+  };
 }

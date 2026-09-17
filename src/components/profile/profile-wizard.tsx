@@ -155,7 +155,7 @@ export function ProfileWizard({ initial, isComplete, universities, scholarships,
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const persist = (complete: boolean, then: () => void) => {
+  const persist = (complete: boolean, then: (changes: { added: string[]; removed: string[] }) => void) => {
     startTransition(async () => {
       const result = await saveProfile(draft, complete);
       if (!result.ok) {
@@ -164,8 +164,15 @@ export function ProfileWizard({ initial, isComplete, universities, scholarships,
       }
       setDirty(false);
       setSavedAt(Date.now());
-      then();
+      then({ added: result.added, removed: result.removed });
     });
+  };
+
+  const changesQuery = ({ added, removed }: { added: string[]; removed: string[] }) => {
+    const q = new URLSearchParams({ updated: "1" });
+    if (added.length) q.set("added", added.join(","));
+    if (removed.length) q.set("removed", removed.join(","));
+    return q.toString();
   };
 
   const next = () => {
@@ -182,8 +189,8 @@ export function ProfileWizard({ initial, isComplete, universities, scholarships,
       setError(invalid.message);
       return;
     }
-    persist(true, () => {
-      router.push(isComplete ? "/recommendations?updated=1" : "/overview?fresh=1");
+    persist(true, (changes) => {
+      router.push(isComplete ? `/recommendations?${changesQuery(changes)}` : "/overview?fresh=1");
       router.refresh();
     });
   };

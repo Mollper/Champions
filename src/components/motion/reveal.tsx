@@ -5,6 +5,10 @@ import type { ComponentProps } from "react";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
+// Trigger as soon as any part is on screen (minus a small bottom inset). A ratio-based
+// threshold never fires for containers taller than the viewport, e.g. long lists on phones.
+const VIEWPORT = { once: true, amount: "some", margin: "0px 0px -60px 0px" } as const;
+
 type RevealProps = ComponentProps<typeof motion.div> & { delay?: number; y?: number };
 
 /** Fades + slides content in the first time it scrolls into view. */
@@ -13,7 +17,7 @@ export function Reveal({ delay = 0, y = 24, children, ...rest }: RevealProps) {
     <motion.div
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
+      viewport={VIEWPORT}
       transition={{ duration: 0.7, ease: EASE, delay }}
       {...rest}
     >
@@ -35,7 +39,7 @@ const item: Variants = {
 /** Parent that staggers its <StaggerItem> children into view. */
 export function Stagger({ children, ...rest }: ComponentProps<typeof motion.div>) {
   return (
-    <motion.div variants={group} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} {...rest}>
+    <motion.div variants={group} initial="hidden" whileInView="show" viewport={VIEWPORT} {...rest}>
       {children}
     </motion.div>
   );

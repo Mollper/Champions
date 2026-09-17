@@ -63,7 +63,7 @@ export function HowItWorks() {
               key={title}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: "some", margin: "0px 0px -60px 0px" }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: i * 0.05 }}
               className="relative flex gap-4 rounded-card border border-line bg-canvas/60 p-4 sm:p-5"
             >

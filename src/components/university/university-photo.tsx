@@ -9,6 +9,7 @@ type Props = {
   className?: string;
   sizes?: string;
   priority?: boolean;
+  eager?: boolean;
   showCredit?: boolean;
 };
 
@@ -21,11 +22,12 @@ export function UniversityPhoto({
   className,
   sizes = "(max-width: 640px) 100vw, 400px",
   priority,
+  eager,
   showCredit = true,
 }: Props) {
   return (
     <div className={cn("relative overflow-hidden bg-line", className)}>
-      <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className="object-cover" />
+      <Image src={src} alt={alt} fill sizes={sizes} priority={priority} loading={eager ? "eager" : undefined} className="object-cover" />
       {showCredit && credit && (
         <a
           href={sourceUrl ?? undefined}
