@@ -119,7 +119,12 @@ type Props = {
 export function ProfileWizard({ initial, isComplete, universities, scholarships, startYears }: Props) {
   const router = useRouter();
   const [draft, setDraft] = useState(initial);
-  const [step, setStep] = useState(0);
+  // Resume an unfinished questionnaire at the first step that still needs an answer.
+  const [step, setStep] = useState(() => {
+    if (isComplete) return 0;
+    const index = STEPS.findIndex((s) => s.validate?.(initial));
+    return index === -1 ? STEPS.length - 1 : index;
+  });
   const [direction, setDirection] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);

@@ -100,7 +100,9 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
     return scores.sort((a, b) => b.score - a.score);
   }, [selected, priorities]);
 
-  const winner = ranking?.[0];
+  // No crown when the top options score the same on the chosen priorities.
+  const tie = Boolean(ranking && ranking.length > 1 && ranking[0].score === ranking[1].score);
+  const winner = tie ? undefined : ranking?.[0];
   const addable = suggestions.filter((m) => !ids.includes(m.university.id)).slice(0, 4);
 
   return (
@@ -122,13 +124,20 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
             </Chip>
           ))}
         </div>
-        {winner && (
-          <motion.div key={`${winner.id}-${priorities.join()}`} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-4 flex items-start gap-3 rounded-2xl bg-brand-50 p-3.5">
-            <Crown className="mt-0.5 size-5 shrink-0 text-brand-600" aria-hidden />
+        {ranking && (
+          <motion.div key={`${winner?.id ?? "tie"}-${priorities.join()}`} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-4 flex items-start gap-3 rounded-2xl bg-brand-50 p-3.5">
+            {winner ? <Crown className="mt-0.5 size-5 shrink-0 text-brand-600" aria-hidden /> : <Scale className="mt-0.5 size-5 shrink-0 text-brand-600" aria-hidden />}
             <div className="min-w-0 text-sm text-ink-soft">
-              <p>
-                По твоим приоритетам лучше всего — <b className="text-ink">{selected.find((m) => m.university.id === winner.id)?.university.name}</b>
-              </p>
+              {winner ? (
+                <p>
+                  По твоим приоритетам лучше всего — <b className="text-ink">{selected.find((m) => m.university.id === winner.id)?.university.name}</b>
+                </p>
+              ) : (
+                <p>
+                  <b className="text-ink">Ничья:</b> каждый вариант выигрывает по своему приоритету. Добавь ещё один приоритет, чтобы определить
+                  лучший.
+                </p>
+              )}
               {ranking && ranking.length > 1 && (
                 <ol className="mt-2 flex flex-wrap gap-1.5">
                   {ranking.map((r, i) => (

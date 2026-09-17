@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp, Bot, Loader2, Sparkles, Trash2, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { saveAssistantStyle } from "@/app/(app)/assistant-actions";
 import { ASSISTANT_STYLES } from "@/lib/constants";
@@ -30,6 +31,7 @@ let counter = 0;
 const uid = () => `m${Date.now()}-${counter++}`;
 
 export function AssistantWidget({ initialStyle, name }: { initialStyle: AssistantStyle; name: string | null }) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [style, setStyle] = useState<AssistantStyle>(initialStyle);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -151,7 +153,11 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
             exit={{ scale: 0, opacity: 0 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="fixed bottom-[84px] right-4 z-40 flex h-14 items-center gap-2 rounded-full bg-gradient-to-br from-brand-600 to-brand-500 pl-4 pr-5 text-white shadow-lift lg:bottom-6 lg:right-6"
+            className={cn(
+              "fixed right-4 z-40 flex h-14 items-center gap-2 rounded-full bg-gradient-to-br from-brand-600 to-brand-500 pl-4 pr-5 text-white shadow-lift lg:bottom-6 lg:right-6",
+              // the questionnaire has its own sticky action bar above the bottom nav
+              pathname.startsWith("/profile") ? "bottom-[152px]" : "bottom-[84px]",
+            )}
             aria-label="Открыть AI-помощника"
           >
             <span className="relative">

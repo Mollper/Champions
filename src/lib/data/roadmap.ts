@@ -100,7 +100,9 @@ export const getRoadmap = cache(async (path: string): Promise<RoadmapData> => {
   const { error: stepsError } = await supabase.from("roadmap_steps").upsert(rows, { onConflict: "roadmap_id,step_key" });
   if (stepsError) throw new Error(`Не удалось сохранить шаги: ${stepsError.message}`);
 
-  const { data: steps } = await supabase.from("roadmap_steps").select("*").eq("user_id", userId);
+  // Must differ from the first read: Next.js memoizes identical GET requests within one render,
+  // so re-running the same query would return the pre-write (empty) result.
+  const { data: steps } = await supabase.from("roadmap_steps").select("*").eq("roadmap_id", roadmap.id).eq("user_id", userId);
   return { roadmap: roadmap as RoadmapData["roadmap"], steps: sortSteps((steps ?? []) as RoadmapStep[]), targets, showChanges: recent(summary) };
 });
 
