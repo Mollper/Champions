@@ -172,7 +172,10 @@
 :root[data-accent="grape"] { --accent-h: 318; }
 :root[data-accent="graphite"] { --accent-h: 265; --accent-c: 0.12; }
 
-:root[data-accent]:not([data-accent="indigo"]) {
+/* :where() keeps this at the specificity of plain :root, so the dark theme below always wins:
+   as (0,3,0) it used to beat [data-mode="dark"] (0,2,0), and with any non-indigo accent the
+   dark theme kept light tints under light text — white on white. */
+:root:where([data-accent]:not([data-accent="indigo"])) {
   --color-brand-50: oklch(0.975 calc(0.018 * var(--accent-c)) var(--accent-h));
   --color-brand-100: oklch(0.945 calc(0.04 * var(--accent-c)) var(--accent-h));
   --color-brand-200: oklch(0.885 calc(0.085 * var(--accent-c)) var(--accent-h));
