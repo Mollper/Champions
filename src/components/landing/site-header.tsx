@@ -19,6 +19,9 @@ export function SiteHeader({ isSignedIn, theme }: { isSignedIn: boolean; theme: 
           <a href="#universities" className="rounded-lg px-3 py-2 hover:bg-brand-50 hover:text-brand-700">
             Вузы
           </a>
+          <a href="/games" className="rounded-lg px-3 py-2 hover:bg-brand-50 hover:text-brand-700">
+            Игры
+          </a>
           <a href="#assistant" className="rounded-lg px-3 py-2 hover:bg-brand-50 hover:text-brand-700">
             AI-помощник
           </a>
