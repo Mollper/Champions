@@ -7,13 +7,25 @@ import { useActionState, useEffect, useState, useTransition } from "react";
 import { resendCode, signIn, signUp, verifyCode, type AuthState } from "@/app/login/actions";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
+import type { AuthProviders } from "@/lib/auth-providers";
 import { cn } from "@/lib/utils";
+import { SocialLogin } from "./social-login";
 
 type Mode = "signin" | "signup";
 
 const initial: AuthState = { status: "idle" };
 
-export function AuthForm({ initialMode, next, linkError }: { initialMode: Mode; next: string; linkError: boolean }) {
+export function AuthForm({
+  initialMode,
+  next,
+  linkError,
+  providers = { google: false, telegramBotId: null },
+}: {
+  initialMode: Mode;
+  next: string;
+  linkError: "link" | "oauth" | null;
+  providers?: AuthProviders;
+}) {
   const [mode, setMode] = useState<Mode>(initialMode);
 
   return (
@@ -51,7 +63,9 @@ export function AuthForm({ initialMode, next, linkError }: { initialMode: Mode; 
       {linkError && (
         <p className="mt-4 flex items-start gap-2 rounded-xl bg-danger-50 px-3 py-2.5 text-sm text-danger-700">
           <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
-          Ссылка из письма устарела или уже использована. Войдите с паролем — если email не подтверждён, мы пришлём новый код.
+          {linkError === "oauth"
+            ? "Не получилось войти через внешний сервис. Попробуйте ещё раз или войдите по email."
+            : "Ссылка из письма устарела или уже использована. Войдите с паролем — если email не подтверждён, мы пришлём новый код."}
         </p>
       )}
 
@@ -66,6 +80,8 @@ export function AuthForm({ initialMode, next, linkError }: { initialMode: Mode; 
           {mode === "signin" ? <SignInForm next={next} /> : <SignUpForm />}
         </motion.div>
       </AnimatePresence>
+
+      <SocialLogin providers={providers} next={next} />
 
       <p className="mt-8 text-center text-xs text-muted">
         Продолжая, вы соглашаетесь с обработкой данных анкеты для построения рекомендаций.{" "}
@@ -114,6 +130,7 @@ function SignInForm({ next }: { next: string }) {
 function SignUpForm() {
   const [state, action, pending] = useActionState(signUp, initial);
   const [editing, setEditing] = useState(false);
+  const [role, setRole] = useState<"student" | "mentor">("student");
 
   if (state.status === "verify" && state.email && !editing) {
     return <VerifyCodeForm email={state.email} notice={state.notice} onBack={() => setEditing(true)} />;
@@ -121,6 +138,33 @@ function SignUpForm() {
 
   return (
     <form action={action} onSubmit={() => setEditing(false)} className="mt-6 space-y-4" noValidate>
+      <input type="hidden" name="intended_role" value={role} />
+      <div role="radiogroup" aria-label="Кто ты" className="grid grid-cols-2 gap-2">
+        {(
+          [
+            ["student", "Я ученик", "Подбор вузов и план"],
+            ["mentor", "Я ментор", "Помогаю поступить"],
+          ] as const
+        ).map(([value, title, hint]) => (
+          <button
+            key={value}
+            type="button"
+            role="radio"
+            aria-checked={role === value}
+            onClick={() => setRole(value)}
+            className={cn(
+              "rounded-2xl border p-3 text-left transition",
+              role === value ? "border-brand-400 bg-brand-50 ring-2 ring-brand-100" : "border-line bg-surface hover:border-line-strong",
+            )}
+          >
+            <span className="block text-sm font-semibold">{title}</span>
+            <span className="block text-xs text-muted">{hint}</span>
+          </button>
+        ))}
+      </div>
+      {role === "mentor" && (
+        <p className="rounded-xl bg-brand-50 px-3 py-2 text-xs text-brand-700">После регистрации заполни короткую заявку — администраторы проверят её и откроют кабинет ментора.</p>
+      )}
       <Field label="Как тебя зовут" htmlFor="signup-name" hint="Необязательно">
         <Input id="signup-name" name="full_name" autoComplete="given-name" placeholder="Алия" />
       </Field>

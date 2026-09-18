@@ -10,10 +10,11 @@ import { Logo } from "@/components/brand/logo";
 import type { JourneyState } from "@/lib/data/journey";
 import { cn } from "@/lib/utils";
 import { DeleteAccountDialog } from "./delete-account-dialog";
-import { isActive, JOURNEY, MOBILE_NAV, NAV } from "./nav-config";
+import { isActive, JOURNEY, mobileNavFor, navFor } from "./nav-config";
+import { ROLE_LABEL, type Role } from "@/lib/role-labels";
 
 type Props = {
-  account: { email: string | null; full_name: string | null };
+  account: { email: string | null; full_name: string | null; role?: Role };
   journey: JourneyState;
   children: React.ReactNode;
 };
@@ -24,7 +25,11 @@ export function AppShell({ account, journey, children }: Props) {
   const [accountOpen, setAccountOpen] = useState(false);
   // null until first opened, so the dialog never renders on the server
   const [deleteOpen, setDeleteOpen] = useState<boolean | null>(null);
-  const locked = !journey.profileComplete;
+  const role = account.role ?? "student";
+  const NAV = navFor(role);
+  const mobileNav = mobileNavFor(role);
+  // the questionnaire unlocks the student journey; mentors and admins have none
+  const locked = role === "student" && !journey.profileComplete;
   const initials = (account.full_name || account.email || "?").trim().charAt(0).toUpperCase();
 
   return (
@@ -34,7 +39,7 @@ export function AppShell({ account, journey, children }: Props) {
         <Logo href="/dashboard" className="px-2" />
         <nav className="mt-8 flex-1 space-y-1" aria-label="Разделы">
           {NAV.map((item) => {
-            const active = isActive(pathname, item.href);
+            const active = isActive(pathname, item.href, NAV);
             const disabled = locked && item.requiresProfile;
             const Icon = item.icon;
             return (
@@ -60,7 +65,7 @@ export function AppShell({ account, journey, children }: Props) {
           })}
         </nav>
 
-        {journey.stepsTotal > 0 && (
+        {role === "student" && journey.stepsTotal > 0 && (
           <div className="mb-4 rounded-2xl bg-canvas p-3">
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-ink-soft">Прогресс маршрута</span>
@@ -75,8 +80,8 @@ export function AppShell({ account, journey, children }: Props) {
         <div className="relative flex items-center gap-3 border-t border-line px-2 pt-4">
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">{initials}</span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{account.full_name || "Абитуриент"}</p>
-            <p className="truncate text-xs text-muted">{account.email}</p>
+            <p className="truncate text-sm font-semibold">{account.full_name || ROLE_LABEL[role]}</p>
+            <p className="truncate text-xs text-muted">{role === "student" ? account.email : ROLE_LABEL[role]}</p>
           </div>
           <button
             type="button"
@@ -155,7 +160,7 @@ export function AppShell({ account, journey, children }: Props) {
                       href={disabled ? "/profile" : item.href}
                       className={cn(
                         "flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-medium",
-                        isActive(pathname, item.href) ? "bg-brand-50 text-brand-700" : "text-ink-soft",
+                        isActive(pathname, item.href, NAV) ? "bg-brand-50 text-brand-700" : "text-ink-soft",
                         disabled && "text-muted/70",
                       )}
                     >
@@ -192,7 +197,7 @@ export function AppShell({ account, journey, children }: Props) {
         </AnimatePresence>
 
         {/* ---------- journey: where am I, what's done, what's next ---------- */}
-        <JourneyBar journey={journey} pathname={pathname} />
+        {role === "student" && <JourneyBar journey={journey} pathname={pathname} />}
 
         <main className="flex-1 pb-28 lg:pb-12">{children}</main>
 
@@ -200,12 +205,13 @@ export function AppShell({ account, journey, children }: Props) {
 
         {/* ---------- mobile bottom nav ---------- */}
         <nav
-          className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-surface/95 px-1 pb-[max(env(safe-area-inset-bottom),6px)] pt-1.5 backdrop-blur-xl lg:hidden"
+          style={{ gridTemplateColumns: `repeat(${mobileNav.length}, minmax(0, 1fr))` }}
+          className="fixed inset-x-0 bottom-0 z-30 grid border-t border-line bg-surface/95 px-1 pb-[max(env(safe-area-inset-bottom),6px)] pt-1.5 backdrop-blur-xl lg:hidden"
           aria-label="Основные разделы"
         >
-          {MOBILE_NAV.map((href) => {
-            const item = NAV.find((n) => n.href === href)!;
-            const active = isActive(pathname, href);
+          {mobileNav.map((item) => {
+            const href = item.href;
+            const active = isActive(pathname, href, NAV);
             const disabled = locked && item.requiresProfile;
             const Icon = item.icon;
             return (

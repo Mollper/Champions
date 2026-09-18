@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { requireUserId } from "@/lib/auth";
+import { getAccountWithRole, homeFor } from "@/lib/roles";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { getShortlistIds, getUserMatches } from "@/lib/data/matches";
 import { getAccount } from "@/lib/data/profile";
@@ -8,6 +11,10 @@ import { matchScholarships } from "@/lib/engine/scholarships";
 export const metadata: Metadata = { title: "Главная" };
 
 export default async function DashboardPage() {
+  // mentors and admins have their own start pages
+  const role = (await getAccountWithRole(await requireUserId("/dashboard"))).role;
+  if (role !== "student") redirect(homeFor(role));
+
   const { userId, recommended, diagnosis, draft, scholarships, matches, universities } = await getUserMatches("/dashboard");
   const [{ steps }, account, shortlistIds] = await Promise.all([getRoadmap("/dashboard"), getAccount(userId), getShortlistIds(userId)]);
 

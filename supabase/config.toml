@@ -215,6 +215,10 @@ web3 = 30
 # provider = "hcaptcha"
 # secret = ""
 
+[auth.email.template.confirmation]
+subject = "Код подтверждения UniRoute: {{ .Token }}"
+content_path = "./supabase/templates/confirm-signup.html"
+
 [auth.email]
 # Allow/disallow new user signups via email to your project.
 enable_signup = true

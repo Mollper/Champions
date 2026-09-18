@@ -48,9 +48,21 @@ async function origin() {
   return h.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 }
 
-/** New accounts start with the questionnaire; returning ones go where they were heading. */
-async function redirectAfterSignIn(supabase: Awaited<ReturnType<typeof createClient>>, userId: string, next: string): Promise<never> {
-  const { data: profile } = await supabase.from("profiles").select("completed_at").eq("user_id", userId).maybeSingle();
+/**
+ * Where a signed-in person starts: admins in the panel, mentors in their cabinet, a would-be
+ * mentor on the application form, students in the questionnaire until it is finished.
+ */
+async function redirectAfterSignIn(supabase: Awaited<ReturnType<typeof createClient>>, user: { id: string; user_metadata?: Record<string, unknown> }, next: string): Promise<never> {
+  const [{ data: account }, { data: profile }] = await Promise.all([
+    supabase.from("users").select("role").eq("id", user.id).maybeSingle(),
+    supabase.from("profiles").select("completed_at").eq("user_id", user.id).maybeSingle(),
+  ]);
+  if (account?.role === "admin") redirect(next || "/admin");
+  if (account?.role === "mentor") redirect(next || "/mentor");
+  if (user.user_metadata?.intended_role === "mentor") {
+    const { count } = await supabase.from("mentor_applications").select("id", { count: "exact", head: true }).eq("user_id", user.id);
+    if (!count) redirect("/mentor/apply");
+  }
   redirect(profile?.completed_at ? next || "/dashboard" : "/profile");
 }
 
@@ -75,13 +87,15 @@ export async function signIn(_prev: AuthState, formData: FormData): Promise<Auth
     return { status: "error", message: translate(error.message), email };
   }
 
-  await redirectAfterSignIn(supabase, data.user.id, next);
+  await redirectAfterSignIn(supabase, data.user, next);
   return { status: "idle" };
 }
 
 export async function signUp(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const { email, password } = readCredentials(formData);
   const fullName = String(formData.get("full_name") ?? "").trim().slice(0, 80);
+  // only steers the first page after sign-up; the mentor role itself is granted by an admin
+  const intendedRole = formData.get("intended_role") === "mentor" ? "mentor" : "student";
 
   if (!email || !password) return { status: "error", message: "Введите email и пароль.", email };
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { status: "error", message: "Проверьте адрес почты.", email };
@@ -94,7 +108,7 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
     options: {
       // the letter carries both a code and a link; either one confirms the address
       emailRedirectTo: `${await origin()}/auth/callback?next=/profile`,
-      data: fullName ? { full_name: fullName } : undefined,
+      data: { ...(fullName ? { full_name: fullName } : {}), intended_role: intendedRole },
     },
   });
   if (error) return { status: "error", message: translate(error.message), email };
@@ -105,7 +119,7 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   }
 
   // Confirmation switched off in Supabase: the account is ready right away.
-  if (data.session) redirect("/profile");
+  if (data.session) redirect(intendedRole === "mentor" ? "/mentor/apply" : "/profile");
 
   return { status: "verify", email, notice: "Мы отправили письмо с кодом подтверждения." };
 }
@@ -123,7 +137,7 @@ export async function verifyCode(_prev: AuthState, formData: FormData): Promise<
   if (error && /expired|invalid/i.test(error.message)) ({ data, error } = await supabase.auth.verifyOtp({ email, token, type: "signup" }));
   if (error || !data.user) return { status: "verify", email, message: translate(error?.message ?? "invalid token") };
 
-  await redirectAfterSignIn(supabase, data.user.id, "");
+  await redirectAfterSignIn(supabase, data.user, "");
   return { status: "idle" };
 }
 
@@ -135,6 +149,18 @@ export async function resendCode(email: string): Promise<ResendResult> {
   if (!error) return { ok: true, message: "Новый код отправлен. Проверь «Входящие» и «Спам»." };
   const retryIn = cooldownOf(error.message);
   return retryIn ? { ok: false, retryIn, message: `Новый код можно запросить через ${retryIn} сек.` } : { ok: false, message: translate(error.message) };
+}
+
+/** "Continue with Google": Supabase sends the student to Google and back to /auth/callback. */
+export async function signInWithGoogle(formData: FormData) {
+  const next = safeNext(formData.get("next"), "");
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${await origin()}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ""}` },
+  });
+  if (error || !data.url) redirect("/login?error=oauth");
+  redirect(data.url);
 }
 
 export async function signOut() {

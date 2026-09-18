@@ -133,6 +133,197 @@ export type Database = {
           },
         ]
       }
+      mentor_applications: {
+        Row: {
+          admin_note: string | null
+          contact: string | null
+          created_at: string
+          experience: string
+          expertise: string[]
+          full_name: string
+          headline: string
+          id: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          contact?: string | null
+          created_at?: string
+          experience: string
+          expertise?: string[]
+          full_name: string
+          headline: string
+          id?: never
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          contact?: string | null
+          created_at?: string
+          experience?: string
+          expertise?: string[]
+          full_name?: string
+          headline?: string
+          id?: never
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_applications_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mentor_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentor_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: number
+          mentor_id: string
+          read_at: string | null
+          sender_id: string
+          student_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: never
+          mentor_id: string
+          read_at?: string | null
+          sender_id: string
+          student_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: never
+          mentor_id?: string
+          read_at?: string | null
+          sender_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_messages_mentor_id_student_id_fkey"
+            columns: ["mentor_id", "student_id"]
+            isOneToOne: false
+            referencedRelation: "mentorships"
+            referencedColumns: ["mentor_id", "student_id"]
+          },
+          {
+            foreignKeyName: "mentor_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentor_profiles: {
+        Row: {
+          accepting: boolean
+          bio: string
+          created_at: string
+          display_name: string
+          expertise: string[]
+          headline: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepting?: boolean
+          bio?: string
+          created_at?: string
+          display_name: string
+          expertise?: string[]
+          headline: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepting?: boolean
+          bio?: string
+          created_at?: string
+          display_name?: string
+          expertise?: string[]
+          headline?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentorships: {
+        Row: {
+          created_at: string
+          mentor_id: string
+          note: string | null
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          mentor_id: string
+          note?: string | null
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          mentor_id?: string
+          note?: string | null
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorships_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mentorships_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
           content: Json
@@ -661,6 +852,7 @@ export type Database = {
           full_name: string | null
           id: string
           onboarding_completed: boolean
+          role: string
           updated_at: string
         }
         Insert: {
@@ -670,6 +862,7 @@ export type Database = {
           full_name?: string | null
           id: string
           onboarding_completed?: boolean
+          role?: string
           updated_at?: string
         }
         Update: {
@@ -679,6 +872,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           onboarding_completed?: boolean
+          role?: string
           updated_at?: string
         }
         Relationships: []

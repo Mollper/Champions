@@ -1,0 +1,11 @@
+<!-- Supabase → Authentication → Emails → "Confirm signup". Subject: Код подтверждения UniRoute: {{ .Token }} -->
+<div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#10122b">
+  <h2 style="margin:0 0 12px;font-size:22px">Подтверди почту в UniRoute</h2>
+  <p style="margin:0 0 16px;font-size:15px;line-height:1.5">Введи этот код на странице регистрации:</p>
+  <p style="margin:0 0 20px;font-size:34px;font-weight:bold;letter-spacing:8px;text-align:center;background:#f2efff;border-radius:14px;padding:16px 0;color:#5a36f2">{{ .Token }}</p>
+  <p style="margin:0 0 16px;font-size:14px;line-height:1.5">Или просто нажми на кнопку — это то же самое:</p>
+  <p style="margin:0 0 24px;text-align:center">
+    <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#5a36f2;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 24px;border-radius:12px">Подтвердить почту</a>
+  </p>
+  <p style="margin:0;font-size:12px;color:#6b6f8e">Код действует 1 час. Если ты не регистрировался в UniRoute — просто удали это письмо.</p>
+</div>

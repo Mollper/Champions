@@ -4,6 +4,7 @@ import { CalendarCheck2, GraduationCap, ShieldCheck, Sparkles } from "lucide-rea
 import { Logo } from "@/components/brand/logo";
 import { AuthForm } from "@/components/auth/auth-form";
 import { getCurrentUserId, safeNext } from "@/lib/auth";
+import { getAuthProviders } from "@/lib/auth-providers";
 
 export const metadata: Metadata = { title: "Вход" };
 
@@ -21,7 +22,8 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   if (await getCurrentUserId()) redirect(next || "/dashboard");
 
   const mode = params.mode === "signup" ? "signup" : "signin";
-  const linkError = params.error === "link";
+  const linkError = params.error === "link" ? "link" : params.error === "oauth" ? "oauth" : null;
+  const providers = await getAuthProviders();
 
   return (
     <div className="grid grid-cols-1 min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
@@ -58,7 +60,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
           <Logo />
         </div>
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-10">
-          <AuthForm initialMode={mode} next={next} linkError={linkError} />
+          <AuthForm initialMode={mode} next={next} linkError={linkError} providers={providers} />
         </div>
       </main>
     </div>
