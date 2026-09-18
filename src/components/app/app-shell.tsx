@@ -129,7 +129,7 @@ export function AppShell({ account, journey, children }: Props) {
 
       <div className="flex min-w-0 flex-col">
         {/* ---------- mobile top bar ---------- */}
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-canvas/85 px-4 backdrop-blur-xl lg:hidden">
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between glass-bar border-b border-line bg-canvas/85 px-4 backdrop-blur-xl lg:hidden">
           <Logo href="/dashboard" />
           <button
             type="button"
@@ -206,7 +206,7 @@ export function AppShell({ account, journey, children }: Props) {
         {/* ---------- mobile bottom nav ---------- */}
         <nav
           style={{ gridTemplateColumns: `repeat(${mobileNav.length}, minmax(0, 1fr))` }}
-          className="fixed inset-x-0 bottom-0 z-30 grid border-t border-line bg-surface/95 px-1 pb-[max(env(safe-area-inset-bottom),6px)] pt-1.5 backdrop-blur-xl lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 glass-bar grid border-t border-line bg-surface/95 px-1 pb-[max(env(safe-area-inset-bottom),6px)] pt-1.5 backdrop-blur-xl lg:hidden"
           aria-label="Основные разделы"
         >
           {mobileNav.map((item) => {

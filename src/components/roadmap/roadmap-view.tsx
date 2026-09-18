@@ -149,7 +149,7 @@ function FilterChip({ active, onClick, label, count, dot }: { active: boolean; o
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={cn("inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-sm font-medium transition-colors", active ? "bg-ink text-white" : "bg-surface text-ink-soft ring-1 ring-line hover:bg-canvas")}
+      className={cn("inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-sm font-medium transition-colors", active ? "bg-night text-white" : "bg-surface text-ink-soft ring-1 ring-line hover:bg-canvas")}
     >
       {dot && <span className={cn("size-2 rounded-full", dot)} />}
       {label}

@@ -42,7 +42,7 @@ export function NextStage({
   cta: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-card bg-ink p-5 text-white sm:p-6">
+    <div className="relative overflow-hidden rounded-card bg-night p-5 text-white sm:p-6">
       <div aria-hidden className="bg-grid absolute inset-0 opacity-10" />
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -52,7 +52,7 @@ export function NextStage({
         </div>
         <Link
           href={href}
-          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 text-[15px] font-semibold text-ink transition hover:bg-brand-50 active:scale-[0.98]"
+          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 text-[15px] font-semibold text-night transition hover:bg-brand-50 active:scale-[0.98]"
         >
           {cta} <ArrowRight className="size-4" aria-hidden />
         </Link>

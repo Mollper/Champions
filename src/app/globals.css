@@ -18,6 +18,8 @@
   --color-muted: #6b7091;
   --color-line: #e6e7f1;
   --color-line-strong: #d4d6e6;
+  /* always dark, in every theme: text on white pills, dark sections and badges */
+  --color-night: #10122b;
 
   --color-brand-50: #f2f0ff;
   --color-brand-100: #e4dfff;
@@ -144,5 +146,230 @@
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* =====================================================================
+   Appearance settings (html data-attributes, see src/lib/theme.ts)
+   data-accent · data-mode · data-style · data-bg · data-radius · data-text
+   ===================================================================== */
+
+:root {
+  --accent-h: 283;
+  --accent-c: 1;
+  --glass-tint: 60%;
+  --glass-hi: rgb(255 255 255 / 0.7);
+  --glass-edge: rgb(255 255 255 / 0.45);
+}
+
+/* ---- accents: one OKLCH hue drives the whole brand scale (indigo keeps the hand-tuned hex) */
+:root[data-accent="ocean"] { --accent-h: 255; }
+:root[data-accent="sky"] { --accent-h: 225; }
+:root[data-accent="mint"] { --accent-h: 175; }
+:root[data-accent="forest"] { --accent-h: 150; }
+:root[data-accent="sunset"] { --accent-h: 45; }
+:root[data-accent="rose"] { --accent-h: 5; }
+:root[data-accent="grape"] { --accent-h: 318; }
+:root[data-accent="graphite"] { --accent-h: 265; --accent-c: 0.12; }
+
+:root[data-accent]:not([data-accent="indigo"]) {
+  --color-brand-50: oklch(0.975 calc(0.018 * var(--accent-c)) var(--accent-h));
+  --color-brand-100: oklch(0.945 calc(0.04 * var(--accent-c)) var(--accent-h));
+  --color-brand-200: oklch(0.885 calc(0.085 * var(--accent-c)) var(--accent-h));
+  --color-brand-300: oklch(0.8 calc(0.13 * var(--accent-c)) var(--accent-h));
+  --color-brand-400: oklch(0.71 calc(0.18 * var(--accent-c)) var(--accent-h));
+  --color-brand-500: oklch(0.63 calc(0.21 * var(--accent-c)) var(--accent-h));
+  --color-brand-600: oklch(0.56 calc(0.21 * var(--accent-c)) var(--accent-h));
+  --color-brand-700: oklch(0.49 calc(0.19 * var(--accent-c)) var(--accent-h));
+  --color-brand-800: oklch(0.42 calc(0.16 * var(--accent-c)) var(--accent-h));
+  --color-brand-900: oklch(0.35 calc(0.12 * var(--accent-c)) var(--accent-h));
+  --shadow-lift: 0 24px 60px -24px oklch(0.56 calc(0.21 * var(--accent-c)) var(--accent-h) / 0.45);
+}
+
+/* ---- dark theme: surfaces tinted by the accent, tints become deep, text colours lighten.
+   The same block serves "dark" and "system" when the OS is dark. */
+:root[data-mode="dark"] {
+  color-scheme: dark;
+  --color-canvas: oklch(0.16 0.02 var(--accent-h));
+  --color-surface: oklch(0.21 0.025 var(--accent-h));
+  --color-ink: oklch(0.96 0.01 var(--accent-h));
+  --color-ink-soft: oklch(0.84 0.02 var(--accent-h));
+  --color-muted: oklch(0.7 0.025 var(--accent-h));
+  --color-line: oklch(0.3 0.03 var(--accent-h));
+  --color-line-strong: oklch(0.38 0.035 var(--accent-h));
+  --color-brand-50: oklch(0.27 calc(0.06 * var(--accent-c)) var(--accent-h));
+  --color-brand-100: oklch(0.31 calc(0.08 * var(--accent-c)) var(--accent-h));
+  --color-brand-200: oklch(0.38 calc(0.11 * var(--accent-c)) var(--accent-h));
+  --color-brand-700: oklch(0.82 calc(0.12 * var(--accent-c)) var(--accent-h));
+  --color-brand-800: oklch(0.87 calc(0.09 * var(--accent-c)) var(--accent-h));
+  --color-brand-900: oklch(0.92 calc(0.05 * var(--accent-c)) var(--accent-h));
+  --color-route-50: oklch(0.27 0.05 175);
+  --color-route-100: oklch(0.32 0.07 175);
+  --color-route-600: oklch(0.74 0.13 175);
+  --color-route-700: oklch(0.84 0.11 175);
+  --color-coral-50: oklch(0.28 0.06 40);
+  --color-coral-100: oklch(0.33 0.08 40);
+  --color-coral-600: oklch(0.74 0.17 40);
+  --color-coral-700: oklch(0.84 0.12 40);
+  --color-success-50: oklch(0.27 0.05 150);
+  --color-success-700: oklch(0.84 0.13 150);
+  --color-warn-50: oklch(0.29 0.05 80);
+  --color-warn-700: oklch(0.86 0.13 85);
+  --color-danger-50: oklch(0.28 0.07 25);
+  --color-danger-700: oklch(0.8 0.14 25);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -18px rgb(0 0 0 / 0.6);
+  --glass-tint: 55%;
+  --glass-hi: rgb(255 255 255 / 0.14);
+  --glass-edge: rgb(255 255 255 / 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-mode="system"] {
+    color-scheme: dark;
+    --color-canvas: oklch(0.16 0.02 var(--accent-h));
+    --color-surface: oklch(0.21 0.025 var(--accent-h));
+    --color-ink: oklch(0.96 0.01 var(--accent-h));
+    --color-ink-soft: oklch(0.84 0.02 var(--accent-h));
+    --color-muted: oklch(0.7 0.025 var(--accent-h));
+    --color-line: oklch(0.3 0.03 var(--accent-h));
+    --color-line-strong: oklch(0.38 0.035 var(--accent-h));
+    --color-brand-50: oklch(0.27 calc(0.06 * var(--accent-c)) var(--accent-h));
+    --color-brand-100: oklch(0.31 calc(0.08 * var(--accent-c)) var(--accent-h));
+    --color-brand-200: oklch(0.38 calc(0.11 * var(--accent-c)) var(--accent-h));
+    --color-brand-700: oklch(0.82 calc(0.12 * var(--accent-c)) var(--accent-h));
+    --color-brand-800: oklch(0.87 calc(0.09 * var(--accent-c)) var(--accent-h));
+    --color-brand-900: oklch(0.92 calc(0.05 * var(--accent-c)) var(--accent-h));
+    --color-route-50: oklch(0.27 0.05 175);
+    --color-route-100: oklch(0.32 0.07 175);
+    --color-route-600: oklch(0.74 0.13 175);
+    --color-route-700: oklch(0.84 0.11 175);
+    --color-coral-50: oklch(0.28 0.06 40);
+    --color-coral-100: oklch(0.33 0.08 40);
+    --color-coral-600: oklch(0.74 0.17 40);
+    --color-coral-700: oklch(0.84 0.12 40);
+    --color-success-50: oklch(0.27 0.05 150);
+    --color-success-700: oklch(0.84 0.13 150);
+    --color-warn-50: oklch(0.29 0.05 80);
+    --color-warn-700: oklch(0.86 0.13 85);
+    --color-danger-50: oklch(0.28 0.07 25);
+    --color-danger-700: oklch(0.8 0.14 25);
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -18px rgb(0 0 0 / 0.6);
+    --glass-tint: 55%;
+    --glass-hi: rgb(255 255 255 / 0.14);
+    --glass-edge: rgb(255 255 255 / 0.08);
+  }
+}
+
+/* ---- wallpaper behind the glass */
+:root[data-bg="aurora"] body::before,
+:root[data-bg="dots"] body::before {
+  content: "";
+  position: fixed;
+  inset: -10%;
+  z-index: -1;
+  pointer-events: none;
+}
+:root[data-bg="aurora"] body::before {
+  background:
+    radial-gradient(38% 42% at 12% 18%, color-mix(in oklab, var(--color-brand-400) 55%, transparent), transparent 70%),
+    radial-gradient(34% 38% at 88% 12%, color-mix(in oklab, var(--color-route-400) 45%, transparent), transparent 70%),
+    radial-gradient(40% 44% at 78% 82%, color-mix(in oklab, var(--color-coral-400) 38%, transparent), transparent 70%),
+    radial-gradient(36% 40% at 18% 88%, color-mix(in oklab, var(--color-brand-300) 45%, transparent), transparent 70%);
+  filter: blur(40px) saturate(1.2);
+  opacity: 0.55;
+  animation: aurora-drift 26s ease-in-out infinite alternate;
+}
+:root[data-mode="dark"][data-bg="aurora"] body::before {
+  opacity: 0.4;
+}
+:root[data-bg="dots"] body::before {
+  background-image: radial-gradient(color-mix(in oklab, var(--color-brand-500) 22%, transparent) 1.2px, transparent 1.4px);
+  background-size: 22px 22px;
+}
+@keyframes aurora-drift {
+  to {
+    transform: translate3d(3%, -2%, 0) scale(1.06) rotate(4deg);
+  }
+}
+
+/* ---- Liquid Glass (default style): translucent layers that blur and saturate what lies behind,
+   a specular top edge and glossy primary buttons. The classic style skips all of it. */
+:root[data-style="glass"] .bg-surface,
+:root[data-style="glass"] .glass {
+  background-color: color-mix(in oklab, var(--color-surface) var(--glass-tint), transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-hi),
+    inset 0 0 0 1px var(--glass-edge),
+    var(--shadow-card);
+}
+:root[data-style="glass"] .bg-canvas {
+  background-color: color-mix(in oklab, var(--color-canvas) 55%, transparent);
+}
+:root[data-style="glass"] .border-line {
+  border-color: color-mix(in oklab, var(--color-line) 70%, transparent);
+}
+:root[data-style="glass"] :is(button, a).bg-brand-600 {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.26), rgb(255 255 255 / 0) 58%);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.45),
+    inset 0 -1px 0 0 rgb(0 0 0 / 0.12),
+    var(--shadow-lift);
+}
+/* bars and floating controls get the strongest glass */
+:root[data-style="glass"] .glass-bar {
+  background-color: color-mix(in oklab, var(--color-surface) 50%, transparent) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  backdrop-filter: blur(24px) saturate(190%);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-hi),
+    inset 0 0 0 1px var(--glass-edge),
+    0 10px 40px -16px rgb(16 18 43 / 0.35);
+}
+/* iOS 26-style refraction: the backdrop bends at the edges (Chromium; others keep the blur) */
+:root[data-style="glass"][data-refraction="on"] .glass-bar {
+  -webkit-backdrop-filter: url(#liquid-refraction) blur(18px) saturate(190%);
+  backdrop-filter: url(#liquid-refraction) blur(18px) saturate(190%);
+}
+
+/* ---- corner radius and text size */
+:root[data-radius="round"] {
+  --radius-card: 1.75rem;
+  --radius-xl: 1.1rem;
+  --radius-2xl: 1.5rem;
+}
+:root[data-radius="sharp"] {
+  --radius-card: 0.75rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
+}
+:root[data-text="large"] {
+  font-size: 106.25%;
+}
+
+/* White pills and buttons stay white in the dark theme, so everything inside them
+   keeps the light-theme tokens (dark text, light tints). */
+:root[data-mode="dark"] :is(.bg-white, .bg-white\/90) {
+  --color-ink: #10122b;
+  --color-ink-soft: #3b3f62;
+  --color-muted: #6b7091;
+  --color-brand-50: oklch(0.975 calc(0.018 * var(--accent-c)) var(--accent-h));
+  --color-brand-700: oklch(0.49 calc(0.19 * var(--accent-c)) var(--accent-h));
+  --color-coral-50: #fff2ed;
+  --color-coral-700: #c43f17;
+  --color-route-700: #0c7669;
+  --color-danger-700: #b4262b;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-mode="system"] :is(.bg-white, .bg-white\/90) {
+    --color-ink: #10122b;
+    --color-ink-soft: #3b3f62;
+    --color-muted: #6b7091;
+    --color-brand-50: oklch(0.975 calc(0.018 * var(--accent-c)) var(--accent-h));
+    --color-brand-700: oklch(0.49 calc(0.19 * var(--accent-c)) var(--accent-h));
+    --color-coral-50: #fff2ed;
+    --color-coral-700: #c43f17;
+    --color-route-700: #0c7669;
+    --color-danger-700: #b4262b;
   }
 }

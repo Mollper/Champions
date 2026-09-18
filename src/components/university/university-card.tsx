@@ -60,8 +60,8 @@ export function UniversityCard({ match, inShortlist, pending, onToggleShortlist,
             eager={rank != null && rank <= 2}
           />
           <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-            {rank != null && <span className="rounded-pill bg-ink/80 px-2 py-0.5 text-[11px] font-bold text-white backdrop-blur">#{rank}</span>}
-            {u.qs_rank && <span className="rounded-pill bg-white/90 px-2 py-0.5 text-[11px] font-bold text-ink backdrop-blur">QS #{u.qs_rank}</span>}
+            {rank != null && <span className="rounded-pill bg-night/80 px-2 py-0.5 text-[11px] font-bold text-white backdrop-blur">#{rank}</span>}
+            {u.qs_rank && <span className="rounded-pill bg-white/90 px-2 py-0.5 text-[11px] font-bold text-night backdrop-blur">QS #{u.qs_rank}</span>}
             {u.origin === "ai" && <AiBadge />}
           </div>
           {onToggleFavorite && <FavoriteButton active={favorite} onToggle={onToggleFavorite} className="absolute right-3 top-3 shadow-card backdrop-blur" />}

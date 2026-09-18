@@ -16,7 +16,7 @@ export function FavoriteButton({ active, onToggle, className, label = false }: {
       className={cn(
         "inline-flex items-center justify-center gap-1.5 rounded-full transition active:scale-95",
         label ? "h-11 rounded-xl px-4 text-sm font-semibold" : "size-9",
-        active ? "bg-coral-50 text-coral-600" : "bg-white/90 text-ink-soft hover:text-coral-600",
+        active ? "bg-coral-50 text-coral-600" : "bg-white/90 text-night/70 hover:text-coral-600",
         className,
       )}
     >

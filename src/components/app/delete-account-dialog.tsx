@@ -33,7 +33,7 @@ export function DeleteAccountDialog({ open, onClose, email }: { open: boolean; o
     <AnimatePresence>
       {open && (
         <motion.div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center sm:p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <button type="button" aria-label="Закрыть" className="absolute inset-0 bg-ink/50 backdrop-blur-sm" onClick={() => !pending && onClose()} />
+          <button type="button" aria-label="Закрыть" className="absolute inset-0 bg-night/50 backdrop-blur-sm" onClick={() => !pending && onClose()} />
           <motion.div
             role="dialog"
             aria-modal="true"

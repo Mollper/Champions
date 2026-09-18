@@ -1,4 +1,6 @@
 import { CheckCircle2 } from "lucide-react";
+import { cookies } from "next/headers";
+import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 import { AssistantPreview } from "@/components/landing/assistant-preview";
 import { Features, FinalCta, SiteFooter } from "@/components/landing/features-and-cta";
 import { Hero } from "@/components/landing/hero";
@@ -28,7 +30,7 @@ export default async function LandingPage({ searchParams }: PageProps<"/">) {
 
   return (
     <>
-      <SiteHeader isSignedIn={isSignedIn} />
+      <SiteHeader isSignedIn={isSignedIn} theme={parseTheme((await cookies()).get(THEME_COOKIE)?.value)} />
       <main className="flex-1">
         {deleted && (
           <p role="status" className="container-page mt-3 flex items-center gap-2 rounded-xl bg-success-50 px-4 py-3 text-sm font-medium text-success-700">

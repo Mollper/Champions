@@ -37,7 +37,7 @@ export function AssistantPreview() {
   const active = STYLES.find((s) => s.id === style)!;
 
   return (
-    <section id="assistant" className="scroll-mt-20 bg-ink py-16 text-white sm:py-24">
+    <section id="assistant" className="scroll-mt-20 bg-night py-16 text-white sm:py-24">
       <div className="container-page grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
         <Reveal>
           <p className="text-sm font-semibold text-brand-300">AI-помощник</p>

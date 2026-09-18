@@ -207,7 +207,7 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
                         <button
                           type="button"
                           onClick={() => toggle(m.university.id)}
-                          className="absolute right-2 top-2 grid size-7 place-items-center rounded-full bg-white/90 text-ink hover:bg-white"
+                          className="absolute right-2 top-2 grid size-7 place-items-center rounded-full bg-white/90 text-night hover:bg-white"
                           aria-label={`Убрать ${m.university.name} из сравнения`}
                         >
                           <X className="size-4" />

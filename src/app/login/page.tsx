@@ -27,7 +27,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
 
   return (
     <div className="grid grid-cols-1 min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-      <aside className="relative hidden overflow-hidden bg-ink p-10 text-white lg:flex lg:flex-col lg:justify-between">
+      <aside className="relative hidden overflow-hidden bg-night p-10 text-white lg:flex lg:flex-col lg:justify-between">
         <div aria-hidden className="bg-grid absolute inset-0 opacity-[0.12]" />
         <div aria-hidden className="absolute -left-24 top-1/3 size-96 rounded-full bg-brand-600/40 blur-3xl" />
         <div aria-hidden className="absolute -bottom-24 right-0 size-80 rounded-full bg-route-500/30 blur-3xl" />

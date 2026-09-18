@@ -41,7 +41,7 @@ export function DashboardView({ steps: initialSteps, top, universities, readines
       {/* planner entry */}
       <Link
         href="/planner"
-        className="group flex items-center gap-4 rounded-card border border-brand-100 bg-gradient-to-r from-brand-50 via-surface to-[#fff0f7] p-4 transition hover:-translate-y-0.5 hover:shadow-lift sm:p-5"
+        className="group flex items-center gap-4 rounded-card border border-brand-100 bg-gradient-to-r from-brand-50 via-surface to-coral-50 p-4 transition hover:-translate-y-0.5 hover:shadow-lift sm:p-5"
       >
         <MascotAvatar className="size-14 shrink-0 ring-2 ring-white" />
         <div className="min-w-0 flex-1">

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Onest, Unbounded } from "next/font/google";
+import { cookies } from "next/headers";
 import { MotionProvider } from "@/components/motion/motion-provider";
+import { parseTheme, THEME_COOKIE, themeAttributes } from "@/lib/theme";
 import "./globals.css";
 
 const onest = Onest({
@@ -24,13 +26,32 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f6f6fb",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f6fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#14121f" },
+  ],
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+// Glass refraction uses an SVG filter inside backdrop-filter, which only Chromium renders;
+// elsewhere the attribute stays off and the glass keeps a plain blur.
+const REFRACTION_CHECK = `try{var b=navigator.userAgentData&&navigator.userAgentData.brands||[];if(b.some(function(x){return /Chromium/.test(x.brand)}))document.documentElement.dataset.refraction="on"}catch(e){}`;
+
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
+
   return (
-    <html lang="ru" className={`${onest.variable} ${unbounded.variable} h-full antialiased`}>
+    <html lang="ru" {...themeAttributes(theme)} className={`${onest.variable} ${unbounded.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: REFRACTION_CHECK }} />
+      </head>
       <body className="flex min-h-full flex-col">
+        <svg aria-hidden width="0" height="0" className="absolute">
+          <filter id="liquid-refraction" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="2" seed="7" result="noise" />
+            <feGaussianBlur in="noise" stdDeviation="2" result="soft" />
+            <feDisplacementMap in="SourceGraphic" in2="soft" scale="26" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </svg>
         <MotionProvider>{children}</MotionProvider>
       </body>
     </html>

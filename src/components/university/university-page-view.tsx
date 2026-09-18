@@ -66,7 +66,7 @@ export function UniversityPageView({
             priority
           />
           <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-            {u.qs_rank && <span className="rounded-pill bg-white/90 px-2 py-0.5 text-[11px] font-bold text-ink backdrop-blur">QS #{u.qs_rank}</span>}
+            {u.qs_rank && <span className="rounded-pill bg-white/90 px-2 py-0.5 text-[11px] font-bold text-night backdrop-blur">QS #{u.qs_rank}</span>}
             {u.origin === "ai" && <AiBadge />}
           </div>
         </div>

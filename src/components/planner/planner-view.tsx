@@ -375,7 +375,7 @@ function PlanView({ plan, onToggle, onDelete }: { plan: Plan; onToggle: (planId:
           return (
             <li key={period.key} className={cn("rounded-card border bg-surface p-4 sm:p-5", current ? "border-brand-300 ring-2 ring-brand-100" : "border-line")}>
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span className="grid size-7 place-items-center rounded-full bg-ink text-xs font-bold text-white">{i + 1}</span>
+                <span className="grid size-7 place-items-center rounded-full bg-night text-xs font-bold text-white">{i + 1}</span>
                 <h3 className="font-semibold">{period.label}</h3>
                 <span className="text-xs text-muted">
                   {formatDate(period.start)} — {formatDate(period.end)}

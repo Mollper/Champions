@@ -45,7 +45,7 @@ export function UniversityShowcase({ universities }: { universities: University[
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
                   />
                   {u.qs_rank && (
-                    <span className="absolute left-3 top-3 rounded-pill bg-ink/80 px-2 py-0.5 text-[11px] font-bold text-white backdrop-blur">
+                    <span className="absolute left-3 top-3 rounded-pill bg-night/80 px-2 py-0.5 text-[11px] font-bold text-white backdrop-blur">
                       QS #{u.qs_rank}
                     </span>
                   )}

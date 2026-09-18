@@ -65,7 +65,7 @@ export function HeroVisual({ featured }: { featured: HeroUniversity | null }) {
           <span className="grid size-7 place-items-center rounded-full border-[3px] border-white bg-brand-600 text-white shadow-lift">
             <Check className="size-3.5" strokeWidth={3} aria-hidden />
           </span>
-          <span className="absolute left-1/2 top-full mt-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-ink px-1.5 py-0.5 text-[10px] font-semibold text-white sm:text-[11px]">
+          <span className="absolute left-1/2 top-full mt-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-night px-1.5 py-0.5 text-[10px] font-semibold text-white sm:text-[11px]">
             {m.label}
           </span>
         </motion.div>

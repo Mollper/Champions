@@ -11,7 +11,7 @@ const variants = {
   secondary: "bg-surface text-ink border border-line hover:border-line-strong hover:bg-canvas",
   ghost: "text-ink-soft hover:bg-brand-50 hover:text-brand-700",
   soft: "bg-brand-50 text-brand-700 hover:bg-brand-100",
-  dark: "bg-ink text-white hover:bg-ink-soft",
+  dark: "bg-night text-white hover:bg-ink-soft",
 } as const;
 
 const sizes = {

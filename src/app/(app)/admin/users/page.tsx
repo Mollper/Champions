@@ -29,7 +29,7 @@ export default async function UsersPage({ searchParams }: PageProps<"/admin/user
           <Link
             key={r ?? "all"}
             href={`/admin/users?${new URLSearchParams({ ...(q ? { q } : {}), ...(r ? { role: r } : {}) })}`}
-            className={cn("rounded-pill px-3 py-1.5 text-sm font-medium", role === r ? "bg-ink text-white" : "bg-canvas text-ink-soft hover:bg-line")}
+            className={cn("rounded-pill px-3 py-1.5 text-sm font-medium", role === r ? "bg-night text-white" : "bg-canvas text-ink-soft hover:bg-line")}
           >
             {r ? ROLE_LABEL[r as Role] : "Все"}
           </Link>

@@ -9,7 +9,7 @@ const tones = {
   success: "bg-success-50 text-success-700 border-success-50",
   warn: "bg-warn-50 text-warn-700 border-warn-50",
   danger: "bg-danger-50 text-danger-700 border-danger-50",
-  dark: "bg-ink text-white border-ink",
+  dark: "bg-night text-white border-ink",
 } as const;
 
 export type BadgeTone = keyof typeof tones;

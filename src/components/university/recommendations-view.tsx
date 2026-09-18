@@ -111,7 +111,7 @@ export function RecommendationsView({
                 }}
                 className={cn(
                   "shrink-0 rounded-pill px-3 py-1.5 text-sm font-medium transition-colors",
-                  tier === t ? "bg-ink text-white" : "bg-canvas text-ink-soft hover:bg-line",
+                  tier === t ? "bg-night text-white" : "bg-canvas text-ink-soft hover:bg-line",
                 )}
               >
                 {t === "all" ? "Все" : TIER_LABEL[t]} <span className="opacity-60">{count}</span>
@@ -206,7 +206,7 @@ export function RecommendationsView({
             exit={{ y: 80, opacity: 0 }}
             className="fixed bottom-[84px] left-3 right-[5.25rem] z-30 max-w-md sm:right-3 sm:mx-auto lg:bottom-6 lg:left-[calc(260px+1.5rem)] lg:right-6"
           >
-            <div className="flex items-center gap-3 rounded-2xl bg-ink px-4 py-3 text-white shadow-2xl">
+            <div className="flex items-center gap-3 rounded-2xl bg-night px-4 py-3 text-white shadow-2xl">
               <GitCompareArrows className="size-5 shrink-0 text-brand-300" aria-hidden />
               <p className="min-w-0 flex-1 text-sm">
                 В сравнении <b>{ids.length}</b> {plural(ids.length, ["вуз", "вуза", "вузов"])}
@@ -216,7 +216,7 @@ export function RecommendationsView({
                 href="/compare"
                 aria-disabled={ids.length < 2}
                 className={cn(
-                  "inline-flex h-9 items-center gap-1 rounded-xl bg-white px-3 text-sm font-semibold text-ink",
+                  "inline-flex h-9 items-center gap-1 rounded-xl bg-white px-3 text-sm font-semibold text-night",
                   ids.length < 2 && "pointer-events-none opacity-50",
                 )}
               >
