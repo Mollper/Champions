@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Clock3, GraduationCap, Sparkles } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
+import { plural } from "@/lib/format";
 import { HeroVisual, type HeroUniversity } from "./hero-visual";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -77,11 +78,11 @@ export function Hero({ ctaHref, universityCount, countryCount, scholarshipCount,
             </li>
             <li className="flex items-center gap-2">
               <GraduationCap className="size-4 text-brand-500" aria-hidden />
-              {universityCount} вузов из {countryCount} стран
+              {universityCount} {plural(universityCount, ["вуз", "вуза", "вузов"])} из {countryCount} {plural(countryCount, ["страны", "стран", "стран"])}
             </li>
             <li className="flex items-center gap-2">
               <Sparkles className="size-4 text-brand-500" aria-hidden />
-              {scholarshipCount} стипендий · бесплатно
+              {scholarshipCount} {plural(scholarshipCount, ["стипендия", "стипендии", "стипендий"])} · бесплатно
             </li>
           </motion.ul>
         </div>

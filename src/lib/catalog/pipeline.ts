@@ -19,7 +19,7 @@ export async function enrichUniversity(qid: string, log: (message: string) => vo
   const [official, wiki, candidates, us, rates] = await Promise.all([
     officialPages(facts.website),
     wikipediaExtract(facts.enwikiTitle),
-    photoCandidates(facts.nameEn, facts.imageFile),
+    photoCandidates(facts.nameEn, facts.imageFile, facts.commonsCategory),
     facts.countryCode === "US" ? scorecard(facts.nameEn, facts.website) : Promise.resolve(null),
     usdRates(),
   ]);
@@ -34,13 +34,14 @@ export async function enrichUniversity(qid: string, log: (message: string) => vo
   const previews = (await Promise.all(candidates.map(async (candidate) => ({ candidate, image: await downloadPreview(candidate.previewUrl) })))).filter(
     (c): c is { candidate: (typeof candidates)[number]; image: Uint8Array } => c.image !== null,
   );
-  // the photo choice is a nicety: a quota error here must not lose the whole record
+  // A quota error must not lose the whole record: then the first (usually the Wikidata) image is used.
+  // When the model looked and found nothing fitting (micrographs, portraits), there is no photo.
   const chosen = await pickPhoto(facts.nameEn, previews).catch((error) => {
     log(`  photo choice skipped: ${error instanceof Error ? error.message.slice(0, 120) : error}`);
-    return null;
+    return undefined;
   });
-  const photo = chosen != null ? previews[chosen].candidate : (candidates[0] ?? null);
-  log(`  photo: ${photo?.title ?? "none"}${chosen == null && photo ? " (fallback)" : ""}`);
+  const photo = chosen === undefined ? (candidates[0] ?? null) : chosen === null ? null : previews[chosen].candidate;
+  log(`  photo: ${photo?.title ?? "none"}${chosen === undefined && photo ? " (fallback)" : chosen === null && previews.length ? " (none fits)" : ""}`);
 
   const { row, problems } = buildRow({ facts, extraction, pages, photo, scorecard: us, rates });
   return { row, problems, pagesUsed: pages.map((p) => p.url) };

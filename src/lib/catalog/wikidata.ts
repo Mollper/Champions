@@ -15,6 +15,15 @@ export const UNIVERSITY_TYPES = [
   "Q23002054", // private not-for-profit educational institution
 ];
 
+/**
+ * Hong Kong and Macau have ISO codes of their own, but Wikidata files their
+ * universities under country = China and places them inside the region instead.
+ */
+const REGIONS: Record<string, { item: string; nameRu: string }> = {
+  HK: { item: "Q8646", nameRu: "Гонконг" },
+  MO: { item: "Q14773", nameRu: "Макао" },
+};
+
 type SparqlResult = { results: { bindings: Record<string, { value: string }>[] } };
 
 async function sparql(query: string) {
@@ -49,6 +58,8 @@ export type WikidataFacts = {
   cityRu: string | null;
   website: string | null;
   imageFile: string | null;
+  /** Commons category with the university's photos (P373). */
+  commonsCategory: string | null;
   students: number | null;
   enwikiTitle: string | null;
   sitelinks: number;
@@ -58,7 +69,7 @@ export type WikidataFacts = {
 export async function getFacts(qid: string, countryHint?: string): Promise<WikidataFacts | null> {
   if (!/^Q\d+$/.test(qid)) return null;
   const rows = await sparql(`
-    SELECT ?labelEn ?labelRu ?code ?countryRu ?placeEn ?placeRu ?website ?image ?students ?article ?sitelinks WHERE {
+    SELECT ?labelEn ?labelRu ?code ?countryRu ?placeEn ?placeRu ?website ?image ?commonsCat ?students ?article ?sitelinks ?region WHERE {
       BIND(wd:${qid} AS ?item)
       ?item wikibase:sitelinks ?sitelinks .
       OPTIONAL { ?item rdfs:label ?labelEn FILTER(LANG(?labelEn) = "en") }
@@ -70,8 +81,10 @@ export async function getFacts(qid: string, countryHint?: string): Promise<Wikid
                  OPTIONAL { ?place rdfs:label ?placeRu FILTER(LANG(?placeRu) = "ru") } }
       OPTIONAL { ?item wdt:P856 ?website }
       OPTIONAL { ?item wdt:P18 ?image }
+      OPTIONAL { ?item wdt:P373 ?commonsCat }
       OPTIONAL { ?item wdt:P2196 ?students }
       OPTIONAL { ?article schema:about ?item ; schema:isPartOf <https://en.wikipedia.org/> }
+      OPTIONAL { VALUES ?region { ${Object.values(REGIONS).map((r) => `wd:${r.item}`).join(" ")} } ?item wdt:P131+ ?region . }
     } LIMIT 30`);
   if (!rows.length) return null;
   const first = (key: string) => rows.find((r) => r[key])?.[key]?.value ?? null;
@@ -79,16 +92,23 @@ export async function getFacts(qid: string, countryHint?: string): Promise<Wikid
   const imageUrl = first("image");
   const article = first("article");
   const countryRow = rows.find((r) => countryHint && r.code?.value === countryHint) ?? rows.find((r) => r.code);
+  // the hint wins; otherwise notice that the item lies inside Hong Kong or Macau
+  const regionCode =
+    (countryHint && REGIONS[countryHint] ? countryHint : undefined) ??
+    Object.keys(REGIONS).find((code) => rows.some((r) => r.region?.value.endsWith(`/${REGIONS[code].item}`)));
+  const region = regionCode ? REGIONS[regionCode] : undefined;
+  const inRegion = region && countryRow?.code?.value === "CN";
   return {
     qid,
     nameEn: first("labelEn") ?? qid,
     nameRu: first("labelRu"),
-    countryCode: countryRow?.code?.value ?? null,
-    countryRu: countryRow?.countryRu?.value ?? null,
+    countryCode: inRegion ? regionCode! : (countryRow?.code?.value ?? null),
+    countryRu: inRegion ? region.nameRu : (countryRow?.countryRu?.value ?? null),
     cityEn: first("placeEn"),
     cityRu: first("placeRu"),
     website,
     imageFile: imageUrl ? decodeURIComponent(imageUrl.split("/Special:FilePath/").pop() ?? "") : null,
+    commonsCategory: first("commonsCat"),
     students: first("students") ? Math.round(Number(first("students"))) : null,
     enwikiTitle: article ? decodeURIComponent(article.split("/wiki/").pop() ?? "") : null,
     sitelinks: Number(first("sitelinks") ?? 0),
@@ -112,7 +132,13 @@ export async function searchUniversity(query: string, countryCode?: string): Pro
       VALUES ?item { ${ids.map((id) => `wd:${id}`).join(" ")} }
       VALUES ?type { ${UNIVERSITY_TYPES.map((t) => `wd:${t}`).join(" ")} }
       ?item wdt:P31/wdt:P279? ?type .
-      ${countryCode && /^[A-Z]{2}$/.test(countryCode) ? `?item wdt:P17/wdt:P297 "${countryCode}" .` : ""}
+      ${
+        countryCode && REGIONS[countryCode]
+          ? `?item wdt:P131+ wd:${REGIONS[countryCode].item} .`
+          : countryCode && /^[A-Z]{2}$/.test(countryCode)
+            ? `?item wdt:P17/wdt:P297 "${countryCode}" .`
+            : ""
+      }
     } GROUP BY ?item`);
   const matching = new Set(rows.map((r) => qidOf(r.item.value)));
   // keep Wikidata's relevance order

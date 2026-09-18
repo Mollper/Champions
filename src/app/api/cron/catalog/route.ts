@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   const monthAgo = new Date(Date.now() - 30 * 86_400_000).toISOString();
   const { data: stale } = await admin
     .from("universities")
-    .select("id, wikidata_id")
+    .select("id, wikidata_id, country_code")
     .eq("origin", "ai")
     .lt("enriched_at", monthAgo)
     .order("enriched_at")
@@ -31,7 +31,8 @@ export async function GET(request: NextRequest) {
   for (const u of stale ?? []) {
     if (!u.wikidata_id) continue;
     try {
-      const { row } = await enrichUniversity(u.wikidata_id);
+      // keep the country it was filed under (Hong Kong would otherwise come back as China)
+      const { row } = await enrichUniversity(u.wikidata_id, undefined, u.country_code);
       await saveUniversity(admin, row);
       refreshed++;
     } catch {

@@ -1,7 +1,7 @@
 /**
  * Universities for the AI catalog: only names and countries are chosen by hand —
  * a spread of regions, study areas (tech, medicine, business, law, design, arts,
- * media, hospitality) and admission difficulty, from the most selective to open
+ * media) and admission difficulty, from the most selective to open
  * ones. Everything else (costs, requirements, deadlines, photos) comes from the
  * pipeline in src/lib/catalog.
  */
@@ -82,15 +82,14 @@ export const SEED: { name: string; country: string }[] = [
   { name: "Kazakh-British Technical University", country: "KZ" },
   { name: "KIMEP University", country: "KZ" },
   { name: "Satbayev University", country: "KZ" },
-  { name: "Astana IT University", country: "KZ" },
   { name: "Al-Farabi Kazakh National University", country: "KZ" },
   { name: "Westminster International University in Tashkent", country: "UZ" },
-  { name: "Inha University in Tashkent", country: "UZ" },
+  { name: "Inha University Tashkent", country: "UZ" },
   // Switzerland
   { name: "École Polytechnique Fédérale de Lausanne", country: "CH" },
   { name: "University of Zurich", country: "CH" },
   { name: "University of Geneva", country: "CH" },
-  { name: "EHL Hospitality Business School", country: "CH" },
+  { name: "University of St. Gallen", country: "CH" },
   // France
   { name: "Sorbonne University", country: "FR" },
   { name: "Paris-Saclay University", country: "FR" },

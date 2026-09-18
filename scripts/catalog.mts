@@ -64,20 +64,22 @@ async function persist(rows: UniversityRow[]) {
   console.log(`  saved ${rows.length} via Supabase CLI`);
 }
 
-async function enrichAll(qids: string[], countryHint?: string) {
+/** @param items Wikidata ids with the country they were looked up in (multi-campus schools list several). */
+async function enrichAll(items: { qid: string; country?: string }[]) {
   const existing = await existingUniversities();
   const known = new Set(existing.map((e) => e.wikidata_id).filter(Boolean));
   const hosts = new Map(existing.map((e) => [hostOf(e.website_url), e.name]));
   const summary = { published: 0, draft: 0, skipped: 0, failed: 0 };
-  const queue = qids.filter((qid) => (known.has(qid) ? (summary.skipped++, false) : true));
+  const queue = items.filter(({ qid }) => (known.has(qid) ? (summary.skipped++, false) : true));
 
   // a few universities at a time: most of the wait is network and model latency, the AI throttle keeps the rate
   const worker = async () => {
-    for (let qid = queue.shift(); qid; qid = queue.shift()) {
+    for (let item = queue.shift(); item; item = queue.shift()) {
+      const { qid, country } = item;
       const started = Date.now();
       const lines: string[] = [];
       try {
-        const { row, problems } = await enrichUniversity(qid, (m) => lines.push(m), countryHint);
+        const { row, problems } = await enrichUniversity(qid, (m) => lines.push(m), country);
         const duplicate = hosts.get(hostOf(row.website_url));
         if (duplicate) {
           lines.push(`  skip: same website as "${duplicate}"`);
@@ -98,7 +100,7 @@ async function enrichAll(qids: string[], countryHint?: string) {
     }
   };
   await Promise.all(Array.from({ length: Number(flags.concurrency ?? 3) }, worker));
-  console.log(`\n${countryHint ?? ""} done:`, summary);
+  console.log("\nDone:", summary);
 }
 
 if (command === "discover") {
@@ -110,7 +112,7 @@ if (command === "discover") {
       const known = new Set((await existingUniversities()).map((e) => e.wikidata_id));
       const found = (await discover(country, perCountry + 6)).filter((u) => !known.has(u.qid)).slice(0, perCountry);
       console.log(`\n${country}: ${found.map((f) => `${f.name} (${f.sitelinks})`).join(", ") || "nothing new"}`);
-      await enrichAll(found.map((f) => f.qid), country);
+      await enrichAll(found.map((f) => ({ qid: f.qid, country })));
     } catch (error) {
       console.log(`${country}: ✗ ${error instanceof Error ? error.message : error}`);
     }
@@ -119,29 +121,27 @@ if (command === "discover") {
   const country = flags.country?.toUpperCase();
   const qid = await searchUniversity(positional.join(" "), country);
   if (!qid) throw new Error(`Не нашёл вуз «${positional.join(" ")}» в Wikidata`);
-  await enrichAll([qid], country);
+  await enrichAll([{ qid, country }]);
 } else if (command === "seed") {
   // A hand-picked spread of countries, fields and admission difficulty; the AI fills in everything else.
   const only = flags.countries?.toUpperCase().split(",");
-  const list = SEED.filter((s) => !only || only.includes(s.country));
-  for (const country of [...new Set(list.map((s) => s.country))]) {
-    const qids: string[] = [];
-    for (const { name } of list.filter((s) => s.country === country)) {
-      try {
-        const qid = await searchUniversity(name, country);
-        console.log(`${country} ${name} → ${qid ?? "not found"}`);
-        if (qid) qids.push(qid);
-      } catch (error) {
-        console.log(`${country} ${name} → ✗ ${error instanceof Error ? error.message : error}`);
+  const pending = SEED.filter((s) => !only || only.includes(s.country));
+  // resolve every name first (quick Wikidata lookups), then enrich all of them through one pool
+  const items: { qid: string; country: string }[] = [];
+  await Promise.all(
+    Array.from({ length: 3 }, async () => {
+      for (let s = pending.shift(); s; s = pending.shift()) {
+        try {
+          const qid = await searchUniversity(s.name, s.country);
+          console.log(`${s.country} ${s.name} → ${qid ?? "not found"}`);
+          if (qid) items.push({ qid, country: s.country });
+        } catch (error) {
+          console.log(`${s.country} ${s.name} → ✗ ${error instanceof Error ? error.message : error}`);
+        }
       }
-      await sleep(500);
-    }
-    try {
-      await enrichAll(qids, country);
-    } catch (error) {
-      console.log(`${country}: ✗ ${error instanceof Error ? error.message : error}`);
-    }
-  }
+    }),
+  );
+  await enrichAll(items);
 } else if (command === "link-curated") {
   // Give hand-curated universities their Wikidata ids so discovery never duplicates them.
   const existing = (await existingUniversities()).filter((e) => e.origin === "curated" && !e.wikidata_id);

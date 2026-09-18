@@ -19,6 +19,7 @@ const SUGGESTIONS = [
   "А если бюджет будет $30k?",
   "Какие активности добавить?",
   "Какие стипендии мне подходят?",
+  "Что есть в Японии для IT?",
 ];
 
 const ERRORS: Record<string, string> = {
@@ -158,7 +159,7 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
               // the questionnaire has its own sticky action bar above the bottom nav
               pathname.startsWith("/profile") ? "bottom-[152px]" : "bottom-[84px]",
             )}
-            aria-label="Открыть AI-помощника"
+            aria-label="Открыть ИИ-помощника"
           >
             <span className="relative">
               <Bot className="size-6" aria-hidden />
@@ -188,7 +189,7 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
                   <Bot className="size-5" aria-hidden />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold">AI-помощник</p>
+                  <p className="font-semibold">ИИ-помощник</p>
                   <p className="text-xs text-muted">Знает твою анкету, вузы и маршрут</p>
                 </div>
                 {messages.length > 0 && (

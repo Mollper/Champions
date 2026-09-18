@@ -1,8 +1,9 @@
 import { Info } from "lucide-react";
+import { plural } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 /** Required label for approximate / demo figures (see universities.is_demo). */
-export function DemoNote({ className, compact = false }: { className?: string; compact?: boolean }) {
+export function DemoNote({ className, compact = false, aiCount = 0 }: { className?: string; compact?: boolean; aiCount?: number }) {
   if (compact) {
     return (
       <span
@@ -25,6 +26,13 @@ export function DemoNote({ className, compact = false }: { className?: string; c
         <b>Демонстрационные данные.</b> Вузы, стипендии и ссылки реальные, а стоимость, проходные баллы и дедлайны —
         ориентировочные на цикл 2026/27. Источники: официальные сайты вузов, QS World University Rankings, фото —
         Wikimedia Commons.
+        {aiCount > 0 && (
+          <>
+            {" "}
+            {aiCount} {plural(aiCount, ["вуз с отметкой", "вуза с отметкой", "вузов с отметкой"])} «Предложено ИИ» подобраны и описаны ИИ по
+            Wikidata и сайтам вузов — у каждой цифры в «Шансы и источники» указано, откуда она.
+          </>
+        )}
       </span>
     </p>
   );

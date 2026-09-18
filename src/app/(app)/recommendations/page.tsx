@@ -7,9 +7,17 @@ import { AddUniversity, type RequestRow } from "@/components/university/add-univ
 import { createClient } from "@/lib/supabase/server";
 import { RecommendationsView } from "@/components/university/recommendations-view";
 import { getShortlistIds, getUserMatches } from "@/lib/data/matches";
+import type { MatchResult } from "@/lib/engine/types";
 import { plural } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Рекомендации" };
+
+/** "Other" universities render as one-line rows: send the browser only what those rows use. */
+const lean = (m: MatchResult): MatchResult => ({
+  ...m,
+  university: { ...m.university, field_sources: {}, description: null, programs: [], highlights: [], application_deadlines: [] },
+  scholarships: [],
+});
 
 const slugList = (v: string | string[] | undefined) => (typeof v === "string" && v ? v.split(",").slice(0, 20) : []);
 
@@ -73,9 +81,9 @@ export default async function RecommendationsPage({ searchParams }: PageProps<"/
           </ButtonLink>
         }
       />
-      <DemoNote />
+      <DemoNote aiCount={universities.filter((u) => u.origin === "ai").length} />
 
-      <RecommendationsView recommended={recommended} others={others} shortlistIds={shortlistIds} />
+      <RecommendationsView recommended={recommended} others={others.map(lean)} shortlistIds={shortlistIds} />
 
       <AddUniversity initialRequests={catalogRequests} processingEnabled={Boolean(process.env.SUPABASE_SECRET_KEY)} />
 

@@ -13,7 +13,23 @@ export type PhotoCandidate = {
   pageUrl: string;
 };
 
-const LOGO_LIKE = /logo|seal|emblem|coat[_ ]of[_ ]arms|crest|wappen|map|plan|diagram|signature|flag|icon|\.svg$/i;
+const LOGO_LIKE = /logo|seal|emblem|coat[_ ]of[_ ]arms|crest|wappen|map|plan|diagram|signature|flag|icon|location|chart|graph|screenshot|interior|\.svg$/i;
+
+/** Words that name *a* university rather than *this* one. */
+const GENERIC_NAME_WORDS = new Set(["university", "universiti", "universität", "college", "institute", "school", "technology", "technical", "national", "state", "royal", "the", "and", "of", "for"]);
+
+/**
+ * Search matches file descriptions too, so "Khalifa University" also finds Hamad Bin Khalifa
+ * University in Qatar. Keep a search hit only if its file name carries a distinctive word of the name.
+ */
+function namesUniversity(title: string, nameEn: string): boolean {
+  const words = nameEn
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter((w) => w.length >= 3 && !GENERIC_NAME_WORDS.has(w));
+  const file = title.toLowerCase();
+  return words.length === 0 || words.some((w) => file.includes(w));
+}
 
 type ImageInfoResponse = {
   query?: {
@@ -34,7 +50,7 @@ async function imageInfo(titles: string[]): Promise<PhotoCandidate[]> {
   return (data.query?.pages ?? [])
     .map((p) => {
       const ii = p.imageinfo?.[0];
-      if (!ii || !/image\/(jpeg|png|webp)/.test(ii.mime)) return null;
+      if (!ii || !/image\/(jpeg|webp)/.test(ii.mime)) return null;
       const meta = ii.extmetadata ?? {};
       const strip = (v?: string) => (v ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
       return {
@@ -51,24 +67,46 @@ async function imageInfo(titles: string[]): Promise<PhotoCandidate[]> {
     .filter((c): c is PhotoCandidate => c !== null && c.width >= 800 && !LOGO_LIKE.test(c.title));
 }
 
-/** The Wikidata image plus Commons search results, logos and tiny files excluded. */
-export async function photoCandidates(nameEn: string, wikidataFile: string | null): Promise<PhotoCandidate[]> {
+async function commonsList(params: Record<string, string>, pick: (data: CommonsListResponse) => { title: string }[] | undefined): Promise<string[]> {
   const url = new URL("https://commons.wikimedia.org/w/api.php");
-  Object.entries({ action: "query", format: "json", list: "search", srnamespace: "6", srlimit: "8", srsearch: `"${nameEn}" campus OR building filetype:bitmap` }).forEach(([k, v]) =>
-    url.searchParams.set(k, v),
-  );
-  let searched: string[] = [];
+  Object.entries({ action: "query", format: "json", ...params }).forEach(([k, v]) => url.searchParams.set(k, v));
   try {
-    const data = await getJson<{ query?: { search?: { title: string }[] } }>(url.toString());
-    searched = (data.query?.search ?? []).map((s) => s.title);
+    return (pick(await getJson<CommonsListResponse>(url.toString())) ?? []).map((s) => s.title);
   } catch {
-    // search is best-effort
+    return []; // every source here is best-effort
   }
-  const titles = [...new Set([wikidataFile ? `File:${wikidataFile}` : null, ...searched].filter((t): t is string => Boolean(t)))].slice(0, 8);
-  // Always offer the Wikidata image; fill the rest with landscape search results.
+}
+
+type CommonsListResponse = { query?: { search?: { title: string }[]; categorymembers?: { title: string }[] } };
+
+/**
+ * Photo candidates, logos and tiny files excluded: the Wikidata image, then the
+ * university's own Commons category (P373, usually dozens of campus shots), then search.
+ */
+export async function photoCandidates(nameEn: string, wikidataFile: string | null, commonsCategory: string | null = null): Promise<PhotoCandidate[]> {
+  const search = (query: string) => commonsList({ list: "search", srnamespace: "6", srlimit: "10", srsearch: query }, (d) => d.query?.search);
+  const [category, focused] = await Promise.all([
+    commonsCategory
+      ? commonsList({ list: "categorymembers", cmtype: "file", cmlimit: "25", cmtitle: `Category:${commonsCategory}` }, (d) => d.query?.categorymembers)
+      : Promise.resolve([]),
+    search(`"${nameEn}" campus OR building filetype:bitmap`),
+  ]);
+  // a bare-name search only when the precise sources found little
+  const broad = category.length + focused.length < 4 ? await search(`"${nameEn}" filetype:bitmap`) : [];
+  const searched = [...focused, ...broad].filter((t) => namesUniversity(t, nameEn));
+  const titles = [...new Set([wikidataFile ? `File:${wikidataFile}` : null, ...category, ...searched].filter((t): t is string => Boolean(t)))]
+    .filter((t) => !LOGO_LIKE.test(t))
+    .slice(0, 40);
+  // Always offer the Wikidata image; fill the rest with landscape photos.
   const candidates = await imageInfo(titles);
   const main = wikidataFile ? candidates.find((c) => c.title.replace(/^File:/, "") === wikidataFile.replace(/_/g, " ")) : undefined;
-  const rest = candidates.filter((c) => c !== main).sort((a, b) => Number(b.width >= b.height) - Number(a.width >= a.height));
+  // descriptive file names first ("Bilkent University - panoramio"), camera dumps ("DSC08582") last
+  const score = (c: PhotoCandidate) =>
+    (c.width >= c.height ? 2 : 0) +
+    (/campus|building|view|aerial|panorama|panoramio|main|library|gate|faculty|quad|hall/i.test(c.title) ? 2 : 0) +
+    (namesUniversity(c.title, nameEn) ? 1 : 0) -
+    (/^File:(DSC|IMG|P\d|_?MG)[_ -]?\d/i.test(c.title) ? 2 : 0);
+  const rest = candidates.filter((c) => c !== main).sort((a, b) => score(b) - score(a));
   return [...(main ? [main] : []), ...rest].slice(0, 6);
 }
 
