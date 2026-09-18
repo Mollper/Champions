@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { toAssistantStyle } from "@/lib/constants";
 import type { ProfileDraft } from "@/lib/engine/types";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/types/models";
@@ -44,5 +45,6 @@ export function toDraft(profile: Profile | null): ProfileDraft {
     (draft as Record<string, unknown>)[key] = profile[key] ?? EMPTY_DRAFT[key];
   }
   // numeric columns come back as numbers already; jsonb arrays are guaranteed by CHECK constraints
+  draft.assistant_style = toAssistantStyle(profile.assistant_style);
   return draft;
 }

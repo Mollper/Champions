@@ -105,6 +105,7 @@ export const EXAMS: {
   { type: "TOEFL", label: "TOEFL iBT", hint: "Английский, 0–120", min: 0, max: 120, step: 1, example: "95" },
   { type: "Duolingo", label: "Duolingo English Test", hint: "Английский, 10–160, шаг 5", min: 10, max: 160, step: 5, example: "120" },
   { type: "SAT", label: "SAT", hint: "Математика + английский, 400–1600, шаг 10", min: 400, max: 1600, step: 10, example: "1350" },
+  { type: "CSCA", label: "CSCA", hint: "Экзамен для вузов Китая, математика 0–100", min: 0, max: 100, step: 1, example: "75" },
   { type: "NUET", label: "NUET", hint: "Экзамен Назарбаев Университета, 0–240", min: 0, max: 240, step: 1, example: "180" },
   { type: "UNT", label: "ЕНТ", hint: "Единое национальное тестирование, 0–140", min: 0, max: 140, step: 1, example: "110" },
 ];
@@ -143,11 +144,12 @@ export const GOAL_SUGGESTIONS = [
 ];
 
 export const ASSISTANT_STYLES: { id: AssistantStyle; label: string; description: string }[] = [
-  { id: "friendly", label: "Друг", description: "Тепло, поддерживает и подбадривает" },
-  { id: "mentor", label: "Ментор", description: "Объясняет и предлагает план" },
-  { id: "strict", label: "Коуч", description: "Строго, по делу, без поблажек" },
-  { id: "concise", label: "Кратко", description: "Только суть, в 1–2 предложениях" },
+  { id: "friendly", label: "Дружеский", description: "Тепло, поддерживает и объясняет" },
+  { id: "strict", label: "Строгий", description: "По делу, со сроками и без поблажек" },
 ];
+
+/** Stored styles from before there were two ("mentor", "concise") map to the nearest tone. */
+export const toAssistantStyle = (value: unknown): AssistantStyle => (value === "strict" || value === "concise" ? "strict" : "friendly");
 
 export function startYearOptions(now = new Date()): number[] {
   // Bachelor intakes start in autumn: before August the nearest intake is this year's.

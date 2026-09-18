@@ -8,6 +8,7 @@ const PROTECTED_PREFIXES = [
   "/dashboard",
   "/universities",
   "/planner",
+  "/favorites",
   "/profile",
   "/overview",
   "/recommendations",

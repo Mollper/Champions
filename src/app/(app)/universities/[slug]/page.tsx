@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { UniversityPageView } from "@/components/university/university-page-view";
 import { requireUserId } from "@/lib/auth";
-import { getShortlistIds } from "@/lib/data/matches";
+import { getFavoriteIds, getShortlistIds } from "@/lib/data/matches";
 import { getProfile, toDraft } from "@/lib/data/profile";
 import { getScholarships, getUniversities } from "@/lib/data/reference";
 import { matchUniversities } from "@/lib/engine/match";
@@ -24,8 +24,9 @@ export default async function UniversityPage({ params }: PageProps<"/universitie
   if (!university) notFound();
 
   const supabase = await createClient();
-  const [shortlistIds, { data: aiProfile }] = await Promise.all([
+  const [shortlistIds, favoriteIds, { data: aiProfile }] = await Promise.all([
     getShortlistIds(userId),
+    getFavoriteIds(userId),
     supabase.from("university_profiles").select("content, model, generated_at").eq("university_id", university.id).maybeSingle(),
   ]);
 
@@ -39,6 +40,7 @@ export default async function UniversityPage({ params }: PageProps<"/universitie
       complete={Boolean(profile?.completed_at)}
       startYear={draft.start_year ?? defaultStartYear()}
       shortlistIds={shortlistIds}
+      favoriteIds={favoriteIds}
       aiProfile={(aiProfile as UniversityProfile | null) ?? null}
     />
   );

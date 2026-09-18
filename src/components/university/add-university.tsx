@@ -112,8 +112,9 @@ export function AddUniversity({ initialRequests, processingEnabled }: { initialR
                   </span>
                   {r.message && <span className="text-xs text-muted sm:hidden">{r.message}</span>}
                   {r.universities?.status === "published" && (r.status === "done" || r.status === "duplicate") && (
-                    <Link href={`/recommendations#u-${r.universities.slug}`} className="text-sm font-semibold text-brand-700 hover:underline" onClick={() => router.refresh()}>
-                      Показать
+                    // the new university may not match the profile, so it has no card in the list above: open its own page
+                    <Link href={`/universities/${r.universities.slug}`} className="text-sm font-semibold text-brand-700 hover:underline">
+                      Открыть профиль →
                     </Link>
                   )}
                 </li>

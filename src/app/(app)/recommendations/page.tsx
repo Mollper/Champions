@@ -6,18 +6,10 @@ import { DemoNote } from "@/components/ui/demo-note";
 import { AddUniversity, type RequestRow } from "@/components/university/add-university";
 import { createClient } from "@/lib/supabase/server";
 import { RecommendationsView } from "@/components/university/recommendations-view";
-import { getShortlistIds, getUserMatches } from "@/lib/data/matches";
-import type { MatchResult } from "@/lib/engine/types";
+import { getFavoriteIds, getShortlistIds, getUserMatches } from "@/lib/data/matches";
 import { plural } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Рекомендации" };
-
-/** "Other" universities render as one-line rows: send the browser only what those rows use. */
-const lean = (m: MatchResult): MatchResult => ({
-  ...m,
-  university: { ...m.university, field_sources: {}, description: null, programs: [], highlights: [], application_deadlines: [] },
-  scholarships: [],
-});
 
 const slugList = (v: string | string[] | undefined) => (typeof v === "string" && v ? v.split(",").slice(0, 20) : []);
 
@@ -25,8 +17,9 @@ export default async function RecommendationsPage({ searchParams }: PageProps<"/
   const params = await searchParams;
   const { userId, recommended, others, universities } = await getUserMatches("/recommendations");
   const supabase = await createClient();
-  const [shortlistIds, { data: requests }] = await Promise.all([
+  const [shortlistIds, favoriteIds, { data: requests }] = await Promise.all([
     getShortlistIds(userId),
+    getFavoriteIds(userId),
     supabase
       .from("catalog_requests")
       .select("id, query, status, message, university_id, created_at, universities(slug, name, status)")
@@ -83,7 +76,7 @@ export default async function RecommendationsPage({ searchParams }: PageProps<"/
       />
       <DemoNote aiCount={universities.filter((u) => u.origin === "ai").length} />
 
-      <RecommendationsView recommended={recommended} others={others.map(lean)} shortlistIds={shortlistIds} />
+      <RecommendationsView recommended={recommended} others={others} shortlistIds={shortlistIds} favoriteIds={favoriteIds} />
 
       <AddUniversity initialRequests={catalogRequests} processingEnabled={Boolean(process.env.SUPABASE_SECRET_KEY)} />
 

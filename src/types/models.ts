@@ -6,7 +6,7 @@
 
 import type { Tables } from "./database";
 
-export type AssistantStyle = "friendly" | "mentor" | "strict" | "concise";
+export type AssistantStyle = "friendly" | "strict";
 export type GpaScale = 4 | 5 | 10 | 100;
 export type ScholarshipLevel = "full" | "partial" | "limited" | "none";
 export type ScholarshipCoverage = "full" | "tuition" | "partial" | "stipend";
@@ -25,7 +25,7 @@ export type ChatRole = "user" | "assistant";
 export type MonthDay = { label: string; month: number; day: number };
 
 export type ExamEntry = {
-  type: "IELTS" | "TOEFL" | "SAT" | "Duolingo" | "NUET" | "UNT" | "TOLC" | "Other";
+  type: "IELTS" | "TOEFL" | "SAT" | "Duolingo" | "CSCA" | "NUET" | "UNT" | "TOLC" | "Other";
   score: number;
   status: "taken" | "planned";
   date?: string;

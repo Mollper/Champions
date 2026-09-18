@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ArrowRight, ChevronDown, GitCompareArrows, Search, SearchX, Sparkles } from "lucide-react";
+import { AlertCircle, ArrowRight, ChevronDown, GitCompareArrows, Search, SearchX } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Segmented } from "@/components/ui/choice";
@@ -10,11 +10,15 @@ import type { MatchResult, Tier } from "@/lib/engine/types";
 import { plural } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { UniversityCard } from "./university-card";
+import { useFavorites } from "./use-favorites";
 import { useShortlist } from "./use-shortlist";
 
 type Sort = "fit" | "chance" | "cost";
 
 const PAGE = 12;
+
+/** One line on why a university is outside the recommendations. */
+const whyNot = (m: MatchResult) => m.blockers[0] ?? m.concerns.find((c) => (c.weight ?? 0) > 0)?.text ?? "низкое общее совпадение с анкетой";
 
 /** Case-insensitive search over the names a student might type: English, Russian, city, country. */
 const matchesQuery = (m: MatchResult, q: string) =>
@@ -24,12 +28,16 @@ export function RecommendationsView({
   recommended,
   others,
   shortlistIds,
+  favoriteIds = [],
 }: {
   recommended: MatchResult[];
   others: MatchResult[];
   shortlistIds: number[];
+  favoriteIds?: number[];
 }) {
   const { ids, toggle, pendingId, error } = useShortlist(shortlistIds);
+  const favorites = useFavorites(favoriteIds);
+  const [othersLimit, setOthersLimit] = useState(6);
   const [sort, setSort] = useState<Sort>("fit");
   const [tier, setTier] = useState<Tier | "all">("all");
   const [showOthers, setShowOthers] = useState(recommended.length < 3);
@@ -48,7 +56,16 @@ export function RecommendationsView({
 
   const card = (m: MatchResult, rank?: number) => (
     <motion.div key={m.university.id} layout="position" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.3 }}>
-      <UniversityCard match={m} rank={rank} inShortlist={ids.includes(m.university.id)} pending={pendingId === m.university.id} onToggleShortlist={() => toggle(m.university.id)} />
+      <UniversityCard
+        match={m}
+        rank={rank}
+        inShortlist={ids.includes(m.university.id)}
+        pending={pendingId === m.university.id}
+        onToggleShortlist={() => toggle(m.university.id)}
+        favorite={favorites.ids.includes(m.university.id)}
+        onToggleFavorite={() => favorites.toggle(m.university.id)}
+        mismatch={rank == null ? whyNot(m) : null}
+      />
     </motion.div>
   );
 
@@ -104,9 +121,9 @@ export function RecommendationsView({
         </div>
       </div>
 
-      {error && (
+      {(error || favorites.error) && (
         <p role="alert" className="flex items-center gap-2 rounded-xl bg-danger-50 px-3 py-2 text-sm text-danger-700">
-          <AlertCircle className="size-4" aria-hidden /> {error}
+          <AlertCircle className="size-4" aria-hidden /> {error ?? favorites.error}
         </p>
       )}
 
@@ -152,50 +169,29 @@ export function RecommendationsView({
           >
             <span>
               <span className="font-semibold">Другие вузы ({otherList.length})</span>
-              <span className="block text-sm text-muted">Не прошли по стране, бюджету, интересам или ограничениям — с объяснением</span>
+              <span className="block text-sm text-muted">Не прошли по стране, бюджету, интересам или ограничениям — с фото, цифрами и причиной</span>
             </span>
             <ChevronDown className={cn("size-5 transition-transform", (showOthers || q) && "rotate-180")} aria-hidden />
           </button>
           <AnimatePresence initial={false}>
             {(showOthers || Boolean(q)) && (
-              <motion.ul
+              <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="mt-2 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface"
+                className="mt-3 space-y-4 overflow-hidden"
               >
-                {otherList.map((m) => (
-                  <li key={m.university.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium">
-                        <Link href={`/universities/${m.university.slug}`} className="hover:text-brand-700 hover:underline">
-                          {m.university.name}
-                        </Link>{" "}
-                        <span className="text-sm font-normal text-muted">· {m.university.country}</span>
-                        {m.university.origin === "ai" && (
-                          <Sparkles className="ml-1.5 inline size-3.5 text-brand-600" aria-label="Предложено ИИ">
-                            <title>Предложено ИИ</title>
-                          </Sparkles>
-                        )}
-                      </p>
-                      <p className="text-sm text-warn-700">{m.blockers[0] ?? m.concerns.find((c) => (c.weight ?? 0) > 0)?.text ?? "Низкое общее совпадение"}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted">совпадение {m.score}% · шанс {m.chance}%</span>
-                      <button
-                        type="button"
-                        onClick={() => toggle(m.university.id)}
-                        className={cn(
-                          "h-8 rounded-lg px-3 text-xs font-semibold",
-                          ids.includes(m.university.id) ? "bg-brand-600 text-white" : "bg-canvas text-ink-soft hover:bg-line",
-                        )}
-                      >
-                        {ids.includes(m.university.id) ? "В сравнении" : "Сравнить"}
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </motion.ul>
+                {otherList.slice(0, othersLimit).map((m) => card(m))}
+                {otherList.length > othersLimit && (
+                  <button
+                    type="button"
+                    onClick={() => setOthersLimit((l) => l + 6)}
+                    className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface py-3 text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
+                  >
+                    Показать ещё {Math.min(6, otherList.length - othersLimit)} из {otherList.length - othersLimit} <ChevronDown className="size-4" aria-hidden />
+                  </button>
+                )}
+              </motion.div>
             )}
           </AnimatePresence>
         </section>

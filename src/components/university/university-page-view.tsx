@@ -25,6 +25,7 @@ export function UniversityPageView({
   complete,
   startYear,
   shortlistIds,
+  favoriteIds,
   aiProfile,
 }: {
   university: University;
@@ -34,6 +35,7 @@ export function UniversityPageView({
   complete: boolean;
   startYear: number;
   shortlistIds: number[];
+  favoriteIds: number[];
   aiProfile: UniversityProfile | null;
 }) {
   const u = university;
@@ -87,7 +89,7 @@ export function UniversityPageView({
               </span>
             ))}
           </div>
-          <ProfileActions universityId={u.id} name={u.name} websiteUrl={u.website_url} admissionsUrl={u.admissions_url} shortlistIds={shortlistIds} />
+          <ProfileActions universityId={u.id} name={u.name} websiteUrl={u.website_url} admissionsUrl={u.admissions_url} shortlistIds={shortlistIds} favoriteIds={favoriteIds} />
         </div>
       </section>
 

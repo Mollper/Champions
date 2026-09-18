@@ -22,6 +22,7 @@ import type { MatchResult } from "@/lib/engine/types";
 import { cn } from "@/lib/utils";
 import { ChanceFactors, ChanceRing, TIER_HINT, TierBadge } from "./chance";
 import { AiBadge, DataSources } from "./data-sources";
+import { FavoriteButton } from "./favorite-button";
 
 type Props = {
   match: MatchResult;
@@ -29,15 +30,24 @@ type Props = {
   pending: boolean;
   onToggleShortlist: () => void;
   rank?: number;
+  favorite?: boolean;
+  onToggleFavorite?: () => void;
+  /** Shown outside the recommendations: explain up front why it did not make the list. */
+  mismatch?: string | null;
 };
 
-export function UniversityCard({ match, inShortlist, pending, onToggleShortlist, rank }: Props) {
+export function UniversityCard({ match, inShortlist, pending, onToggleShortlist, rank, favorite = false, onToggleFavorite, mismatch }: Props) {
   const [open, setOpen] = useState(false);
   const u = match.university;
   const { costs } = match;
 
   return (
     <article id={`u-${u.slug}`} className="scroll-mt-28 overflow-hidden rounded-card border border-line bg-surface shadow-card">
+      {mismatch && (
+        <p className="flex items-start gap-2 border-b border-warn-500/20 bg-warn-50 px-4 py-2.5 text-sm font-medium text-warn-700">
+          <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden /> Не в подборке: {mismatch}
+        </p>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-[280px_minmax(0,1fr)]">
         <div className="relative">
           <UniversityPhoto
@@ -54,6 +64,7 @@ export function UniversityCard({ match, inShortlist, pending, onToggleShortlist,
             {u.qs_rank && <span className="rounded-pill bg-white/90 px-2 py-0.5 text-[11px] font-bold text-ink backdrop-blur">QS #{u.qs_rank}</span>}
             {u.origin === "ai" && <AiBadge />}
           </div>
+          {onToggleFavorite && <FavoriteButton active={favorite} onToggle={onToggleFavorite} className="absolute right-3 top-3 shadow-card backdrop-blur" />}
         </div>
 
         <div className="flex min-w-0 flex-col p-4 sm:p-5">

@@ -24,6 +24,12 @@ export const getUserMatches = cache(async (path: string) => {
   return { userId, profile, draft, universities, scholarships, matches, recommended, others, diagnosis: diagnose(draft, matches) };
 });
 
+export const getFavoriteIds = cache(async (userId: string): Promise<number[]> => {
+  const supabase = await createClient();
+  const { data } = await supabase.from("favorites").select("university_id").eq("user_id", userId).order("created_at", { ascending: false });
+  return (data ?? []).map((r) => r.university_id);
+});
+
 export const getShortlistIds = cache(async (userId: string): Promise<number[]> => {
   const supabase = await createClient();
   const { data } = await supabase.from("shortlist").select("university_id").eq("user_id", userId).order("created_at");

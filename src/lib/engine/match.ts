@@ -110,6 +110,7 @@ export function matchUniversity(
   const gpa4 = gpaTo4(p.gpa, p.gpa_scale);
   const english = englishLevel(p);
   const sat = examScore(p, "SAT");
+  const csca = examScore(p, "CSCA");
   const scholarships = relevantScholarships(p, u, allScholarships);
   const constraints = new Set(p.constraints);
 
@@ -219,6 +220,9 @@ export function matchUniversity(
     if (constraints.has("no_sat")) blockers.push("Нужен SAT");
     else if (!sat.any) concerns.push({ text: `Нужен SAT${u.sat_recommended ? ` (желательно от ${u.sat_recommended})` : ""}`, weight: 2 });
   }
+  // From 2026 Chinese universities admit international bachelors with the CSCA test (mathematics is compulsory).
+  const needsCsca = u.country_code === "CN";
+  if (needsCsca && !csca.any) concerns.push({ text: "Для вузов Китая нужен экзамен CSCA (обязательна математика)", weight: 2 });
   if (u.requires_foundation && (p.grade == null || p.grade <= 11)) {
     if (constraints.has("no_foundation")) blockers.push("Нужен подготовительный год");
     else concerns.push({ text: u.foundation_note ?? "Нужен подготовительный год (Foundation)", weight: 2 });
@@ -271,6 +275,14 @@ export function matchUniversity(
       chance -= 10;
       factors.push({ label: "SAT", impact: -10, text: "SAT обязателен, а результата пока нет" });
     }
+  }
+
+  if (needsCsca) {
+    const best = csca.taken ?? csca.planned;
+    // a 70 in mathematics is a solid result for strong universities; every 5 points either way moves the chance
+    const impact = best == null ? -8 : clamp(Math.round((best - 70) / 5), -10, 6) - (csca.taken == null ? 2 : 0);
+    chance += impact;
+    factors.push({ label: "CSCA", impact, text: best == null ? "CSCA обязателен, а результата пока нет" : `CSCA (математика) ${best}${csca.taken == null ? " (цель)" : ""}` });
   }
 
   const act = activityStrength(p);
