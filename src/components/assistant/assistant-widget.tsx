@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp, Loader2, Sparkles, Trash2, X } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -33,6 +34,7 @@ let counter = 0;
 const uid = () => `m${Date.now()}-${counter++}`;
 
 export function AssistantWidget({ initialStyle, name }: { initialStyle: AssistantStyle; name: string | null }) {
+  const t = useT();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [style, setStyle] = useState<AssistantStyle>(initialStyle);
@@ -160,7 +162,7 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
               // the questionnaire has its own sticky action bar above the bottom nav
               pathname.startsWith("/profile") ? "bottom-[152px]" : "bottom-[84px]",
             )}
-            aria-label="Открыть ИИ-помощника"
+            aria-label={t("Открыть ИИ-помощника")}
           >
             <span className="relative">
               <MascotAvatar className="size-11 ring-2 ring-white/70" />
@@ -168,7 +170,7 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
                 <ChatSparkIcon className="size-3.5" />
               </span>
             </span>
-            <span className="hidden text-sm font-semibold sm:inline">Спросить Юни</span>
+            <span className="hidden text-sm font-semibold sm:inline">{t("Спросить Юни")}</span>
           </motion.button>
         )}
       </AnimatePresence>
@@ -178,7 +180,7 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
           <motion.div
             role="dialog"
             aria-modal="false"
-            aria-label="ИИ-помощник Юни"
+            aria-label={t("ИИ-помощник Юни")}
             initial={{ opacity: 0, y: 24, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.98 }}
@@ -191,32 +193,45 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
                 <MascotAvatar className="size-11" />
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">
-                    Юни <span className="font-normal text-muted">· ИИ-помощник</span>
+                    {t("Юни")} <span className="font-normal text-muted">{t("· ИИ-помощник")}</span>
                   </p>
-                  <p className="text-xs text-muted">Знает твою анкету, вузы и маршрут</p>
+                  <p className="text-xs text-muted">{t("Знает твою анкету, вузы и маршрут")}</p>
                 </div>
                 {messages.length > 0 && (
-                  <button type="button" onClick={clear} className="grid size-9 place-items-center rounded-lg text-muted hover:bg-canvas hover:text-danger-700" aria-label="Очистить историю">
+                  <button
+                    type="button"
+                    onClick={clear}
+                    className="grid size-9 place-items-center rounded-lg text-muted hover:bg-canvas hover:text-danger-700"
+                    aria-label={t("Очистить историю")}
+                  >
                     <Trash2 className="size-4" />
                   </button>
                 )}
-                <button type="button" onClick={() => setOpen(false)} className="grid size-9 place-items-center rounded-lg text-muted hover:bg-canvas hover:text-ink" aria-label="Закрыть помощника">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="grid size-9 place-items-center rounded-lg text-muted hover:bg-canvas hover:text-ink"
+                  aria-label={t("Закрыть помощника")}
+                >
                   <X className="size-5" />
                 </button>
               </div>
-              <div role="radiogroup" aria-label="Стиль общения" className="mt-3 flex gap-1 rounded-xl bg-canvas p-1">
+              <div role="radiogroup" aria-label={t("Стиль общения")} className="mt-3 flex gap-1 rounded-xl bg-canvas p-1">
                 {ASSISTANT_STYLES.map((s) => (
                   <button
                     key={s.id}
                     type="button"
                     role="radio"
                     aria-checked={style === s.id}
-                    title={s.description}
+                    title={t(s.description)}
                     onClick={() => changeStyle(s.id)}
-                    className={cn("relative flex-1 rounded-lg py-1.5 text-xs font-semibold transition-colors", style === s.id ? "text-ink" : "text-muted hover:text-ink-soft")}
+                    className={cn(
+                      "relative flex-1 rounded-lg py-1.5 text-xs font-semibold transition-colors",
+                      style === s.id ? "text-ink" : "text-muted hover:text-ink-soft",
+                    )}
                   >
                     {style === s.id && <motion.span layoutId="assistant-style" className="absolute inset-0 rounded-lg bg-surface shadow-card" />}
-                    <span className="relative">{s.label}</span>
+                    <span className="relative">{t(s.label)}</span>
                   </button>
                 ))}
               </div>
@@ -226,17 +241,18 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
             <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4" aria-live="polite">
               {!loaded && (
                 <div className="flex justify-center py-10 text-muted">
-                  <Loader2 className="size-5 animate-spin" aria-label="Загрузка" />
+                  <Loader2 className="size-5 animate-spin" aria-label={t("Загрузка")} />
                 </div>
               )}
               {loaded && messages.length === 0 && (
                 <div className="rounded-2xl bg-canvas p-4 text-sm text-ink-soft">
                   <p className="flex items-center gap-2 font-semibold text-ink">
-                    <Sparkles className="size-4 text-brand-600" aria-hidden /> {name ? `Привет, ${name}!` : "Привет!"}
+                    <Sparkles className="size-4 text-brand-600" aria-hidden /> {t(name ? `Привет, ${name}!` : "Привет!")}
                   </p>
                   <p className="mt-1.5">
-                    Я Юни, твой ИИ-помощник. Помогу скорректировать маршрут, разобрать эссе, подобрать активности и стипендии. Могу посчитать сценарий:
-                    «а если сдам IELTS 7?»
+                    {t(
+                      "Я Юни, твой ИИ-помощник. Помогу скорректировать маршрут, разобрать эссе, подобрать активности и стипендии. Могу посчитать сценарий: «а если сдам IELTS 7?»",
+                    )}
                   </p>
                 </div>
               )}
@@ -252,9 +268,14 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
                       m.content ? (
                         <MessageText text={m.content} />
                       ) : (
-                        <span className="flex gap-1 py-1" aria-label="Помощник печатает">
+                        <span className="flex gap-1 py-1" aria-label={t("Помощник печатает")}>
                           {[0, 1, 2].map((i) => (
-                            <motion.span key={i} className="size-1.5 rounded-full bg-muted" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }} />
+                            <motion.span
+                              key={i}
+                              className="size-1.5 rounded-full bg-muted"
+                              animate={{ opacity: [0.3, 1, 0.3] }}
+                              transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }}
+                            />
                           ))}
                         </span>
                       )
@@ -271,13 +292,19 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
               {messages.length < 2 && (
                 <div className="mb-2 flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                   {SUGGESTIONS.map((s) => (
-                    <button key={s} type="button" disabled={busy} onClick={() => send(s)} className="shrink-0 rounded-pill border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-brand-300 hover:text-brand-700 disabled:opacity-50">
-                      {s}
+                    <button
+                      key={s}
+                      type="button"
+                      disabled={busy}
+                      onClick={() => send(s)}
+                      className="shrink-0 rounded-pill border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-brand-300 hover:text-brand-700 disabled:opacity-50"
+                    >
+                      {t(s)}
                     </button>
                   ))}
                 </div>
               )}
-              {error && <p className="mb-2 rounded-lg bg-danger-50 px-3 py-1.5 text-xs text-danger-700">{error}</p>}
+              {error && <p className="mb-2 rounded-lg bg-danger-50 px-3 py-1.5 text-xs text-danger-700">{t(error)}</p>}
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -297,11 +324,16 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
                   }}
                   rows={1}
                   maxLength={4000}
-                  placeholder="Спроси про вузы, эссе, шансы…"
-                  aria-label="Сообщение помощнику"
+                  placeholder={t("Спроси про вузы, эссе, шансы…")}
+                  aria-label={t("Сообщение помощнику")}
                   className="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-line bg-canvas px-3.5 py-2.5 text-[15px] outline-none focus:border-brand-400 focus:bg-surface focus:ring-4 focus:ring-brand-100"
                 />
-                <button type="submit" disabled={busy || !input.trim()} className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-600 text-white transition hover:bg-brand-700 disabled:opacity-40" aria-label="Отправить">
+                <button
+                  type="submit"
+                  disabled={busy || !input.trim()}
+                  className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-600 text-white transition hover:bg-brand-700 disabled:opacity-40"
+                  aria-label={t("Отправить")}
+                >
                   {busy ? <Loader2 className="size-5 animate-spin" /> : <ArrowUp className="size-5" />}
                 </button>
               </form>

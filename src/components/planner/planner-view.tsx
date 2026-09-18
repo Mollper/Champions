@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
@@ -45,11 +46,17 @@ const CATEGORY_TONE: Record<PlanTaskCategory, string> = {
   rest: "bg-canvas text-ink-soft",
 };
 
-const LOADING_LINES = ["Юни смотрит твою анкету и дедлайны…", "Раскладываю задачи по неделям…", "Проверяю, чтобы нагрузка была реальной…", "Почти готово — добавляю контрольные точки…"];
+const LOADING_LINES = [
+  "Юни смотрит твою анкету и дедлайны…",
+  "Раскладываю задачи по неделям…",
+  "Проверяю, чтобы нагрузка была реальной…",
+  "Почти готово — добавляю контрольные точки…",
+];
 
 const minutes = (m: number) => (m >= 60 ? `${Math.floor(m / 60)} ч${m % 60 ? ` ${m % 60} мин` : ""}` : `${m} мин`);
 
 export function PlannerView({ initialPlans, defaultExam }: { initialPlans: Plan[]; defaultExam: { type: ExamEntry["type"]; score: number } | null }) {
+  const t = useT();
   const [plans, setPlans] = useState(initialPlans);
   const [selectedId, setSelectedId] = useState<number | null>(initialPlans[0]?.id ?? null);
   const [formOpen, setFormOpen] = useState(initialPlans.length === 0);
@@ -85,13 +92,15 @@ export function PlannerView({ initialPlans, defaultExam }: { initialPlans: Plan[
           <NewPlanForm defaultExam={defaultExam} onCreated={onCreated} onCancel={plans.length ? () => setFormOpen(false) : undefined} />
         ) : (
           <Button size="lg" className="w-full" onClick={() => setFormOpen(true)}>
-            <Plus aria-hidden /> Новый план
+            <Plus aria-hidden /> {t("Новый план")}
           </Button>
         )}
 
         {plans.length > 0 && (
-          <section aria-label="Мои планы">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Мои планы · {plans.length}</p>
+          <section aria-label={t("Мои планы")}>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+              {t("Мои планы ·")} {plans.length}
+            </p>
             <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none lg:mx-0 lg:grid lg:grid-cols-1 lg:overflow-visible lg:px-0">
               {plans.map((p) => {
                 const total = p.content.periods.reduce((a, x) => a + x.tasks.length, 0);
@@ -112,7 +121,7 @@ export function PlannerView({ initialPlans, defaultExam }: { initialPlans: Plan[
                         <Icon className="size-5" aria-hidden />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold">{p.title}</span>
+                        <span className="block truncate text-sm font-semibold">{t(p.title)}</span>
                         <span className="mt-1 flex items-center gap-2">
                           <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
                             <span className="block h-full rounded-full bg-gradient-to-r from-brand-600 to-route-500" style={{ width: `${progress}%` }} />
@@ -135,8 +144,10 @@ export function PlannerView({ initialPlans, defaultExam }: { initialPlans: Plan[
         ) : (
           <div className="rounded-card border border-dashed border-line-strong bg-surface p-8 text-center">
             <MascotAvatar className="mx-auto size-16" />
-            <p className="mt-3 font-semibold">Здесь появится твой план</p>
-            <p className="mx-auto mt-1 max-w-sm text-sm text-muted">Выбери, к чему готовишься, и сколько времени есть в неделю — Юни разложит задачи по неделям с учётом твоих вузов и дедлайнов.</p>
+            <p className="mt-3 font-semibold">{t("Здесь появится твой план")}</p>
+            <p className="mx-auto mt-1 max-w-sm text-sm text-muted">
+              {t("Выбери, к чему готовишься, и сколько времени есть в неделю — Юни разложит задачи по неделям с учётом твоих вузов и дедлайнов.")}
+            </p>
           </div>
         )}
       </div>
@@ -155,6 +166,7 @@ function NewPlanForm({
   onCreated: (plan: Plan) => void;
   onCancel?: () => void;
 }) {
+  const t = useT();
   const [kind, setKind] = useState<PlanKind>("admission");
   const [horizon, setHorizon] = useState<PlanInput["horizon"]>("1m");
   const [hours, setHours] = useState<number>(5);
@@ -190,10 +202,10 @@ function NewPlanForm({
     <section className="relative overflow-hidden rounded-card border border-line bg-surface p-4 shadow-card sm:p-5">
       <div className="flex items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 font-semibold">
-          <Sparkles className="size-4 text-brand-600" aria-hidden /> Новый план
+          <Sparkles className="size-4 text-brand-600" aria-hidden /> {t("Новый план")}
         </h2>
         {onCancel && (
-          <button type="button" onClick={onCancel} className="grid size-8 place-items-center rounded-lg text-muted hover:bg-canvas" aria-label="Свернуть">
+          <button type="button" onClick={onCancel} className="grid size-8 place-items-center rounded-lg text-muted hover:bg-canvas" aria-label={t("Свернуть")}>
             <X className="size-4" />
           </button>
         )}
@@ -215,8 +227,8 @@ function NewPlanForm({
               )}
             >
               <Icon className={cn("size-5", active ? "text-brand-600" : "text-muted")} aria-hidden />
-              <span className="text-sm font-semibold leading-tight">{k.title}</span>
-              <span className="text-[11px] leading-snug text-muted">{k.hint}</span>
+              <span className="text-sm font-semibold leading-tight">{t(k.title)}</span>
+              <span className="text-[11px] leading-snug text-muted">{t(k.hint)}</span>
             </button>
           );
         })}
@@ -224,52 +236,78 @@ function NewPlanForm({
 
       {kind === "exam" && (
         <div className="mt-4 space-y-3 rounded-2xl bg-canvas p-3">
-          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Экзамен">
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label={t("Экзамен")}>
             {EXAMS.map((e) => (
-              <Chip key={e.type} selected={e.type === exam} onClick={() => { setExam(e.type); setTarget(NaN); }} className="px-3 py-1.5 text-xs">
-                {e.label.replace(" English Test", "")}
+              <Chip
+                key={e.type}
+                selected={e.type === exam}
+                onClick={() => {
+                  setExam(e.type);
+                  setTarget(NaN);
+                }}
+                className="px-3 py-1.5 text-xs"
+              >
+                {t(e.label.replace(" English Test", ""))}
               </Chip>
             ))}
           </div>
           <div className="flex items-start gap-3">
             <label htmlFor="plan-target" className="mt-2.5 shrink-0 text-sm text-ink-soft">
-              Цель
+              {t("Цель")}
             </label>
             <ExamScoreInput key={exam} id="plan-target" meta={examMeta} score={target} onChange={setTarget} />
           </div>
-          {defaultExam?.type === exam && <p className="text-xs text-muted">Сейчас в анкете: {defaultExam.score}</p>}
+          {defaultExam?.type === exam && (
+            <p className="text-xs text-muted">
+              {t("Сейчас в анкете:")} {defaultExam.score}
+            </p>
+          )}
         </div>
       )}
 
       {kind === "custom" && (
-        <Field label="Цель плана" htmlFor="plan-goal" className="mt-4">
-          <Textarea id="plan-goal" value={goal} onChange={(e) => setGoal(e.target.value)} maxLength={300} placeholder="Например: подготовиться к олимпиаде по информатике" className="min-h-20" />
+        <Field label={t("Цель плана")} htmlFor="plan-goal" className="mt-4">
+          <Textarea
+            id="plan-goal"
+            value={t(goal)}
+            onChange={(e) => setGoal(e.target.value)}
+            maxLength={300}
+            placeholder={t("Например: подготовиться к олимпиаде по информатике")}
+            className="min-h-20"
+          />
         </Field>
       )}
 
       <div className="mt-4 space-y-3">
         <div>
-          <p className="mb-1.5 text-sm font-semibold">Срок</p>
-          <Segmented label="Срок плана" size="sm" value={horizon} onChange={setHorizon} options={HORIZONS} />
+          <p className="mb-1.5 text-sm font-semibold">{t("Срок")}</p>
+          <Segmented label={t("Срок плана")} size="sm" value={horizon} onChange={setHorizon} options={HORIZONS} />
         </div>
         <div>
-          <p className="mb-1.5 text-sm font-semibold">Часов в неделю</p>
-          <Segmented label="Часов в неделю" size="sm" value={hours} onChange={setHours} options={HOURS.map((h) => ({ value: h, label: `${h} ч` }))} />
+          <p className="mb-1.5 text-sm font-semibold">{t("Часов в неделю")}</p>
+          <Segmented label={t("Часов в неделю")} size="sm" value={hours} onChange={setHours} options={HOURS.map((h) => ({ value: h, label: t("{0} ч", h) }))} />
         </div>
-        <Field label="Пожелания" htmlFor="plan-wishes" hint="Необязательно">
-          <Textarea id="plan-wishes" value={wishes} onChange={(e) => setWishes(e.target.value)} maxLength={300} placeholder="По выходным занят, есть репетитор по математике…" className="min-h-16" />
+        <Field label={t("Пожелания")} htmlFor="plan-wishes" hint={t("Необязательно")}>
+          <Textarea
+            id="plan-wishes"
+            value={t(wishes)}
+            onChange={(e) => setWishes(e.target.value)}
+            maxLength={300}
+            placeholder={t("По выходным занят, есть репетитор по математике…")}
+            className="min-h-16"
+          />
         </Field>
       </div>
 
       {error && (
         <p role="alert" className="mt-3 rounded-xl bg-danger-50 px-3 py-2 text-sm text-danger-700">
-          {error}
+          {t(error)}
         </p>
       )}
 
       <Button size="lg" className="mt-4 w-full" onClick={submit} disabled={!canSubmit}>
         {pending ? <Loader2 className="animate-spin" aria-hidden /> : <Sparkles aria-hidden />}
-        {pending ? "Составляем план…" : "Составить план"}
+        {t(pending ? "Составляем план…" : "Составить план")}
       </Button>
 
       <AnimatePresence>
@@ -288,10 +326,10 @@ function NewPlanForm({
               </motion.div>
               <AnimatePresence mode="wait">
                 <motion.p key={line} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="mt-4 font-semibold">
-                  {LOADING_LINES[line]}
+                  {t(LOADING_LINES[line])}
                 </motion.p>
               </AnimatePresence>
-              <p className="mt-1 text-sm text-muted">Обычно 10–20 секунд</p>
+              <p className="mt-1 text-sm text-muted">{t("Обычно 10–20 секунд")}</p>
             </div>
           </motion.div>
         )}
@@ -302,7 +340,16 @@ function NewPlanForm({
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanView({ plan, onToggle, onDelete }: { plan: Plan; onToggle: (planId: number, key: string, done: boolean) => void; onDelete: (planId: number) => Promise<void> }) {
+function PlanView({
+  plan,
+  onToggle,
+  onDelete,
+}: {
+  plan: Plan;
+  onToggle: (planId: number, key: string, done: boolean) => void;
+  onDelete: (planId: number) => Promise<void>;
+}) {
+  const t = useT();
   const [confirming, setConfirming] = useState(false);
   const [deleting, startDelete] = useTransition();
   const done = useMemo(() => new Set(plan.done), [plan.done]);
@@ -316,39 +363,45 @@ function PlanView({ plan, onToggle, onDelete }: { plan: Plan; onToggle: (planId:
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
       <section className="rounded-card border border-line bg-surface p-4 shadow-card sm:p-6">
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="rounded-pill bg-brand-50 px-2.5 py-1 font-semibold text-brand-700">{kind.title}</span>
-          {horizon && <span className="rounded-pill bg-canvas px-2.5 py-1 font-medium text-ink-soft">{horizon}</span>}
-          <span className="rounded-pill bg-canvas px-2.5 py-1 font-medium text-ink-soft">{plan.params.hoursPerWeek} ч в неделю</span>
+          <span className="rounded-pill bg-brand-50 px-2.5 py-1 font-semibold text-brand-700">{t(kind.title)}</span>
+          {horizon && <span className="rounded-pill bg-canvas px-2.5 py-1 font-medium text-ink-soft">{t(horizon)}</span>}
+          <span className="rounded-pill bg-canvas px-2.5 py-1 font-medium text-ink-soft">
+            {plan.params.hoursPerWeek} {t("ч в неделю")}
+          </span>
           {plan.params.exam && (
             <span className="rounded-pill bg-coral-50 px-2.5 py-1 font-semibold text-coral-700">
-              {plan.params.exam} → {plan.params.target}
+              {t(plan.params.exam)} → {plan.params.target}
             </span>
           )}
         </div>
-        <h2 className="mt-3 font-display text-xl font-semibold leading-tight [overflow-wrap:anywhere] sm:text-2xl">{plan.title}</h2>
-        <p className="mt-2 text-sm leading-relaxed text-ink-soft">{plan.content.summary}</p>
+        <h2 className="mt-3 font-display text-xl font-semibold leading-tight [overflow-wrap:anywhere] sm:text-2xl">{t(plan.title)}</h2>
+        <p className="mt-2 text-sm leading-relaxed text-ink-soft">{t(plan.content.summary)}</p>
 
         <div className="mt-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold">Прогресс</span>
+            <span className="font-semibold">{t("Прогресс")}</span>
             <span className="text-muted">
-              {finished} из {total} задач · <b className="text-brand-700">{progress}%</b>
+              {finished} {t("из")} {total} {t("задач ·")} <b className="text-brand-700">{progress}%</b>
             </span>
           </div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-line">
-            <motion.div className="h-full rounded-full bg-gradient-to-r from-brand-600 to-route-500" animate={{ width: `${progress}%` }} transition={{ type: "spring", stiffness: 120, damping: 20 }} />
+            <motion.div
+              className="h-full rounded-full bg-gradient-to-r from-brand-600 to-route-500"
+              animate={{ width: `${progress}%` }}
+              transition={{ type: "spring", stiffness: 120, damping: 20 }}
+            />
           </div>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-xs text-muted">
           <span className="flex items-center gap-1.5">
             <MascotAvatar className="size-6" />
-            {plan.model === "template" ? "Шаблон: ИИ был занят — создай план заново позже" : `Составил Юни · ${formatDate(plan.created_at.slice(0, 10))}`}
+            {t(plan.model === "template" ? "Шаблон: ИИ был занят — создай план заново позже" : `Составил Юни · ${formatDate(plan.created_at.slice(0, 10))}`)}
           </span>
           {confirming ? (
             <span className="flex items-center gap-1.5">
               <button type="button" onClick={() => setConfirming(false)} className="h-8 rounded-lg px-2.5 font-semibold text-ink-soft hover:bg-canvas">
-                Отмена
+                {t("Отмена")}
               </button>
               <button
                 type="button"
@@ -356,12 +409,16 @@ function PlanView({ plan, onToggle, onDelete }: { plan: Plan; onToggle: (planId:
                 onClick={() => startDelete(() => onDelete(plan.id))}
                 className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-danger-50 px-2.5 font-semibold text-danger-700 hover:bg-danger-500/15"
               >
-                {deleting ? <Loader2 className="size-3.5 animate-spin" aria-hidden /> : <Trash2 className="size-3.5" aria-hidden />} Удалить план
+                {deleting ? <Loader2 className="size-3.5 animate-spin" aria-hidden /> : <Trash2 className="size-3.5" aria-hidden />} {t("Удалить план")}
               </button>
             </span>
           ) : (
-            <button type="button" onClick={() => setConfirming(true)} className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-semibold hover:bg-canvas hover:text-danger-700">
-              <Trash2 className="size-3.5" aria-hidden /> Удалить
+            <button
+              type="button"
+              onClick={() => setConfirming(true)}
+              className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-semibold hover:bg-canvas hover:text-danger-700"
+            >
+              <Trash2 className="size-3.5" aria-hidden /> {t("Удалить")}
             </button>
           )}
         </div>
@@ -373,19 +430,22 @@ function PlanView({ plan, onToggle, onDelete }: { plan: Plan; onToggle: (planId:
           const periodDone = period.tasks.filter((t) => done.has(t.key)).length;
           const milestones = plan.content.milestones.filter((m) => m.periodKey === period.key);
           return (
-            <li key={period.key} className={cn("rounded-card border bg-surface p-4 sm:p-5", current ? "border-brand-300 ring-2 ring-brand-100" : "border-line")}>
+            <li
+              key={period.key}
+              className={cn("rounded-card border bg-surface p-4 sm:p-5", current ? "border-brand-300 ring-2 ring-brand-100" : "border-line")}
+            >
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <span className="grid size-7 place-items-center rounded-full bg-night text-xs font-bold text-white">{i + 1}</span>
-                <h3 className="font-semibold">{period.label}</h3>
+                <h3 className="font-semibold">{t(period.label)}</h3>
                 <span className="text-xs text-muted">
                   {formatDate(period.start)} — {formatDate(period.end)}
                 </span>
-                {current && <span className="rounded-pill bg-brand-600 px-2 py-0.5 text-[11px] font-bold text-white">Сейчас</span>}
+                {current && <span className="rounded-pill bg-brand-600 px-2 py-0.5 text-[11px] font-bold text-white">{t("Сейчас")}</span>}
                 <span className="ml-auto text-xs font-semibold text-muted">
                   {periodDone}/{period.tasks.length}
                 </span>
               </div>
-              {period.focus && <p className="mt-1.5 text-sm text-ink-soft">{period.focus}</p>}
+              {period.focus && <p className="mt-1.5 text-sm text-ink-soft">{t(period.focus)}</p>}
 
               <ul className="mt-3 space-y-2">
                 {period.tasks.map((task) => {
@@ -398,17 +458,26 @@ function PlanView({ plan, onToggle, onDelete }: { plan: Plan; onToggle: (planId:
                         aria-pressed={isDone}
                         className={cn("flex w-full gap-3 rounded-2xl p-3 text-left transition", isDone ? "bg-success-50/70" : "bg-canvas hover:bg-line/60")}
                       >
-                        <span className={cn("mt-0.5 grid size-6 shrink-0 place-items-center rounded-full border-2 transition", isDone ? "border-success-500 bg-success-500 text-white" : "border-line-strong bg-surface")}>
+                        <span
+                          className={cn(
+                            "mt-0.5 grid size-6 shrink-0 place-items-center rounded-full border-2 transition",
+                            isDone ? "border-success-500 bg-success-500 text-white" : "border-line-strong bg-surface",
+                          )}
+                        >
                           {isDone && <Check className="size-3.5" strokeWidth={3.5} aria-hidden />}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className={cn("block text-sm font-semibold [overflow-wrap:anywhere]", isDone && "text-muted line-through")}>{task.title}</span>
-                          {task.details && <span className="mt-0.5 block text-[13px] leading-snug text-ink-soft">{task.details}</span>}
+                          <span className={cn("block text-sm font-semibold [overflow-wrap:anywhere]", isDone && "text-muted line-through")}>
+                            {t(task.title)}
+                          </span>
+                          {task.details && <span className="mt-0.5 block text-[13px] leading-snug text-ink-soft">{t(task.details)}</span>}
                           <span className="mt-1.5 flex flex-wrap gap-1.5">
                             <span className="inline-flex items-center gap-1 rounded-pill bg-surface px-2 py-0.5 text-[11px] font-medium text-ink-soft ring-1 ring-line">
-                              <Clock3 className="size-3" aria-hidden /> {minutes(task.minutes)}
+                              <Clock3 className="size-3" aria-hidden /> {t(minutes(task.minutes))}
                             </span>
-                            <span className={cn("rounded-pill px-2 py-0.5 text-[11px] font-semibold", CATEGORY_TONE[task.category])}>{CATEGORY_LABEL[task.category]}</span>
+                            <span className={cn("rounded-pill px-2 py-0.5 text-[11px] font-semibold", CATEGORY_TONE[task.category])}>
+                              {t(CATEGORY_LABEL[task.category])}
+                            </span>
                           </span>
                         </span>
                       </button>
@@ -419,7 +488,7 @@ function PlanView({ plan, onToggle, onDelete }: { plan: Plan; onToggle: (planId:
 
               {milestones.map((m) => (
                 <p key={m.title} className="mt-3 flex items-start gap-2 rounded-xl bg-coral-50 px-3 py-2 text-sm font-medium text-coral-700">
-                  <Flag className="mt-0.5 size-4 shrink-0" aria-hidden /> Контрольная точка: {m.title}
+                  <Flag className="mt-0.5 size-4 shrink-0" aria-hidden /> {t("Контрольная точка:")} {t(m.title)}
                 </p>
               ))}
             </li>
@@ -430,11 +499,11 @@ function PlanView({ plan, onToggle, onDelete }: { plan: Plan; onToggle: (planId:
       {plan.content.tips.length > 0 && (
         <section className="rounded-card border border-brand-100 bg-brand-50/60 p-4 sm:p-5">
           <h3 className="flex items-center gap-2 font-semibold text-brand-700">
-            <Lightbulb className="size-4" aria-hidden /> Советы Юни
+            <Lightbulb className="size-4" aria-hidden /> {t("Советы Юни")}
           </h3>
           <ul className="mt-2 space-y-1.5 text-sm text-ink-soft">
-            {plan.content.tips.map((t) => (
-              <li key={t}>• {t}</li>
+            {plan.content.tips.map((tip) => (
+              <li key={tip}>• {t(tip)}</li>
             ))}
           </ul>
         </section>

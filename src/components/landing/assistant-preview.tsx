@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { CalendarDays, HandCoins, PenLine, Target, Trophy } from "lucide-react";
 import { useState } from "react";
@@ -33,6 +34,7 @@ const SKILLS = [
 ] as const;
 
 export function AssistantPreview() {
+  const t = useT();
   const [style, setStyle] = useState<(typeof STYLES)[number]["id"]>("friendly");
   const active = STYLES.find((s) => s.id === style)!;
 
@@ -40,13 +42,10 @@ export function AssistantPreview() {
     <section id="assistant" className="scroll-mt-20 bg-night py-16 text-white sm:py-24">
       <div className="container-page grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
         <Reveal>
-          <p className="text-sm font-semibold text-brand-300">AI-помощник</p>
-          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            Советник, который знает твой профиль
-          </h2>
+          <p className="text-sm font-semibold text-brand-300">{t("AI-помощник")}</p>
+          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{t("Советник, который знает твой профиль")}</h2>
           <p className="mt-4 text-white/70">
-            Спроси про эссе, экзамены или активности — помощник отвечает с учётом твоей анкеты, выбранных вузов и
-            плана. И общается в удобном тебе стиле.
+            {t("Спроси про эссе, экзамены или активности — помощник отвечает с учётом твоей анкеты, выбранных вузов и плана. И общается в удобном тебе стиле.")}
           </p>
           <ul className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {SKILLS.map(({ icon: Icon, text }) => (
@@ -54,7 +53,7 @@ export function AssistantPreview() {
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/10 text-brand-300">
                   <Icon className="size-4" aria-hidden />
                 </span>
-                {text}
+                {t(text)}
               </li>
             ))}
           </ul>
@@ -65,12 +64,12 @@ export function AssistantPreview() {
             <div className="flex items-center gap-3 border-b border-white/10 pb-4">
               <MascotAvatar className="size-11" />
               <div>
-                <p className="font-semibold">Юни · ИИ-помощник</p>
-                <p className="text-xs text-white/60">Стиль общения можно менять</p>
+                <p className="font-semibold">{t("Юни · ИИ-помощник")}</p>
+                <p className="text-xs text-white/60">{t("Стиль общения можно менять")}</p>
               </div>
             </div>
 
-            <div role="tablist" aria-label="Стиль общения" className="mt-4 flex gap-1.5 overflow-x-auto scrollbar-none">
+            <div role="tablist" aria-label={t("Стиль общения")} className="mt-4 flex gap-1.5 overflow-x-auto scrollbar-none">
               {STYLES.map((s) => (
                 <button
                   key={s.id}
@@ -82,16 +81,14 @@ export function AssistantPreview() {
                     s.id === style ? "text-ink" : "text-white/70 hover:text-white",
                   )}
                 >
-                  {s.id === style && (
-                    <motion.span layoutId="style-pill" className="absolute inset-0 rounded-pill bg-white" />
-                  )}
-                  <span className="relative">{s.label}</span>
+                  {s.id === style && <motion.span layoutId="style-pill" className="absolute inset-0 rounded-pill bg-white" />}
+                  <span className="relative">{t(s.label)}</span>
                 </button>
               ))}
             </div>
 
             <div className="mt-5 space-y-3">
-              <div className="ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-brand-600 px-4 py-3 text-sm">{QUESTION}</div>
+              <div className="ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-brand-600 px-4 py-3 text-sm">{t(QUESTION)}</div>
               <div className="min-h-[132px] sm:min-h-[112px]">
                 <AnimatePresence mode="wait">
                   <motion.div

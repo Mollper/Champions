@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { Palette, X } from "lucide-react";
 import { useState } from "react";
@@ -8,6 +9,7 @@ import { ThemeControls } from "./theme-controls";
 
 /** A palette button that opens the appearance controls anywhere, even before signing in. */
 export function ThemePopover({ initial }: { initial: Theme }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   return (
     <div className="relative">
@@ -15,8 +17,8 @@ export function ThemePopover({ initial }: { initial: Theme }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-label="Оформление"
-        title="Оформление"
+        aria-label={t("Оформление")}
+        title={t("Оформление")}
         className="grid size-9 place-items-center rounded-xl text-ink-soft transition hover:bg-brand-50 hover:text-brand-700"
       >
         <Palette className="size-[18px]" />
@@ -32,8 +34,13 @@ export function ThemePopover({ initial }: { initial: Theme }) {
               className="glass-bar fixed inset-x-3 top-16 z-50 max-h-[80dvh] overflow-y-auto rounded-card border border-line bg-surface p-4 shadow-lift sm:absolute sm:inset-x-auto sm:right-0 sm:top-11 sm:w-[420px]"
             >
               <div className="mb-3 flex items-center justify-between">
-                <p className="font-semibold">Оформление</p>
-                <button type="button" onClick={() => setOpen(false)} className="grid size-8 place-items-center rounded-lg text-muted hover:bg-canvas" aria-label="Закрыть">
+                <p className="font-semibold">{t("Оформление")}</p>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="grid size-8 place-items-center rounded-lg text-muted hover:bg-canvas"
+                  aria-label={t("Закрыть")}
+                >
                   <X className="size-4" />
                 </button>
               </div>

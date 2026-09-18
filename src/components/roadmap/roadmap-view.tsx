@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 import Link from "next/link";
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export function RoadmapView({ initialSteps, summary, universities, initialView = "plan", showChanges }: Props) {
+  const t = useT();
   const { steps, setStatus, error } = useSteps(initialSteps);
   const [view, setView] = useState<"plan" | "calendar">(initialView);
   const [category, setCategory] = useState<RoadmapStepCategory | "all">("all");
@@ -50,25 +52,30 @@ export function RoadmapView({ initialSteps, summary, universities, initialView =
     <div className="space-y-6">
       <NextActionCard steps={steps} onStatus={setStatus} universityName={universityName} />
 
-      {error && <p className="rounded-xl bg-danger-50 px-3 py-2 text-sm text-danger-700">{error}</p>}
+      {error && <p className="rounded-xl bg-danger-50 px-3 py-2 text-sm text-danger-700">{t(error)}</p>}
 
       {recentChange && (
         <details className="rounded-card border border-brand-100 bg-brand-50 p-4">
           <summary className="flex cursor-pointer list-none items-center gap-2 font-semibold text-brand-700">
-            <RefreshCw className="size-4" aria-hidden /> Маршрут перестроен: +{changes.added.length} {plural(changes.added.length, ["шаг", "шага", "шагов"])}, −{changes.removed.length}
+            <RefreshCw className="size-4" aria-hidden /> {t("Маршрут перестроен: +")}
+            {changes.added.length} {t(plural(changes.added.length, ["шаг", "шага", "шагов"]))}, −{changes.removed.length}
           </summary>
           <div className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             {changes.added.length > 0 && (
               <ul className="space-y-1">
-                {changes.added.slice(0, 8).map((t) => (
-                  <li key={t} className="text-success-700">+ {t}</li>
+                {changes.added.slice(0, 8).map((item) => (
+                  <li key={item} className="text-success-700">
+                    + {t(item)}
+                  </li>
                 ))}
               </ul>
             )}
             {changes.removed.length > 0 && (
               <ul className="space-y-1">
-                {changes.removed.slice(0, 8).map((t) => (
-                  <li key={t} className="text-danger-700">− {t}</li>
+                {changes.removed.slice(0, 8).map((item) => (
+                  <li key={item} className="text-danger-700">
+                    − {t(item)}
+                  </li>
                 ))}
               </ul>
             )}
@@ -78,25 +85,25 @@ export function RoadmapView({ initialSteps, summary, universities, initialView =
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-ink-soft">
-          План для:{" "}
-          {summary.targets.map((t, i) => (
-            <span key={t.id}>
+          {t("План для:")}{" "}
+          {summary.targets.map((target, i) => (
+            <span key={target.id}>
               {i > 0 && ", "}
-              <b className="text-ink">{t.name}</b>
+              <b className="text-ink">{t(target.name)}</b>
             </span>
           ))}{" "}
-          <span className="text-muted">({summary.source === "shortlist" ? "из сравнения" : "лучшие совпадения"})</span> ·{" "}
+          <span className="text-muted">({t(summary.source === "shortlist" ? "из сравнения" : "лучшие совпадения")})</span> ·{" "}
           <Link href={summary.source === "shortlist" ? "/compare" : "/recommendations"} className="font-semibold text-brand-700 hover:underline">
-            изменить
+            {t("изменить")}
           </Link>
         </p>
         <Segmented
-          label="Вид"
+          label={t("Вид")}
           value={view}
           onChange={setView}
           options={[
-            { value: "plan", label: "План" },
-            { value: "calendar", label: "Календарь" },
+            { value: "plan", label: t("План") },
+            { value: "calendar", label: t("Календарь") },
           ]}
         />
       </div>
@@ -106,13 +113,20 @@ export function RoadmapView({ initialSteps, summary, universities, initialView =
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-1.5">
-            <FilterChip active={category === "all"} onClick={() => setCategory("all")} label="Все" count={steps.length} />
+            <FilterChip active={category === "all"} onClick={() => setCategory("all")} label={t("Все")} count={steps.length} />
             {CATEGORY_ORDER.filter((c) => steps.some((s) => s.category === c)).map((c) => (
-              <FilterChip key={c} active={category === c} onClick={() => setCategory(c)} label={CATEGORY[c].label} count={steps.filter((s) => s.category === c).length} dot={CATEGORY[c].dot} />
+              <FilterChip
+                key={c}
+                active={category === c}
+                onClick={() => setCategory(c)}
+                label={t(CATEGORY[c].label)}
+                count={steps.filter((s) => s.category === c).length}
+                dot={CATEGORY[c].dot}
+              />
             ))}
             <label className="ml-auto flex cursor-pointer items-center gap-2 text-sm text-ink-soft">
               <input type="checkbox" checked={hideDone} onChange={(e) => setHideDone(e.target.checked)} className="size-4 accent-brand-600" />
-              Скрыть выполненные
+              {t("Скрыть выполненные")}
             </label>
           </div>
 
@@ -121,7 +135,7 @@ export function RoadmapView({ initialSteps, summary, universities, initialView =
               {groups.map(([month, items]) => (
                 <motion.section key={month} layout="position" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <div className="mb-3 flex items-center gap-3">
-                    <h3 className="font-display text-lg font-semibold">{month === "later" ? "Без срока" : formatMonth(`${month}-01`)}</h3>
+                    <h3 className="font-display text-lg font-semibold">{t(month === "later" ? "Без срока" : formatMonth(`${month}-01`))}</h3>
                     <span className="h-px flex-1 bg-line" />
                     <span className="text-xs text-muted">
                       {items.filter((s) => s.status === "done").length}/{items.length}
@@ -135,7 +149,7 @@ export function RoadmapView({ initialSteps, summary, universities, initialView =
                 </motion.section>
               ))}
             </AnimatePresence>
-            {groups.length === 0 && <p className="py-8 text-center text-sm text-muted">Здесь пусто — попробуй другой фильтр.</p>}
+            {groups.length === 0 && <p className="py-8 text-center text-sm text-muted">{t("Здесь пусто — попробуй другой фильтр.")}</p>}
           </div>
         </>
       )}
@@ -144,17 +158,20 @@ export function RoadmapView({ initialSteps, summary, universities, initialView =
 }
 
 function FilterChip({ active, onClick, label, count, dot }: { active: boolean; onClick: () => void; label: string; count: number; dot?: string }) {
+  const t = useT();
   return (
     <button
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={cn("inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-sm font-medium transition-colors", active ? "bg-night text-white" : "bg-surface text-ink-soft ring-1 ring-line hover:bg-canvas")}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-sm font-medium transition-colors",
+        active ? "bg-night text-white" : "bg-surface text-ink-soft ring-1 ring-line hover:bg-canvas",
+      )}
     >
       {dot && <span className={cn("size-2 rounded-full", dot)} />}
-      {label}
+      {t(label)}
       <span className="opacity-60">{count}</span>
     </button>
   );
 }
-

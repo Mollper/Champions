@@ -1,12 +1,15 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { Loader2 } from "lucide-react";
 import Script from "next/script";
 import { useState } from "react";
 import { signInWithGoogle } from "@/app/login/actions";
 import type { AuthProviders } from "@/lib/auth-providers";
 
-type TelegramLogin = { auth: (options: { bot_id: string; request_access?: string; lang?: string }, callback: (user: Record<string, unknown> | false) => void) => void };
+type TelegramLogin = {
+  auth: (options: { bot_id: string; request_access?: string; lang?: string }, callback: (user: Record<string, unknown> | false) => void) => void;
+};
 declare global {
   interface Window {
     Telegram?: { Login?: TelegramLogin };
@@ -28,13 +31,17 @@ function TelegramIcon() {
   return (
     <svg viewBox="0 0 24 24" className="size-5" aria-hidden>
       <circle cx="12" cy="12" r="12" fill="#2AABEE" />
-      <path fill="#fff" d="M5.4 11.8l11.4-4.4c.5-.2 1 .1.8.9l-1.9 9.1c-.1.6-.5.8-1 .5l-2.9-2.1-1.4 1.3c-.2.2-.3.3-.6.3l.2-3 5.4-4.9c.2-.2 0-.3-.4-.1l-6.7 4.2-2.9-.9c-.6-.2-.6-.6.1-.9z" />
+      <path
+        fill="#fff"
+        d="M5.4 11.8l11.4-4.4c.5-.2 1 .1.8.9l-1.9 9.1c-.1.6-.5.8-1 .5l-2.9-2.1-1.4 1.3c-.2.2-.3.3-.6.3l.2-3 5.4-4.9c.2-.2 0-.3-.4-.1l-6.7 4.2-2.9-.9c-.6-.2-.6-.6.1-.9z"
+      />
     </svg>
   );
 }
 
 /** "Continue with Google / Telegram" — only the providers that are configured are shown. */
 export function SocialLogin({ providers, next }: { providers: AuthProviders; next: string }) {
+  const t = useT();
   const [busy, setBusy] = useState<"google" | "telegram" | null>(null);
   const [error, setError] = useState<string | null>(null);
   if (!providers.google && !providers.telegramBotId) return null;
@@ -56,18 +63,19 @@ export function SocialLogin({ providers, next }: { providers: AuthProviders; nex
     });
   };
 
-  const button = "flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-line bg-surface text-sm font-semibold text-ink transition hover:border-line-strong hover:bg-canvas disabled:opacity-60";
+  const button =
+    "flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-line bg-surface text-sm font-semibold text-ink transition hover:border-line-strong hover:bg-canvas disabled:opacity-60";
 
   return (
     <div className="mt-5 space-y-2.5">
       <div className="flex items-center gap-3 text-xs text-muted">
-        <span className="h-px flex-1 bg-line" /> или <span className="h-px flex-1 bg-line" />
+        <span className="h-px flex-1 bg-line" /> {t("или")} <span className="h-px flex-1 bg-line" />
       </div>
       {providers.google && (
         <form action={signInWithGoogle} onSubmit={() => setBusy("google")}>
           <input type="hidden" name="next" value={next} />
           <button type="submit" className={button} disabled={busy !== null}>
-            {busy === "google" ? <Loader2 className="size-5 animate-spin" /> : <GoogleIcon />} Продолжить с Google
+            {busy === "google" ? <Loader2 className="size-5 animate-spin" /> : <GoogleIcon />} {t("Продолжить с Google")}
           </button>
         </form>
       )}
@@ -75,11 +83,11 @@ export function SocialLogin({ providers, next }: { providers: AuthProviders; nex
         <>
           <Script src="https://telegram.org/js/telegram-widget.js?22" strategy="lazyOnload" />
           <button type="button" className={button} onClick={telegram} disabled={busy !== null}>
-            {busy === "telegram" ? <Loader2 className="size-5 animate-spin" /> : <TelegramIcon />} Продолжить с Telegram
+            {busy === "telegram" ? <Loader2 className="size-5 animate-spin" /> : <TelegramIcon />} {t("Продолжить с Telegram")}
           </button>
         </>
       )}
-      {error && <p className="text-center text-sm text-danger-700">{error}</p>}
+      {error && <p className="text-center text-sm text-danger-700">{t(error)}</p>}
     </div>
   );
 }

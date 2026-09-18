@@ -124,3 +124,22 @@ export type PlanParams = {
 };
 
 export type Plan = Omit<Tables<"plans">, "kind" | "params" | "content"> & { kind: PlanKind; params: PlanParams; content: PlanContent };
+
+// ---------------------------------------------------------------- essay review
+
+export type EssayKind = "motivation_letter" | "personal_statement";
+
+export type EssayScores = { clarity: number; structure: number; specificity: number; authenticity: number; impact: number };
+
+export type EssayReviewContent = {
+  summary: string;
+  scores: EssayScores;
+  strengths: string[];
+  weaknesses: string[];
+  suggestions: string[];
+  /** Generic phrases an admissions reader has seen hundreds of times, quoted from the draft. */
+  cliches: string[];
+};
+
+export type Essay = Omit<Tables<"essays">, "kind"> & { kind: EssayKind };
+export type EssayReview = Omit<Tables<"essay_reviews">, "review"> & { review: EssayReviewContent };

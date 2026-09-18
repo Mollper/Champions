@@ -1,3 +1,6 @@
+"use client";
+
+import { useT } from "@/i18n/client";
 import { Minus, Plus } from "lucide-react";
 import { TIER_LABEL } from "@/lib/engine/match";
 import type { ChanceFactor, Tier } from "@/lib/engine/types";
@@ -16,21 +19,23 @@ export const TIER_HINT: Record<Tier, string> = {
 };
 
 export function TierBadge({ tier, chance, className }: { tier: Tier; chance: number; className?: string }) {
+  const t = useT();
   return (
     <span
       className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-pill border px-2.5 py-0.5 text-xs font-bold", TIER_TONE[tier].badge, className)}
-      title={TIER_HINT[tier]}
+      title={t(TIER_HINT[tier])}
     >
-      {TIER_LABEL[tier]} · {chance}%
+      {t(TIER_LABEL[tier])} · {chance}%
     </span>
   );
 }
 
 export function ChanceRing({ chance, tier, size = 56 }: { chance: number; tier: Tier; size?: number }) {
+  const t = useT();
   const r = 20;
   const c = 2 * Math.PI * r;
   return (
-    <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={`Шанс поступления ${chance}%`}>
+    <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={t("Шанс поступления {0}%", chance)}>
       <svg viewBox="0 0 48 48" className="size-full -rotate-90" aria-hidden>
         <circle cx="24" cy="24" r={r} fill="none" stroke="#e6e7f1" strokeWidth="5" />
         <circle
@@ -51,6 +56,7 @@ export function ChanceRing({ chance, tier, size = 56 }: { chance: number; tier: 
 }
 
 export function ChanceFactors({ factors }: { factors: ChanceFactor[] }) {
+  const t = useT();
   return (
     <ul className="space-y-1.5">
       {factors.map((f) => (
@@ -62,10 +68,16 @@ export function ChanceFactors({ factors }: { factors: ChanceFactor[] }) {
             )}
             aria-hidden
           >
-            {f.impact > 0 ? <Plus className="size-3" strokeWidth={3} /> : f.impact < 0 ? <Minus className="size-3" strokeWidth={3} /> : <span className="size-1.5 rounded-full bg-current" />}
+            {f.impact > 0 ? (
+              <Plus className="size-3" strokeWidth={3} />
+            ) : f.impact < 0 ? (
+              <Minus className="size-3" strokeWidth={3} />
+            ) : (
+              <span className="size-1.5 rounded-full bg-current" />
+            )}
           </span>
           <span className="min-w-0 flex-1 text-ink-soft">
-            <b className="font-semibold text-ink">{f.label}:</b> {f.text}
+            <b className="font-semibold text-ink">{t(f.label)}:</b> {t(f.text)}
           </span>
           {f.impact !== 0 && (
             <span className={cn("shrink-0 text-xs font-bold", f.impact > 0 ? "text-success-700" : "text-danger-700")}>

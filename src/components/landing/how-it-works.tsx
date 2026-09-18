@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { ClipboardList, Compass, Route, Sparkles } from "lucide-react";
 import { useRef } from "react";
@@ -33,6 +34,7 @@ const STEPS = [
 ] as const;
 
 export function HowItWorks() {
+  const t = useT();
   const ref = useRef<HTMLOListElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 75%", "end 55%"] });
   const scaleY = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
@@ -41,13 +43,12 @@ export function HowItWorks() {
     <section id="how" className="scroll-mt-20 bg-surface py-16 sm:py-24">
       <div className="container-page grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <Reveal className="lg:sticky lg:top-28 lg:self-start">
-          <p className="text-sm font-semibold text-brand-600">Как это работает</p>
-          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            Четыре шага — и ты знаешь, куда и как поступать
-          </h2>
+          <p className="text-sm font-semibold text-brand-600">{t("Как это работает")}</p>
+          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{t("Четыре шага — и ты знаешь, куда и как поступать")}</h2>
           <p className="mt-4 text-ink-soft">
-            Всегда видно, где ты находишься, что уже сделано и что будет дальше. Поменял бюджет, страну или сдал
-            экзамен — рекомендации и план перестраиваются сразу.
+            {t(
+              "Всегда видно, где ты находишься, что уже сделано и что будет дальше. Поменял бюджет, страну или сдал экзамен — рекомендации и план перестраиваются сразу.",
+            )}
           </p>
         </Reveal>
 
@@ -67,19 +68,19 @@ export function HowItWorks() {
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: i * 0.05 }}
               className="relative flex gap-4 rounded-card border border-line bg-canvas/60 p-4 sm:p-5"
             >
-                <span className="relative z-10 grid size-14 shrink-0 place-items-center rounded-2xl bg-surface text-brand-600 shadow-card ring-1 ring-line">
-                  <Icon className="size-6" aria-hidden />
-                </span>
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-bold text-muted">Шаг {i + 1}</span>
-                    <span className="rounded-pill bg-route-50 px-2 py-0.5 text-[11px] font-semibold text-route-700">
-                      {time}
-                    </span>
-                  </div>
-                  <h3 className="mt-1 text-lg font-semibold">{title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-ink-soft">{text}</p>
+              <span className="relative z-10 grid size-14 shrink-0 place-items-center rounded-2xl bg-surface text-brand-600 shadow-card ring-1 ring-line">
+                <Icon className="size-6" aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-bold text-muted">
+                    {t("Шаг")} {i + 1}
+                  </span>
+                  <span className="rounded-pill bg-route-50 px-2 py-0.5 text-[11px] font-semibold text-route-700">{t(time)}</span>
                 </div>
+                <h3 className="mt-1 text-lg font-semibold">{t(title)}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-ink-soft">{t(text)}</p>
+              </div>
             </motion.li>
           ))}
         </ol>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -8,14 +9,19 @@ import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { RoadmapStep } from "@/types/models";
 import { CATEGORY } from "./categories";
+import { currentIntl } from "@/lib/format";
 
 const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-const monthTitle = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" });
+const monthTitle = new Intl.DateTimeFormat(currentIntl(), { month: "long", year: "numeric" });
 
 export function DeadlineCalendar({ steps, universityName }: { steps: RoadmapStep[]; universityName: (id: number | null) => string | undefined }) {
+  const t = useT();
   const today = new Date();
   const todayIso = toIso(today);
-  const firstDated = steps.map((s) => s.due_date).filter(Boolean).sort()[0];
+  const firstDated = steps
+    .map((s) => s.due_date)
+    .filter(Boolean)
+    .sort()[0];
   const [cursor, setCursor] = useState(() => {
     const d = firstDated && firstDated > todayIso ? new Date(`${firstDated}T00:00:00`) : today;
     return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -44,7 +50,7 @@ export function DeadlineCalendar({ steps, universityName }: { steps: RoadmapStep
 
   const monthPrefix = toIso(cursor).slice(0, 7);
   const monthSteps = steps.filter((s) => s.due_date?.startsWith(monthPrefix));
-  const agenda = selected ? byDay.get(selected) ?? [] : monthSteps;
+  const agenda = selected ? (byDay.get(selected) ?? []) : monthSteps;
   const title = monthTitle.format(cursor).replace(" г.", "");
 
   const shift = (delta: number) => {
@@ -56,12 +62,22 @@ export function DeadlineCalendar({ steps, universityName }: { steps: RoadmapStep
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
       <div className="rounded-card border border-line bg-surface p-4 sm:p-5">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold capitalize">{title}</h3>
+          <h3 className="text-lg font-semibold capitalize">{t(title)}</h3>
           <div className="flex gap-1">
-            <button type="button" onClick={() => shift(-1)} className="grid size-9 place-items-center rounded-lg hover:bg-canvas" aria-label="Предыдущий месяц">
+            <button
+              type="button"
+              onClick={() => shift(-1)}
+              className="grid size-9 place-items-center rounded-lg hover:bg-canvas"
+              aria-label={t("Предыдущий месяц")}
+            >
               <ChevronLeft className="size-5" />
             </button>
-            <button type="button" onClick={() => shift(1)} className="grid size-9 place-items-center rounded-lg hover:bg-canvas" aria-label="Следующий месяц">
+            <button
+              type="button"
+              onClick={() => shift(1)}
+              className="grid size-9 place-items-center rounded-lg hover:bg-canvas"
+              aria-label={t("Следующий месяц")}
+            >
               <ChevronRight className="size-5" />
             </button>
           </div>
@@ -70,12 +86,19 @@ export function DeadlineCalendar({ steps, universityName }: { steps: RoadmapStep
         <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase text-muted">
           {WEEKDAYS.map((d) => (
             <div key={d} className="py-1">
-              {d}
+              {t(d)}
             </div>
           ))}
         </div>
         <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={monthPrefix} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }} className="grid grid-cols-7 gap-1">
+          <motion.div
+            key={monthPrefix}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+            className="grid grid-cols-7 gap-1"
+          >
             {cells.map((iso, i) => {
               if (!iso) return <div key={`e-${i}`} className="aspect-square" />;
               const items = byDay.get(iso) ?? [];
@@ -88,7 +111,7 @@ export function DeadlineCalendar({ steps, universityName }: { steps: RoadmapStep
                   type="button"
                   onClick={() => setSelected(isSelected ? null : iso)}
                   disabled={items.length === 0}
-                  aria-label={`${formatDate(iso)}${items.length ? `: ${items.length} шаг(а)` : ""}`}
+                  aria-label={t("{0}{1}", formatDate(iso), items.length ? `: ${items.length} шаг(а)` : "")}
                   className={cn(
                     "relative flex aspect-square flex-col items-center justify-center rounded-xl text-sm transition-colors",
                     items.length ? "font-semibold hover:bg-brand-50" : "text-muted",
@@ -101,7 +124,10 @@ export function DeadlineCalendar({ steps, universityName }: { steps: RoadmapStep
                   {items.length > 0 && (
                     <span className="absolute bottom-1.5 flex gap-0.5">
                       {items.slice(0, 3).map((s) => (
-                        <span key={s.id} className={cn("size-1.5 rounded-full", s.status === "done" ? "bg-line-strong" : isSelected ? "bg-white" : CATEGORY[s.category].dot)} />
+                        <span
+                          key={s.id}
+                          className={cn("size-1.5 rounded-full", s.status === "done" ? "bg-line-strong" : isSelected ? "bg-white" : CATEGORY[s.category].dot)}
+                        />
                       ))}
                     </span>
                   )}
@@ -113,16 +139,16 @@ export function DeadlineCalendar({ steps, universityName }: { steps: RoadmapStep
         <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-muted">
           {(["application", "exam", "document", "scholarship", "activity"] as const).map((c) => (
             <span key={c} className="inline-flex items-center gap-1.5">
-              <span className={cn("size-2 rounded-full", CATEGORY[c].dot)} /> {CATEGORY[c].label}
+              <span className={cn("size-2 rounded-full", CATEGORY[c].dot)} /> {t(CATEGORY[c].label)}
             </span>
           ))}
         </div>
       </div>
 
       <div className="rounded-card border border-line bg-surface p-4 sm:p-5">
-        <h3 className="font-semibold">{selected ? formatDate(selected) : `Сроки: ${title}`}</h3>
+        <h3 className="font-semibold">{t(selected ? formatDate(selected) : `Сроки: ${title}`)}</h3>
         {agenda.length === 0 ? (
-          <p className="mt-3 text-sm text-muted">В этом месяце сроков нет. Листай календарь вперёд.</p>
+          <p className="mt-3 text-sm text-muted">{t("В этом месяце сроков нет. Листай календарь вперёд.")}</p>
         ) : (
           <ul className="mt-3 space-y-2">
             {agenda.map((s) => {
@@ -133,10 +159,10 @@ export function DeadlineCalendar({ steps, universityName }: { steps: RoadmapStep
                     <Icon className="size-4" aria-hidden />
                   </span>
                   <div className="min-w-0">
-                    <p className={cn("text-sm font-semibold leading-snug", s.status === "done" && "line-through")}>{s.title}</p>
+                    <p className={cn("text-sm font-semibold leading-snug", s.status === "done" && "line-through")}>{t(s.title)}</p>
                     <p className="text-xs text-muted">
-                      {s.due_date && formatDate(s.due_date)}
-                      {universityName(s.university_id) ? ` · ${universityName(s.university_id)}` : ""}
+                      {t(s.due_date && formatDate(s.due_date))}
+                      {t(universityName(s.university_id) ? ` · ${universityName(s.university_id)}` : "")}
                     </p>
                   </div>
                 </li>

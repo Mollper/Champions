@@ -1,13 +1,15 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { ArrowUp, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChatMessage } from "@/lib/data/mentorship";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { currentIntl } from "@/lib/format";
 
-const time = new Intl.DateTimeFormat("ru-RU", { hour: "2-digit", minute: "2-digit" });
-const day = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" });
+const time = { format: (d: Date) => d.toLocaleTimeString(currentIntl(), { hour: "2-digit", minute: "2-digit" }) };
+const day = { format: (d: Date) => d.toLocaleDateString(currentIntl(), { day: "numeric", month: "long" }) };
 
 /**
  * Mentor ↔ student thread. New messages arrive over Supabase Realtime (RLS applies);
@@ -30,6 +32,7 @@ export function MentorChat({
   active: boolean;
   className?: string;
 }) {
+  const t = useT();
   const [messages, setMessages] = useState(initial);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -111,7 +114,9 @@ export function MentorChat({
     <section className={cn("flex min-h-0 flex-col overflow-hidden rounded-card border border-line bg-surface", className)}>
       <div ref={listRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4" aria-live="polite">
         {messages.length === 0 && (
-          <p className="py-10 text-center text-sm text-muted">{active ? `Напиши первое сообщение — ${otherName} увидит его сразу.` : "Сообщений пока нет."}</p>
+          <p className="py-10 text-center text-sm text-muted">
+            {t(active ? `Напиши первое сообщение — ${otherName} увидит его сразу.` : "Сообщений пока нет.")}
+          </p>
         )}
         {messages.map((m, i) => {
           const mine = m.sender_id === me;
@@ -119,13 +124,20 @@ export function MentorChat({
           const newDay = i === 0 || messages[i - 1].created_at.slice(0, 10) !== date;
           return (
             <div key={m.id}>
-              {newDay && <p className="my-3 text-center text-[11px] font-semibold uppercase tracking-wide text-muted">{day.format(new Date(m.created_at))}</p>}
+              {newDay && (
+                <p className="my-3 text-center text-[11px] font-semibold uppercase tracking-wide text-muted">{t(day.format(new Date(m.created_at)))}</p>
+              )}
               <div className={cn("flex", mine ? "justify-end" : "justify-start")}>
-                <div className={cn("max-w-[85%] whitespace-pre-wrap rounded-2xl px-3.5 py-2 text-sm [overflow-wrap:anywhere]", mine ? "rounded-br-md bg-brand-600 text-white" : "rounded-bl-md bg-canvas text-ink")}>
+                <div
+                  className={cn(
+                    "max-w-[85%] whitespace-pre-wrap rounded-2xl px-3.5 py-2 text-sm [overflow-wrap:anywhere]",
+                    mine ? "rounded-br-md bg-brand-600 text-white" : "rounded-bl-md bg-canvas text-ink",
+                  )}
+                >
                   {m.body}
                   <span className={cn("mt-0.5 block text-right text-[10px]", mine ? "text-white/70" : "text-muted")}>
-                    {time.format(new Date(m.created_at))}
-                    {mine && (m.read_at ? " · прочитано" : "")}
+                    {t(time.format(new Date(m.created_at)))}
+                    {mine && (m.read_at ? t(" · прочитано") : "")}
                   </span>
                 </div>
               </div>
@@ -142,7 +154,7 @@ export function MentorChat({
           }}
           className="border-t border-line p-3"
         >
-          {error && <p className="mb-2 text-xs text-danger-700">{error}</p>}
+          {error && <p className="mb-2 text-xs text-danger-700">{t(error)}</p>}
           <div className="flex items-end gap-2">
             <textarea
               value={draft}
@@ -155,17 +167,22 @@ export function MentorChat({
               }}
               rows={1}
               maxLength={4000}
-              placeholder={`Сообщение для ${otherName}…`}
-              aria-label="Сообщение"
+              placeholder={t("Сообщение для {0}…", otherName)}
+              aria-label={t("Сообщение")}
               className="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-line bg-canvas px-3.5 py-2.5 text-sm outline-none focus:border-brand-400 focus:bg-surface focus:ring-4 focus:ring-brand-100"
             />
-            <button type="submit" disabled={sending || !draft.trim()} className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-600 text-white transition hover:bg-brand-700 disabled:opacity-40" aria-label="Отправить">
+            <button
+              type="submit"
+              disabled={sending || !draft.trim()}
+              className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-600 text-white transition hover:bg-brand-700 disabled:opacity-40"
+              aria-label={t("Отправить")}
+            >
               {sending ? <Loader2 className="size-5 animate-spin" /> : <ArrowUp className="size-5" />}
             </button>
           </div>
         </form>
       ) : (
-        <p className="border-t border-line p-3 text-center text-sm text-muted">Чат откроется, когда ментор примет заявку.</p>
+        <p className="border-t border-line p-3 text-center text-sm text-muted">{t("Чат откроется, когда ментор примет заявку.")}</p>
       )}
     </section>
   );

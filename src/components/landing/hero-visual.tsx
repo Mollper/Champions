@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { motion } from "framer-motion";
 import { CalendarClock, Check, Flag, MapPin } from "lucide-react";
 import Image from "next/image";
@@ -19,6 +20,7 @@ const MILESTONES = [
 const pct = (v: number, total: number) => `${(v / total) * 100}%`;
 
 export function HeroVisual({ featured }: { featured: HeroUniversity | null }) {
+  const t = useT();
   return (
     <div data-shot="hero-visual" className="relative mx-auto aspect-[5/6] w-full max-w-[500px]">
       <motion.div
@@ -66,7 +68,7 @@ export function HeroVisual({ featured }: { featured: HeroUniversity | null }) {
             <Check className="size-3.5" strokeWidth={3} aria-hidden />
           </span>
           <span className="absolute left-1/2 top-full mt-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-night px-1.5 py-0.5 text-[10px] font-semibold text-white sm:text-[11px]">
-            {m.label}
+            {t(m.label)}
           </span>
         </motion.div>
       ))}
@@ -90,12 +92,12 @@ export function HeroVisual({ featured }: { featured: HeroUniversity | null }) {
         transition={{ duration: 0.7, delay: 1.1, ease: EASE }}
       >
         <div className="animate-float rounded-2xl border border-line bg-surface p-3 shadow-card sm:p-4">
-          <p className="text-[11px] font-medium text-muted sm:text-xs">Шанс поступления</p>
+          <p className="text-[11px] font-medium text-muted sm:text-xs">{t("Шанс поступления")}</p>
           <div className="mt-2 flex items-center gap-2 sm:gap-3">
             <ChanceRing value={64} />
             <div className="min-w-0">
-              <p className="text-[13px] font-semibold text-ink sm:text-sm">Реально</p>
-              <p className="hidden text-[11px] text-muted sm:block">GPA и IELTS выше минимума</p>
+              <p className="text-[13px] font-semibold text-ink sm:text-sm">{t("Реально")}</p>
+              <p className="hidden text-[11px] text-muted sm:block">{t("GPA и IELTS выше минимума")}</p>
             </div>
           </div>
         </div>
@@ -111,15 +113,13 @@ export function HeroVisual({ featured }: { featured: HeroUniversity | null }) {
         >
           <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-lift [animation-delay:1.5s] animate-float">
             <div className="relative h-16 sm:h-28">
-              <Image src={featured.image_url} alt={featured.name} fill sizes="260px" className="object-cover" priority />
-              <span className="absolute left-2 top-2 rounded-pill bg-route-500 px-2 py-0.5 text-[10px] font-bold text-white">
-                подходит на 91%
-              </span>
+              <Image src={featured.image_url} alt={t(featured.name)} fill sizes="260px" className="object-cover" priority />
+              <span className="absolute left-2 top-2 rounded-pill bg-route-500 px-2 py-0.5 text-[10px] font-bold text-white">{t("подходит на 91%")}</span>
             </div>
             <div className="p-2.5 sm:p-3">
-              <p className="truncate text-sm font-semibold text-ink">{featured.name}</p>
+              <p className="truncate text-sm font-semibold text-ink">{t(featured.name)}</p>
               <p className="mt-0.5 hidden items-center gap-1 truncate text-[11px] text-muted sm:flex">
-                <MapPin className="size-3 shrink-0" aria-hidden /> {featured.city}, {featured.country}
+                <MapPin className="size-3 shrink-0" aria-hidden /> {t(featured.city)}, {t(featured.country)}
               </p>
             </div>
           </div>
@@ -135,9 +135,9 @@ export function HeroVisual({ featured }: { featured: HeroUniversity | null }) {
       >
         <div className="rounded-2xl bg-coral-500 p-3 text-white shadow-coral sm:p-4">
           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/80">
-            <CalendarClock className="size-3.5" aria-hidden /> Следующий шаг
+            <CalendarClock className="size-3.5" aria-hidden /> {t("Следующий шаг")}
           </p>
-          <p className="mt-1.5 text-sm font-semibold leading-snug sm:text-[15px]">Записаться на IELTS — осталось 12 дней</p>
+          <p className="mt-1.5 text-sm font-semibold leading-snug sm:text-[15px]">{t("Записаться на IELTS — осталось 12 дней")}</p>
           <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-white/25">
             <motion.div
               className="h-full rounded-full bg-white"
@@ -146,7 +146,7 @@ export function HeroVisual({ featured }: { featured: HeroUniversity | null }) {
               transition={{ duration: 1.2, delay: 2.8, ease: EASE }}
             />
           </div>
-          <p className="mt-1.5 hidden text-[11px] text-white/80 sm:block">Маршрут пройден на 38%</p>
+          <p className="mt-1.5 hidden text-[11px] text-white/80 sm:block">{t("Маршрут пройден на 38%")}</p>
         </div>
       </motion.div>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { motion } from "framer-motion";
 import { ArrowRight, Clock3, GraduationCap, Sparkles } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
@@ -23,6 +24,7 @@ type Props = {
 };
 
 export function Hero({ ctaHref, universityCount, countryCount, scholarshipCount, featured }: Props) {
+  const t = useT();
   return (
     <section className="relative overflow-hidden">
       {/* ambient background */}
@@ -41,7 +43,7 @@ export function Hero({ ctaHref, universityCount, countryCount, scholarshipCount,
           <motion.div {...fadeUp(0)}>
             <span className="inline-flex items-center gap-2 rounded-pill border border-brand-100 bg-surface/80 px-3 py-1 text-xs font-semibold text-brand-700 shadow-card backdrop-blur">
               <Sparkles className="size-3.5" aria-hidden />
-              AI-навигатор поступления для 9–11 классов
+              {t("AI-навигатор поступления для 9–11 классов")}
             </span>
           </motion.div>
 
@@ -49,40 +51,39 @@ export function Hero({ ctaHref, universityCount, countryCount, scholarshipCount,
             {...fadeUp(0.08)}
             className="mt-5 font-display text-[2.1rem] font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-[3.6rem]"
           >
-            Твой маршрут <span className="text-gradient">в университет</span> — понятным планом
+            {t("Твой маршрут")} <span className="text-gradient">{t("в университет")}</span> {t("— понятным планом")}
           </motion.h1>
 
           <motion.p {...fadeUp(0.16)} className="mt-5 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg">
-            Ответь на короткую анкету о себе, оценках, экзаменах и бюджете. UniRoute покажет сильные стороны профиля,
-            подберёт вузы с оценкой шансов и объяснит, <b className="font-semibold text-ink">почему они подходят</b>, а
-            затем соберёт пошаговый план: экзамены, документы и дедлайны.
+            {t(
+              "Ответь на короткую анкету о себе, оценках, экзаменах и бюджете. UniRoute покажет сильные стороны профиля, подберёт вузы с оценкой шансов и объяснит,",
+            )}{" "}
+            <b className="font-semibold text-ink">{t("почему они подходят")}</b>
+            {t(", а затем соберёт пошаговый план: экзамены, документы и дедлайны.")}
           </motion.p>
 
           <motion.div {...fadeUp(0.24)} className="mt-8 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href={ctaHref} size="lg">
-              Построить мой маршрут <ArrowRight />
+              {t("Построить мой маршрут")} <ArrowRight />
             </ButtonLink>
             <ButtonLink href="#how" size="lg" variant="secondary">
-              Как это работает
+              {t("Как это работает")}
             </ButtonLink>
           </motion.div>
 
-          <motion.ul
-            {...fadeUp(0.32)}
-            className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-ink-soft"
-            aria-label="Коротко о сервисе"
-          >
+          <motion.ul {...fadeUp(0.32)} className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-ink-soft" aria-label={t("Коротко о сервисе")}>
             <li className="flex items-center gap-2">
               <Clock3 className="size-4 text-brand-500" aria-hidden />
-              Анкета ≈ 5 минут
+              {t("Анкета ≈ 5 минут")}
             </li>
             <li className="flex items-center gap-2">
               <GraduationCap className="size-4 text-brand-500" aria-hidden />
-              {universityCount} {plural(universityCount, ["вуз", "вуза", "вузов"])} из {countryCount} {plural(countryCount, ["страны", "стран", "стран"])}
+              {universityCount} {t(plural(universityCount, ["вуз", "вуза", "вузов"]))} {t("из")} {countryCount}{" "}
+              {t(plural(countryCount, ["страны", "стран", "стран"]))}
             </li>
             <li className="flex items-center gap-2">
               <Sparkles className="size-4 text-brand-500" aria-hidden />
-              {scholarshipCount} {plural(scholarshipCount, ["стипендия", "стипендии", "стипендий"])} · бесплатно
+              {scholarshipCount} {t(plural(scholarshipCount, ["стипендия", "стипендии", "стипендий"]))} {t("· бесплатно")}
             </li>
           </motion.ul>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
@@ -23,20 +24,12 @@ import { saveProfile } from "@/app/(app)/profile/actions";
 import { Button } from "@/components/ui/button";
 import { matchUniversities } from "@/lib/engine/match";
 import type { ProfileDraft } from "@/lib/engine/types";
+import { ageError } from "@/lib/constants";
 import { firstExamError } from "@/lib/exams";
 import { cn } from "@/lib/utils";
 import type { Scholarship, University } from "@/types/models";
 import { LivePreview } from "./live-preview";
-import {
-  AboutStep,
-  AcademicsStep,
-  BudgetStep,
-  CountriesStep,
-  GoalStep,
-  InterestsStep,
-  LanguagesStep,
-  type StepProps,
-} from "./steps";
+import { AboutStep, AcademicsStep, BudgetStep, CountriesStep, GoalStep, InterestsStep, LanguagesStep, type StepProps } from "./steps";
 
 type StepDef = {
   id: string;
@@ -54,7 +47,7 @@ const STEPS: StepDef[] = [
     why: "Класс и гражданство определяют сроки подачи и доступные гранты.",
     icon: ClipboardList,
     Component: AboutStep,
-    validate: (d) => (!d.grade ? "Выбери класс" : !d.citizenship ? "Укажи гражданство" : null),
+    validate: (d) => (!d.grade ? "Выбери класс" : ageError(d.age) ?? (!d.citizenship ? "Укажи гражданство" : null)),
   },
   {
     id: "interests",
@@ -78,10 +71,7 @@ const STEPS: StepDef[] = [
     why: "Почти все программы требуют подтверждённый английский: IELTS, TOEFL или Duolingo.",
     icon: Languages,
     Component: LanguagesStep,
-    validate: (d) =>
-      !d.languages.some((l) => l.language === "Английский")
-        ? "Отметь уровень английского"
-        : firstExamError(d.exams),
+    validate: (d) => (!d.languages.some((l) => l.language === "Английский") ? "Отметь уровень английского" : firstExamError(d.exams)),
   },
   {
     id: "countries",
@@ -116,6 +106,7 @@ type Props = {
 };
 
 export function ProfileWizard({ initial, isComplete, universities, scholarships, startYears }: Props) {
+  const t = useT();
   const router = useRouter();
   const [draft, setDraft] = useState(initial);
   // Resume an unfinished questionnaire at the first step that still needs an answer.
@@ -219,22 +210,22 @@ export function ProfileWizard({ initial, isComplete, universities, scholarships,
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-brand-600">
-              {isComplete ? "Редактирование анкеты" : "Анкета"} · шаг {step + 1} из {STEPS.length}
+              {t(isComplete ? "Редактирование анкеты" : "Анкета")} {t("· шаг")} {step + 1} {t("из")} {STEPS.length}
             </p>
-            <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight sm:text-3xl">{current.title}</h1>
-            <p className="mt-2 max-w-xl text-sm text-ink-soft">{current.why}</p>
+            <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight sm:text-3xl">{t(current.title)}</h1>
+            <p className="mt-2 max-w-xl text-sm text-ink-soft">{t(current.why)}</p>
           </div>
           {isComplete && (
             <div className="flex items-center gap-2 text-xs text-muted" aria-live="polite">
               {pending ? (
                 <>
-                  <Loader2 className="size-3.5 animate-spin" aria-hidden /> Сохраняем…
+                  <Loader2 className="size-3.5 animate-spin" aria-hidden /> {t("Сохраняем…")}
                 </>
               ) : dirty ? (
-                "Есть несохранённые изменения"
+                t("Есть несохранённые изменения")
               ) : savedAt ? (
                 <>
-                  <CheckCircle2 className="size-3.5 text-success-500" aria-hidden /> Сохранено
+                  <CheckCircle2 className="size-3.5 text-success-500" aria-hidden /> {t("Сохранено")}
                 </>
               ) : null}
             </div>
@@ -243,9 +234,13 @@ export function ProfileWizard({ initial, isComplete, universities, scholarships,
 
         {/* progress */}
         <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-line">
-          <motion.div className="h-full rounded-full bg-gradient-to-r from-brand-600 to-route-500" animate={{ width: `${progress}%` }} transition={{ type: "spring", stiffness: 120, damping: 24 }} />
+          <motion.div
+            className="h-full rounded-full bg-gradient-to-r from-brand-600 to-route-500"
+            animate={{ width: `${progress}%` }}
+            transition={{ type: "spring", stiffness: 120, damping: 24 }}
+          />
         </div>
-        <ol className="mt-3 flex gap-1.5 overflow-x-auto pb-1 scrollbar-none" aria-label="Шаги анкеты">
+        <ol className="mt-3 flex gap-1.5 overflow-x-auto pb-1 scrollbar-none" aria-label={t("Шаги анкеты")}>
           {STEPS.map((s, i) => {
             const valid = !s.validate?.(draft);
             const reachable = isComplete || i <= step;
@@ -267,8 +262,12 @@ export function ProfileWizard({ initial, isComplete, universities, scholarships,
                     !reachable && "opacity-60",
                   )}
                 >
-                  {i !== step && (i < step || isComplete) && valid ? <Check className="size-3.5" strokeWidth={3} aria-hidden /> : <Icon className="size-3.5" aria-hidden />}
-                  {s.title}
+                  {i !== step && (i < step || isComplete) && valid ? (
+                    <Check className="size-3.5" strokeWidth={3} aria-hidden />
+                  ) : (
+                    <Icon className="size-3.5" aria-hidden />
+                  )}
+                  {t(s.title)}
                 </button>
               </li>
             );
@@ -299,21 +298,21 @@ export function ProfileWizard({ initial, isComplete, universities, scholarships,
         <div className="sticky bottom-[76px] z-20 -mx-4 mt-8 border-t border-line bg-canvas/90 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
           {error && (
             <p role="alert" className="mb-3 flex items-center gap-2 rounded-xl bg-danger-50 px-3 py-2 text-sm font-medium text-danger-700">
-              <AlertCircle className="size-4 shrink-0" aria-hidden /> {error}
+              <AlertCircle className="size-4 shrink-0" aria-hidden /> {t(error)}
             </p>
           )}
           <div className="flex items-center gap-2">
-            <Button variant="secondary" onClick={() => go(step - 1)} disabled={step === 0 || pending} aria-label="Назад" className="px-3.5 sm:px-5">
-              <ArrowLeft aria-hidden /> <span className="hidden sm:inline">Назад</span>
+            <Button variant="secondary" onClick={() => go(step - 1)} disabled={step === 0 || pending} aria-label={t("Назад")} className="px-3.5 sm:px-5">
+              <ArrowLeft aria-hidden /> <span className="hidden sm:inline">{t("Назад")}</span>
             </Button>
             {isComplete && (
               <Button variant="soft" onClick={saveOnly} disabled={pending || !dirty} className="ml-auto">
-                Сохранить
+                {t("Сохранить")}
               </Button>
             )}
             <Button onClick={next} disabled={pending} className={cn("flex-1 sm:flex-none", !isComplete && "ml-auto")} size="md">
               {pending && <Loader2 className="animate-spin" aria-hidden />}
-              {isLast ? (isComplete ? "Сохранить и к вузам" : "Готово — к диагностике") : "Далее"}
+              {t(isLast ? (isComplete ? "Сохранить и к вузам" : "Готово — к диагностике") : "Далее")}
               {!pending && <ArrowRight aria-hidden />}
             </Button>
           </div>
@@ -324,8 +323,11 @@ export function ProfileWizard({ initial, isComplete, universities, scholarships,
         <div className="sticky top-24 space-y-4">
           <LivePreview matches={matches} profile={draft} />
           {isComplete && (
-            <Link href="/recommendations" className="block rounded-2xl border border-line bg-surface p-4 text-sm font-semibold text-brand-700 hover:border-brand-200">
-              Посмотреть все рекомендации →
+            <Link
+              href="/recommendations"
+              className="block rounded-2xl border border-line bg-surface p-4 text-sm font-semibold text-brand-700 hover:border-brand-200"
+            >
+              {t("Посмотреть все рекомендации →")}
             </Link>
           )}
         </div>

@@ -8,6 +8,13 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "upload.wikimedia.org", pathname: "/wikipedia/commons/**" },
     ],
   },
+  experimental: {
+    // Every page here reads the signed-in user's own data, so it's never eligible for the
+    // static prefetch cache; without this, clicking back into a page you just left re-runs
+    // every query from zero. 30s of client-side reuse removes that wait for the common case
+    // (nav back and forth) without showing data stale enough to matter.
+    staleTimes: { dynamic: 30 },
+  },
 };
 
 export default nextConfig;

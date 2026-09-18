@@ -1,81 +1,96 @@
+import { getT } from "@/i18n/server";
 import type { Metadata } from "next";
 import { Bot, GraduationCap, MessagesSquare, Sparkles, UserRoundCheck, Users } from "lucide-react";
 import Link from "next/link";
 import { PageHeader } from "@/components/app/page-header";
 import { getAdminOverview } from "@/lib/data/admin";
 import { requireRole } from "@/lib/roles";
+import { currentIntl } from "@/lib/format";
 
-export const metadata: Metadata = { title: "Админ-панель" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Админ-панель") };
+}
 
-const REQUEST_LABEL: Record<string, string> = { queued: "в очереди", running: "в работе", done: "добавлены", duplicate: "уже были", not_found: "не найдены", failed: "ошибка" };
+const REQUEST_LABEL: Record<string, string> = {
+  queued: "в очереди",
+  running: "в работе",
+  done: "добавлены",
+  duplicate: "уже были",
+  not_found: "не найдены",
+  failed: "ошибка",
+};
 
 export default async function AdminHome() {
+  const t = await getT();
   await requireRole(["admin"], "/admin");
   const o = await getAdminOverview();
 
   return (
     <div className="container-page space-y-6 py-6 sm:py-10">
-      <PageHeader eyebrow="Админ-панель" title="Обзор" description="Ученики, менторы и работа ИИ за последние дни." />
+      <PageHeader eyebrow={t("Админ-панель")} title={t("Обзор")} description={t("Ученики, менторы и работа ИИ за последние дни.")} />
 
-      <Section title="Люди" icon={Users}>
-        <Tile label="Ученики" value={o.students} hint={`+${o.newUsers} новых за 7 дней`} />
-        <Tile label="Менторы" value={o.mentors} hint={`${o.activeMentorships} активных пар`} href="/admin/chats" />
-        <Tile label="Заявки менторов" value={o.pendingApps} hint="ждут решения" href="/admin/applications" attention={o.pendingApps > 0} />
-        <Tile label="Админы" value={o.admins} hint="с полным доступом" href="/admin/users" />
+      <Section title={t("Люди")} icon={Users}>
+        <Tile label={t("Ученики")} value={o.students} hint={t("+{0} новых за 7 дней", o.newUsers)} />
+        <Tile label={t("Менторы")} value={o.mentors} hint={t("{0} активных пар", o.activeMentorships)} href="/admin/chats" />
+        <Tile label={t("Заявки менторов")} value={o.pendingApps} hint={t("ждут решения")} href="/admin/applications" attention={o.pendingApps > 0} />
+        <Tile label={t("Админы")} value={o.admins} hint={t("с полным доступом")} href="/admin/users" />
       </Section>
 
-      <Section title="Общение" icon={MessagesSquare}>
-        <Tile label="Ответы Юни" value={o.assistantReplies} hint="за 7 дней" href="/admin/ai" />
-        <Tile label="Сообщения менторов" value={o.mentorMessages} hint="за 7 дней" href="/admin/chats" />
+      <Section title={t("Общение")} icon={MessagesSquare}>
+        <Tile label={t("Ответы Юни")} value={o.assistantReplies} hint={t("за 7 дней")} href="/admin/ai" />
+        <Tile label={t("Сообщения менторов")} value={o.mentorMessages} hint={t("за 7 дней")} href="/admin/chats" />
       </Section>
 
-      <Section title="Работа ИИ" icon={Bot}>
-        <Tile label="Планы от ИИ" value={o.plansAi} hint={`${o.plansTemplate} по шаблону, когда ИИ был занят`} href="/admin/ai" />
-        <Tile label="Профили вузов" value={o.profiles} hint="написаны ИИ и закэшированы" />
+      <Section title={t("Работа ИИ")} icon={Bot}>
+        <Tile label={t("Планы от ИИ")} value={o.plansAi} hint={t("{0} по шаблону, когда ИИ был занят", o.plansTemplate)} href="/admin/ai" />
+        <Tile label={t("Профили вузов")} value={o.profiles} hint={t("написаны ИИ и закэшированы")} />
         <Tile
-          label="Заявки на вузы"
+          label={t("Заявки на вузы")}
           value={Object.values(o.requestsByStatus).reduce((a, b) => a + b, 0)}
-          hint={
+          hint={t(
             Object.entries(o.requestsByStatus)
               .map(([k, v]) => `${REQUEST_LABEL[k] ?? k}: ${v}`)
-              .join(" · ") || "за 30 дней нет"
-          }
+              .join(" · ") || "за 30 дней нет",
+          )}
           href="/admin/ai"
         />
       </Section>
 
-      <Section title="Каталог" icon={GraduationCap}>
-        <Tile label="Опубликовано вузов" value={o.published} hint={`${o.aiPublished} предложено ИИ`} />
-        <Tile label="Черновики ИИ" value={o.drafts} hint="без фото или стоимости — скрыты" href="/admin/ai" />
+      <Section title={t("Каталог")} icon={GraduationCap}>
+        <Tile label={t("Опубликовано вузов")} value={o.published} hint={t("{0} предложено ИИ", o.aiPublished)} />
+        <Tile label={t("Черновики ИИ")} value={o.drafts} hint={t("без фото или стоимости — скрыты")} href="/admin/ai" />
       </Section>
 
       <p className="flex items-center gap-2 text-xs text-muted">
-        <Sparkles className="size-3.5" aria-hidden /> Данные читаются сервисным ключом в обход RLS — страница доступна только администраторам.
+        <Sparkles className="size-3.5" aria-hidden /> {t("Данные читаются сервисным ключом в обход RLS — страница доступна только администраторам.")}
       </p>
     </div>
   );
 }
 
-function Section({ title, icon: Icon, children }: { title: string; icon: typeof Users; children: React.ReactNode }) {
+async function Section({ title, icon: Icon, children }: { title: string; icon: typeof Users; children: React.ReactNode }) {
+  const t = await getT();
   return (
     <section>
       <h2 className="mb-3 flex items-center gap-2 font-semibold">
-        <Icon className="size-4 text-brand-600" aria-hidden /> {title}
+        <Icon className="size-4 text-brand-600" aria-hidden /> {t(title)}
       </h2>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{children}</div>
     </section>
   );
 }
 
-function Tile({ label, value, hint, href, attention }: { label: string; value: number; hint: string; href?: string; attention?: boolean }) {
+async function Tile({ label, value, hint, href, attention }: { label: string; value: number; hint: string; href?: string; attention?: boolean }) {
+  const t = await getT();
   const body = (
     <>
       <p className="flex items-center gap-1.5 text-xs font-medium text-muted">
-        {attention && <UserRoundCheck className="size-3.5 text-coral-600" aria-label="требует внимания" />}
-        {label}
+        {attention && <UserRoundCheck className="size-3.5 text-coral-600" aria-label={t("требует внимания")} />}
+        {t(label)}
       </p>
-      <p className="mt-1 font-display text-3xl font-semibold tabular-nums text-ink">{value.toLocaleString("ru-RU")}</p>
-      <p className="mt-1 text-xs leading-snug text-ink-soft">{hint}</p>
+      <p className="mt-1 font-display text-3xl font-semibold tabular-nums text-ink">{value.toLocaleString(currentIntl())}</p>
+      <p className="mt-1 text-xs leading-snug text-ink-soft">{t(hint)}</p>
     </>
   );
   const cls = "block min-w-0 rounded-card border border-line bg-surface p-4";

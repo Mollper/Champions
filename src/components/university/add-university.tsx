@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, Clock3, Loader2, SearchX, Sparkles, XCircle } from "lucide-react";
 import Link from "next/link";
@@ -28,6 +29,7 @@ const ERRORS: Record<string, string> = {
 };
 
 export function AddUniversity({ initialRequests, processingEnabled }: { initialRequests: RequestRow[]; processingEnabled: boolean }) {
+  const t = useT();
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [requests, setRequests] = useState<RequestRow[]>(initialRequests);
@@ -78,43 +80,55 @@ export function AddUniversity({ initialRequests, processingEnabled }: { initialR
           <Sparkles className="size-5" aria-hidden />
         </span>
         <div className="min-w-0">
-          <h2 className="text-lg font-semibold">Не нашли свой вуз?</h2>
+          <h2 className="text-lg font-semibold">{t("Не нашли свой вуз?")}</h2>
           <p className="mt-1 text-sm text-ink-soft">
-            Напишите название — ИИ найдёт вуз в Wikidata, соберёт стоимость, требования и дедлайны с официального сайта, подберёт фото
-            и добавит его в подбор. Обычно это занимает около минуты.
+            {t(
+              "Напишите название — ИИ найдёт вуз в Wikidata, соберёт стоимость, требования и дедлайны с официального сайта, подберёт фото и добавит его в подбор. Обычно это занимает около минуты.",
+            )}
           </p>
         </div>
       </div>
 
       <form onSubmit={submit} className="mt-4 flex flex-col gap-2 sm:flex-row">
-        <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Например: ETH Zurich или Сорбонна" aria-label="Название вуза" maxLength={120} className="flex-1" />
+        <Input
+          value={t(query)}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t("Например: ETH Zurich или Сорбонна")}
+          aria-label={t("Название вуза")}
+          maxLength={120}
+          className="flex-1"
+        />
         <Button type="submit" disabled={sending || query.trim().length < 2}>
           {sending ? <Loader2 className="animate-spin" aria-hidden /> : <Sparkles aria-hidden />}
-          Найти и добавить
+          {t("Найти и добавить")}
         </Button>
       </form>
-      {error && <p className="mt-2 text-sm text-danger-700">{error}</p>}
+      {error && <p className="mt-2 text-sm text-danger-700">{t(error)}</p>}
       {!processing && requests.some((r) => r.status === "queued") && (
-        <p className="mt-2 text-xs text-muted">Заявки обрабатываются раз в сутки — вуз появится в подборе автоматически.</p>
+        <p className="mt-2 text-xs text-muted">{t("Заявки обрабатываются раз в сутки — вуз появится в подборе автоматически.")}</p>
       )}
 
       <AnimatePresence initial={false}>
         {requests.length > 0 && (
-          <motion.ul initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-4 divide-y divide-line overflow-hidden rounded-2xl border border-line">
+          <motion.ul
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mt-4 divide-y divide-line overflow-hidden rounded-2xl border border-line"
+          >
             {requests.map((r) => {
               const s = STATUS[r.status];
               const Icon = s.icon;
               return (
                 <li key={r.id} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:gap-3">
-                  <span className="min-w-0 flex-1 font-medium">{r.query}</span>
+                  <span className="min-w-0 flex-1 font-medium">{t(r.query)}</span>
                   <span className={cn("inline-flex items-center gap-1.5 text-sm font-semibold", s.tone)}>
-                    <Icon className={cn("size-4", r.status === "running" && "animate-spin")} aria-hidden /> {s.label}
+                    <Icon className={cn("size-4", r.status === "running" && "animate-spin")} aria-hidden /> {t(s.label)}
                   </span>
-                  {r.message && <span className="text-xs text-muted sm:hidden">{r.message}</span>}
+                  {r.message && <span className="text-xs text-muted sm:hidden">{t(r.message)}</span>}
                   {r.universities?.status === "published" && (r.status === "done" || r.status === "duplicate") && (
                     // the new university may not match the profile, so it has no card in the list above: open its own page
                     <Link href={`/universities/${r.universities.slug}`} className="text-sm font-semibold text-brand-700 hover:underline">
-                      Открыть профиль →
+                      {t("Открыть профиль →")}
                     </Link>
                   )}
                 </li>

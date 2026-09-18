@@ -1,3 +1,4 @@
+import { getT } from "@/i18n/server";
 import { ArrowRight, CalendarDays, Gauge, HandCoins, RefreshCw } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/reveal";
@@ -26,7 +27,8 @@ const FEATURES = [
   },
 ] as const;
 
-export function Features() {
+export async function Features() {
+  const t = await getT();
   return (
     <section className="py-16 sm:py-24">
       <div className="container-page">
@@ -35,8 +37,8 @@ export function Features() {
             <StaggerItem key={title}>
               <div className="h-full rounded-card border border-line bg-surface p-5">
                 <Icon className="size-6 text-route-600" aria-hidden />
-                <h3 className="mt-4 font-semibold">{title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{text}</p>
+                <h3 className="mt-4 font-semibold">{t(title)}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{t(text)}</p>
               </div>
             </StaggerItem>
           ))}
@@ -46,7 +48,8 @@ export function Features() {
   );
 }
 
-export function FinalCta({ ctaHref }: { ctaHref: string }) {
+export async function FinalCta({ ctaHref }: { ctaHref: string }) {
+  const t = await getT();
   return (
     <section className="pb-16 sm:pb-24">
       <div className="container-page">
@@ -55,18 +58,11 @@ export function FinalCta({ ctaHref }: { ctaHref: string }) {
             <div aria-hidden className="bg-grid absolute inset-0 opacity-20" />
             <div className="relative">
               <h2 className="mx-auto max-w-2xl font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                Начни с анкеты — через 5 минут у тебя будет маршрут
+                {t("Начни с анкеты — через 5 минут у тебя будет маршрут")}
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-white/80">
-                Бесплатно. Можно вернуться и поменять ответы в любой момент — план подстроится.
-              </p>
-              <ButtonLink
-                href={ctaHref}
-                size="lg"
-                variant="secondary"
-                className="mt-8 border-transparent text-brand-700 hover:bg-white"
-              >
-                Построить мой маршрут <ArrowRight />
+              <p className="mx-auto mt-4 max-w-xl text-white/80">{t("Бесплатно. Можно вернуться и поменять ответы в любой момент — план подстроится.")}</p>
+              <ButtonLink href={ctaHref} size="lg" variant="secondary" className="mt-8 border-transparent text-brand-700 hover:bg-white">
+                {t("Построить мой маршрут")} <ArrowRight />
               </ButtonLink>
             </div>
           </div>
@@ -76,28 +72,26 @@ export function FinalCta({ ctaHref }: { ctaHref: string }) {
   );
 }
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const t = await getT();
   return (
     <footer className="border-t border-line bg-surface">
       <div className="container-page flex flex-col gap-6 py-10 text-sm text-muted md:flex-row md:items-start md:justify-between">
         <div className="max-w-sm">
           <Logo />
-          <p className="mt-3">Персональный маршрут поступления для абитуриентов 9–11 классов.</p>
+          <p className="mt-3">{t("Персональный маршрут поступления для абитуриентов 9–11 классов.")}</p>
         </div>
         <div className="max-w-md space-y-2 text-xs leading-relaxed">
           <p>
-            <b className="text-ink-soft">Источники данных:</b> официальные сайты университетов, QS World University
-            Rankings. Цифры ориентировочные (демонстрационные данные) — перед подачей проверяйте на сайте вуза.
+            <b className="text-ink-soft">{t("Источники данных:")}</b>{" "}
+            {t(
+              "официальные сайты университетов, QS World University Rankings. Цифры ориентировочные (демонстрационные данные) — перед подачей проверяйте на сайте вуза.",
+            )}
           </p>
           <p>
-            Фотографии кампусов — Wikimedia Commons, авторы и лицензии указаны на каждом фото.{" "}
-            <a
-              href="https://github.com/TemniyPrince15/uniroute"
-              target="_blank"
-              rel="noreferrer"
-              className="font-semibold text-brand-600 hover:underline"
-            >
-              Исходный код на GitHub
+            {t("Фотографии кампусов — Wikimedia Commons, авторы и лицензии указаны на каждом фото.")}{" "}
+            <a href="https://github.com/TemniyPrince15/uniroute" target="_blank" rel="noreferrer" className="font-semibold text-brand-600 hover:underline">
+              {t("Исходный код на GitHub")}
             </a>
           </p>
         </div>

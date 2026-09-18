@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, ArrowRight, ChevronDown, GitCompareArrows, Search, SearchX } from "lucide-react";
 import Link from "next/link";
@@ -35,6 +36,7 @@ export function RecommendationsView({
   shortlistIds: number[];
   favoriteIds?: number[];
 }) {
+  const t = useT();
   const { ids, toggle, pendingId, error } = useShortlist(shortlistIds);
   const favorites = useFavorites(favoriteIds);
   const [othersLimit, setOthersLimit] = useState(6);
@@ -55,7 +57,14 @@ export function RecommendationsView({
   }, [recommended, sort, tier, q]);
 
   const card = (m: MatchResult, rank?: number) => (
-    <motion.div key={m.university.id} layout="position" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.3 }}>
+    <motion.div
+      key={m.university.id}
+      layout="position"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.3 }}
+    >
       <UniversityCard
         match={m}
         rank={rank}
@@ -74,7 +83,7 @@ export function RecommendationsView({
       {/* controls */}
       <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <label className="relative w-full">
-          <span className="sr-only">Найти вуз</span>
+          <span className="sr-only">{t("Найти вуз")}</span>
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
           <input
             type="search"
@@ -83,38 +92,38 @@ export function RecommendationsView({
               setQuery(e.target.value);
               setLimit(PAGE);
             }}
-            placeholder="Найти вуз, город или страну"
+            placeholder={t("Найти вуз, город или страну")}
             className="h-10 w-full rounded-xl border border-line bg-canvas pl-9 pr-3 text-sm outline-none transition placeholder:text-muted focus:border-brand-400 focus:bg-surface focus:ring-4 focus:ring-brand-100"
           />
         </label>
         <Segmented
-          label="Сортировка"
+          label={t("Сортировка")}
           value={sort}
           onChange={setSort}
           options={[
-            { value: "fit", label: "Совпадение" },
-            { value: "chance", label: "Шанс" },
-            { value: "cost", label: "Цена" },
+            { value: "fit", label: t("Совпадение") },
+            { value: "chance", label: t("Шанс") },
+            { value: "cost", label: t("Цена") },
           ]}
         />
-        <div className="flex gap-1.5 overflow-x-auto scrollbar-none" role="group" aria-label="Фильтр по шансам">
-          {(["all", "reach", "target", "safety"] as const).map((t) => {
-            const count = t === "all" ? recommended.length : recommended.filter((m) => m.tier === t).length;
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-none" role="group" aria-label={t("Фильтр по шансам")}>
+          {(["all", "reach", "target", "safety"] as const).map((option) => {
+            const count = option === "all" ? recommended.length : recommended.filter((m) => m.tier === option).length;
             return (
               <button
-                key={t}
+                key={option}
                 type="button"
-                aria-pressed={tier === t}
+                aria-pressed={tier === option}
                 onClick={() => {
-                  setTier(t);
+                  setTier(option);
                   setLimit(PAGE);
                 }}
                 className={cn(
                   "shrink-0 rounded-pill px-3 py-1.5 text-sm font-medium transition-colors",
-                  tier === t ? "bg-night text-white" : "bg-canvas text-ink-soft hover:bg-line",
+                  tier === option ? "bg-night text-white" : "bg-canvas text-ink-soft hover:bg-line",
                 )}
               >
-                {t === "all" ? "Все" : TIER_LABEL[t]} <span className="opacity-60">{count}</span>
+                {t(option === "all" ? "Все" : TIER_LABEL[option])} <span className="opacity-60">{count}</span>
               </button>
             );
           })}
@@ -123,19 +132,19 @@ export function RecommendationsView({
 
       {(error || favorites.error) && (
         <p role="alert" className="flex items-center gap-2 rounded-xl bg-danger-50 px-3 py-2 text-sm text-danger-700">
-          <AlertCircle className="size-4" aria-hidden /> {error ?? favorites.error}
+          <AlertCircle className="size-4" aria-hidden /> {t(error ?? favorites.error)}
         </p>
       )}
 
       {recommended.length === 0 ? (
         <div className="rounded-card border border-dashed border-line-strong bg-surface p-8 text-center">
           <SearchX className="mx-auto size-10 text-muted" aria-hidden />
-          <p className="mt-3 text-lg font-semibold">Под текущие ответы ничего не подходит</p>
+          <p className="mt-3 text-lg font-semibold">{t("Под текущие ответы ничего не подходит")}</p>
           <p className="mx-auto mt-1 max-w-md text-sm text-muted">
-            Попробуй расширить список стран, бюджет или снять ограничения. Ниже — ближайшие варианты и что им мешает.
+            {t("Попробуй расширить список стран, бюджет или снять ограничения. Ниже — ближайшие варианты и что им мешает.")}
           </p>
           <Link href="/profile" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:underline">
-            Изменить анкету <ArrowRight className="size-4" aria-hidden />
+            {t("Изменить анкету")} <ArrowRight className="size-4" aria-hidden />
           </Link>
         </div>
       ) : (
@@ -149,11 +158,13 @@ export function RecommendationsView({
               onClick={() => setLimit((l) => l + PAGE)}
               className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface py-3 text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
             >
-              Показать ещё {Math.min(PAGE, list.length - limit)} из {list.length - limit} <ChevronDown className="size-4" aria-hidden />
+              {t("Показать ещё")} {Math.min(PAGE, list.length - limit)} {t("из")} {list.length - limit} <ChevronDown className="size-4" aria-hidden />
             </button>
           )}
           {list.length === 0 && (
-            <p className="py-6 text-center text-sm text-muted">{q ? `В подборке нет вузов по запросу «${query.trim()}» — посмотри среди других ниже.` : "В этой категории пока нет вузов."}</p>
+            <p className="py-6 text-center text-sm text-muted">
+              {t(q ? `В подборке нет вузов по запросу «${query.trim()}» — посмотри среди других ниже.` : "В этой категории пока нет вузов.")}
+            </p>
           )}
         </div>
       )}
@@ -168,8 +179,11 @@ export function RecommendationsView({
             className="flex w-full items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3 text-left"
           >
             <span>
-              <span className="font-semibold">Другие вузы ({otherList.length})</span>
-              <span className="block text-sm text-muted">Не прошли по стране, бюджету, интересам или ограничениям — с фото, цифрами и причиной</span>
+              <span className="font-semibold">
+                {t("Другие вузы (")}
+                {otherList.length})
+              </span>
+              <span className="block text-sm text-muted">{t("Не прошли по стране, бюджету, интересам или ограничениям — с фото, цифрами и причиной")}</span>
             </span>
             <ChevronDown className={cn("size-5 transition-transform", (showOthers || q) && "rotate-180")} aria-hidden />
           </button>
@@ -188,7 +202,8 @@ export function RecommendationsView({
                     onClick={() => setOthersLimit((l) => l + 6)}
                     className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface py-3 text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
                   >
-                    Показать ещё {Math.min(6, otherList.length - othersLimit)} из {otherList.length - othersLimit} <ChevronDown className="size-4" aria-hidden />
+                    {t("Показать ещё")} {Math.min(6, otherList.length - othersLimit)} {t("из")} {otherList.length - othersLimit}{" "}
+                    <ChevronDown className="size-4" aria-hidden />
                   </button>
                 )}
               </motion.div>
@@ -209,8 +224,8 @@ export function RecommendationsView({
             <div className="flex items-center gap-3 rounded-2xl bg-night px-4 py-3 text-white shadow-2xl">
               <GitCompareArrows className="size-5 shrink-0 text-brand-300" aria-hidden />
               <p className="min-w-0 flex-1 text-sm">
-                В сравнении <b>{ids.length}</b> {plural(ids.length, ["вуз", "вуза", "вузов"])}
-                {ids.length < 2 && <span className="block text-xs text-white/60">Добавь ещё хотя бы один</span>}
+                {t("В сравнении")} <b>{ids.length}</b> {t(plural(ids.length, ["вуз", "вуза", "вузов"]))}
+                {ids.length < 2 && <span className="block text-xs text-white/60">{t("Добавь ещё хотя бы один")}</span>}
               </p>
               <Link
                 href="/compare"
@@ -220,7 +235,7 @@ export function RecommendationsView({
                   ids.length < 2 && "pointer-events-none opacity-50",
                 )}
               >
-                Сравнить <ArrowRight className="size-4" aria-hidden />
+                {t("Сравнить")} <ArrowRight className="size-4" aria-hidden />
               </Link>
             </div>
           </motion.div>

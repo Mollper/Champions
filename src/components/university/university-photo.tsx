@@ -1,3 +1,6 @@
+"use client";
+
+import { useT } from "@/i18n/client";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -25,18 +28,19 @@ export function UniversityPhoto({
   eager,
   showCredit = true,
 }: Props) {
+  const t = useT();
   return (
     <div className={cn("relative overflow-hidden bg-line", className)}>
-      <Image src={src} alt={alt} fill sizes={sizes} priority={priority} loading={eager ? "eager" : undefined} className="object-cover" />
+      <Image src={src} alt={t(alt)} fill sizes={sizes} priority={priority} loading={eager ? "eager" : undefined} className="object-cover" />
       {showCredit && credit && (
         <a
           href={sourceUrl ?? undefined}
           target="_blank"
           rel="noreferrer"
           className="absolute bottom-1.5 right-1.5 max-w-[85%] truncate rounded-md bg-black/45 px-1.5 py-0.5 text-[10px] leading-tight text-white/90 backdrop-blur-sm hover:bg-black/60"
-          title={`Фото: ${credit}`}
+          title={t("Фото: {0}", credit)}
         >
-          Фото: {credit}
+          {t("Фото:")} {t(credit)}
         </a>
       )}
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { motion } from "framer-motion";
 import { Crown, ExternalLink, Plus, Scale, X } from "lucide-react";
 import Image from "next/image";
@@ -34,7 +35,12 @@ const GROUPS: Group[] = [
     rows: [
       { label: "Обучение", value: (m) => m.costs.tuition, display: (m) => formatUsd(m.costs.tuition), better: "low" },
       { label: "Проживание", value: (m) => m.costs.living, display: (m) => formatUsd(m.costs.living), better: "low" },
-      { label: "Ожидаемая стипендия", value: (m) => m.costs.expectedAid, display: (m) => (m.costs.expectedAid ? `−${formatUsd(m.costs.expectedAid)}` : "—"), better: "high" },
+      {
+        label: "Ожидаемая стипендия",
+        value: (m) => m.costs.expectedAid,
+        display: (m) => (m.costs.expectedAid ? `−${formatUsd(m.costs.expectedAid)}` : "—"),
+        better: "high",
+      },
       { label: "Итого для семьи", value: (m) => m.costs.net, display: (m) => <b>{formatUsd(m.costs.net)}</b>, better: "low" },
       {
         label: "Стипендии",
@@ -49,8 +55,18 @@ const GROUPS: Group[] = [
     rows: [
       { label: "Мин. GPA (из 4)", value: (m) => m.university.min_gpa_4, display: (m) => m.university.min_gpa_4?.toFixed(1) ?? "—", better: "low" },
       { label: "IELTS", value: (m) => m.university.min_ielts, display: (m) => m.university.min_ielts?.toFixed(1) ?? "—", better: "low" },
-      { label: "SAT", value: (m) => (m.university.sat_required ? 1 : 0), display: (m) => (m.university.sat_required ? `нужен ${m.university.sat_recommended ?? ""}+` : "не нужен"), better: "low" },
-      { label: "Подготовительный год", value: (m) => (m.university.requires_foundation ? 1 : 0), display: (m) => (m.university.requires_foundation ? "нужен" : "не нужен"), better: "low" },
+      {
+        label: "SAT",
+        value: (m) => (m.university.sat_required ? 1 : 0),
+        display: (m) => (m.university.sat_required ? `нужен ${m.university.sat_recommended ?? ""}+` : "не нужен"),
+        better: "low",
+      },
+      {
+        label: "Подготовительный год",
+        value: (m) => (m.university.requires_foundation ? 1 : 0),
+        display: (m) => (m.university.requires_foundation ? "нужен" : "не нужен"),
+        better: "low",
+      },
       { label: "Язык обучения", value: () => null, display: (m) => m.university.instruction_languages.join(", "), better: null },
     ],
   },
@@ -58,7 +74,12 @@ const GROUPS: Group[] = [
     title: "Вуз и сроки",
     rows: [
       { label: "Рейтинг QS", value: (m) => m.university.qs_rank, display: (m) => (m.university.qs_rank ? `#${m.university.qs_rank}` : "—"), better: "low" },
-      { label: "Доля поступивших", value: (m) => m.university.acceptance_rate, display: (m) => (m.university.acceptance_rate != null ? `${m.university.acceptance_rate}%` : "—"), better: "high" },
+      {
+        label: "Доля поступивших",
+        value: (m) => m.university.acceptance_rate,
+        display: (m) => (m.university.acceptance_rate != null ? `${m.university.acceptance_rate}%` : "—"),
+        better: "high",
+      },
       {
         label: "Ближайший дедлайн",
         value: () => null,
@@ -81,6 +102,7 @@ const PRIORITIES = [
 type PriorityId = (typeof PRIORITIES)[number]["id"];
 
 export function CompareView({ matches, shortlistIds, suggestions }: { matches: MatchResult[]; shortlistIds: number[]; suggestions: MatchResult[] }) {
+  const t = useT();
   const { ids, toggle, pendingId, error } = useShortlist(shortlistIds);
   const [priorities, setPriorities] = useState<PriorityId[]>(["cost", "chance"]);
 
@@ -111,9 +133,9 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
       {/* priorities */}
       <div className="rounded-card border border-line bg-surface p-4 sm:p-5">
         <p className="flex items-center gap-2 font-semibold">
-          <Scale className="size-5 text-brand-600" aria-hidden /> Что для тебя важнее?
+          <Scale className="size-5 text-brand-600" aria-hidden /> {t("Что для тебя важнее?")}
         </p>
-        <p className="mt-1 text-sm text-muted">Выбери приоритеты — посчитаем, какой вариант выигрывает именно для тебя.</p>
+        <p className="mt-1 text-sm text-muted">{t("Выбери приоритеты — посчитаем, какой вариант выигрывает именно для тебя.")}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {PRIORITIES.map((p) => (
             <Chip
@@ -121,29 +143,39 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
               selected={priorities.includes(p.id)}
               onClick={() => setPriorities((cur) => (cur.includes(p.id) ? cur.filter((x) => x !== p.id) : [...cur, p.id]))}
             >
-              {p.label}
+              {t(p.label)}
             </Chip>
           ))}
         </div>
         {ranking && (
-          <motion.div key={`${winner?.id ?? "tie"}-${priorities.join()}`} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-4 flex items-start gap-3 rounded-2xl bg-brand-50 p-3.5">
-            {winner ? <Crown className="mt-0.5 size-5 shrink-0 text-brand-600" aria-hidden /> : <Scale className="mt-0.5 size-5 shrink-0 text-brand-600" aria-hidden />}
+          <motion.div
+            key={`${winner?.id ?? "tie"}-${priorities.join()}`}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 flex items-start gap-3 rounded-2xl bg-brand-50 p-3.5"
+          >
+            {winner ? (
+              <Crown className="mt-0.5 size-5 shrink-0 text-brand-600" aria-hidden />
+            ) : (
+              <Scale className="mt-0.5 size-5 shrink-0 text-brand-600" aria-hidden />
+            )}
             <div className="min-w-0 text-sm text-ink-soft">
               {winner ? (
                 <p>
-                  По твоим приоритетам лучше всего — <b className="text-ink">{selected.find((m) => m.university.id === winner.id)?.university.name}</b>
+                  {t("По твоим приоритетам лучше всего —")}{" "}
+                  <b className="text-ink">{t(selected.find((m) => m.university.id === winner.id)?.university.name)}</b>
                 </p>
               ) : (
                 <p>
-                  <b className="text-ink">Ничья:</b> каждый вариант выигрывает по своему приоритету. Добавь ещё один приоритет, чтобы определить
-                  лучший.
+                  <b className="text-ink">{t("Ничья:")}</b>{" "}
+                  {t("каждый вариант выигрывает по своему приоритету. Добавь ещё один приоритет, чтобы определить лучший.")}
                 </p>
               )}
               {ranking && ranking.length > 1 && (
                 <ol className="mt-2 flex flex-wrap gap-1.5">
                   {ranking.map((r, i) => (
                     <li key={r.id} className="rounded-pill bg-surface px-2.5 py-0.5 text-xs">
-                      {i + 1}. {selected.find((m) => m.university.id === r.id)?.university.name} · <b>{r.score}</b>
+                      {i + 1}. {t(selected.find((m) => m.university.id === r.id)?.university.name)} · <b>{r.score}</b>
                     </li>
                   ))}
                 </ol>
@@ -153,18 +185,18 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
         )}
       </div>
 
-      {error && <p className="rounded-xl bg-danger-50 px-3 py-2 text-sm text-danger-700">{error}</p>}
+      {error && <p className="rounded-xl bg-danger-50 px-3 py-2 text-sm text-danger-700">{t(error)}</p>}
 
       {selected.length < 2 && (
         <div className="rounded-card border border-dashed border-line-strong bg-surface p-5 text-center sm:p-8">
-          <p className="text-lg font-semibold">{selected.length === 0 ? "Сравнение пока пустое" : "Добавь ещё хотя бы один вуз"}</p>
-          <p className="mt-1 text-sm text-muted">Выбери варианты из рекомендаций — или добавь лучшие совпадения одним нажатием:</p>
+          <p className="text-lg font-semibold">{t(selected.length === 0 ? "Сравнение пока пустое" : "Добавь ещё хотя бы один вуз")}</p>
+          <p className="mt-1 text-sm text-muted">{t("Выбери варианты из рекомендаций — или добавь лучшие совпадения одним нажатием:")}</p>
         </div>
       )}
 
       {addable.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-muted">Добавить:</span>
+          <span className="text-sm text-muted">{t("Добавить:")}</span>
           {addable.map((m) => (
             <button
               key={m.university.id}
@@ -173,8 +205,8 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
               onClick={() => toggle(m.university.id)}
               className="inline-flex items-center gap-1.5 rounded-pill border border-line bg-surface px-3 py-1.5 text-sm font-medium hover:border-brand-300 disabled:opacity-50"
             >
-              <Plus className="size-3.5 text-brand-600" aria-hidden /> {m.university.name}
-              <span className="text-xs text-muted">{TIER_LABEL[m.tier]}</span>
+              <Plus className="size-3.5 text-brand-600" aria-hidden /> {t(m.university.name)}
+              <span className="text-xs text-muted">{t(TIER_LABEL[m.tier])}</span>
             </button>
           ))}
         </div>
@@ -184,19 +216,29 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
         <div className="overflow-hidden rounded-card border border-line bg-surface shadow-card">
           <div className="overflow-x-auto">
             <table className="w-full min-w-max border-collapse text-sm">
-              <caption className="sr-only">Сравнение выбранных вузов</caption>
+              <caption className="sr-only">{t("Сравнение выбранных вузов")}</caption>
               <thead>
                 <tr>
-                  <th scope="col" className="sticky left-0 z-10 w-28 bg-surface p-3 text-left align-bottom text-xs font-semibold uppercase tracking-wide text-muted sm:w-40">
-                    Параметр
+                  <th
+                    scope="col"
+                    className="sticky left-0 z-10 w-28 bg-surface p-3 text-left align-bottom text-xs font-semibold uppercase tracking-wide text-muted sm:w-40"
+                  >
+                    {t("Параметр")}
                   </th>
                   {selected.map((m) => (
-                    <th key={m.university.id} scope="col" className={cn("w-[160px] min-w-[160px] p-3 text-left align-top sm:w-[200px] sm:min-w-[200px]", winner?.id === m.university.id && "bg-brand-50/60")}>
+                    <th
+                      key={m.university.id}
+                      scope="col"
+                      className={cn(
+                        "w-[160px] min-w-[160px] p-3 text-left align-top sm:w-[200px] sm:min-w-[200px]",
+                        winner?.id === m.university.id && "bg-brand-50/60",
+                      )}
+                    >
                       <div className="relative h-24 overflow-hidden rounded-xl">
                         <Image src={m.university.image_url} alt="" fill sizes="200px" loading="eager" className="object-cover" />
                         {winner?.id === m.university.id && (
                           <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-pill bg-brand-600 px-2 py-0.5 text-[11px] font-bold text-white">
-                            <Crown className="size-3" aria-hidden /> лучший выбор
+                            <Crown className="size-3" aria-hidden /> {t("лучший выбор")}
                           </span>
                         )}
                         {m.university.origin === "ai" && (
@@ -208,16 +250,21 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
                           type="button"
                           onClick={() => toggle(m.university.id)}
                           className="absolute right-2 top-2 grid size-7 place-items-center rounded-full bg-white/90 text-night hover:bg-white"
-                          aria-label={`Убрать ${m.university.name} из сравнения`}
+                          aria-label={t("Убрать {0} из сравнения", m.university.name)}
                         >
                           <X className="size-4" />
                         </button>
                       </div>
                       <Link href={`/universities/${m.university.slug}`} className="mt-2 block font-semibold leading-snug hover:text-brand-700 hover:underline">
-                        {m.university.name}
+                        {t(m.university.name)}
                       </Link>
-                      <a href={m.university.website_url} target="_blank" rel="noreferrer" className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:underline">
-                        сайт <ExternalLink className="size-3" aria-hidden />
+                      <a
+                        href={m.university.website_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:underline"
+                      >
+                        {t("сайт")} <ExternalLink className="size-3" aria-hidden />
                       </a>
                     </th>
                   ))}
@@ -226,18 +273,30 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
               {GROUPS.map((group) => (
                 <tbody key={group.title}>
                   <tr>
-                    <th colSpan={selected.length + 1} scope="colgroup" className="bg-canvas px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted">
-                      <span className="sticky left-3">{group.title}</span>
+                    <th
+                      colSpan={selected.length + 1}
+                      scope="colgroup"
+                      className="bg-canvas px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted"
+                    >
+                      <span className="sticky left-3">{t(group.title)}</span>
                     </th>
                   </tr>
                   {group.rows.map((row) => {
                     const values = selected.map(row.value);
                     const numeric = values.filter((v): v is number => v != null);
-                    const best = row.better && numeric.length > 1 && new Set(numeric).size > 1 ? (row.better === "high" ? Math.max(...numeric) : Math.min(...numeric)) : null;
+                    const best =
+                      row.better && numeric.length > 1 && new Set(numeric).size > 1
+                        ? row.better === "high"
+                          ? Math.max(...numeric)
+                          : Math.min(...numeric)
+                        : null;
                     return (
                       <tr key={row.label} className="border-t border-line">
-                        <th scope="row" className="sticky left-0 z-10 max-w-28 bg-surface p-3 text-left text-xs font-medium text-ink-soft sm:max-w-40 sm:text-sm">
-                          {row.label}
+                        <th
+                          scope="row"
+                          className="sticky left-0 z-10 max-w-28 bg-surface p-3 text-left text-xs font-medium text-ink-soft sm:max-w-40 sm:text-sm"
+                        >
+                          {t(row.label)}
                         </th>
                         {selected.map((m, i) => {
                           const isBest = best != null && values[i] === best;
@@ -245,7 +304,7 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
                             <td key={m.university.id} className={cn("p-3 align-middle", winner?.id === m.university.id && "bg-brand-50/40")}>
                               <span className={cn("inline-flex items-center gap-1.5", isBest && "font-semibold text-success-700")}>
                                 {row.display(m)}
-                                {isBest && <span className="rounded-pill bg-success-50 px-1.5 text-[10px] font-bold">лучше</span>}
+                                {isBest && <span className="rounded-pill bg-success-50 px-1.5 text-[10px] font-bold">{t("лучше")}</span>}
                               </span>
                             </td>
                           );
@@ -262,9 +321,9 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
 
       {selected.length >= 1 && (
         <p className="text-xs text-muted">
-          На телефоне таблицу можно листать вбок. Можно сравнить до 4 вузов.{" "}
+          {t("На телефоне таблицу можно листать вбок. Можно сравнить до 4 вузов.")}{" "}
           <Link href="/recommendations" className="font-semibold text-brand-700 hover:underline">
-            Выбрать другие
+            {t("Выбрать другие")}
           </Link>
         </p>
       )}

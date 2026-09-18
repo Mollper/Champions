@@ -1,6 +1,10 @@
+"use client";
+
+import { useT } from "@/i18n/client";
 import { ExternalLink, Sparkles } from "lucide-react";
 import { hostOf } from "@/lib/catalog/http";
 import type { FieldSource, University } from "@/types/models";
+import { currentIntl } from "@/lib/format";
 
 const FIELD_LABEL: Record<string, string> = {
   tuition_usd_per_year: "Стоимость обучения",
@@ -33,26 +37,28 @@ function describe(source: FieldSource) {
 }
 
 export function AiBadge() {
+  const t = useT();
   return (
     <span
       className="inline-flex items-center gap-1 rounded-pill bg-brand-600/90 px-2 py-0.5 text-[11px] font-bold text-white backdrop-blur"
-      title="Вуз и все данные о нём, включая фото, подобрал ИИ по открытым источникам. Проверяйте детали на сайте вуза."
+      title={t("Вуз и все данные о нём, включая фото, подобрал ИИ по открытым источникам. Проверяйте детали на сайте вуза.")}
     >
-      <Sparkles className="size-3" aria-hidden /> Предложено ИИ
+      <Sparkles className="size-3" aria-hidden /> {t("Предложено ИИ")}
     </span>
   );
 }
 
 /** Where each number on the card came from. */
 export function DataSources({ university }: { university: University }) {
+  const t = useT();
   if (university.origin !== "ai") {
     return (
       <p className="text-xs text-muted">
-        Данные собраны вручную с{" "}
+        {t("Данные собраны вручную с")}{" "}
         <a href={university.website_url} target="_blank" rel="noreferrer" className="font-semibold text-brand-700 hover:underline">
-          официального сайта
+          {t("официального сайта")}
         </a>{" "}
-        и из открытых рейтингов — цифры ориентировочные.
+        {t("и из открытых рейтингов — цифры ориентировочные.")}
       </p>
     );
   }
@@ -66,23 +72,32 @@ export function DataSources({ university }: { university: University }) {
     <div className="space-y-2">
       <p className="text-xs font-semibold text-brand-700">
         <Sparkles className="mr-1 inline size-3.5 align-[-3px]" aria-hidden />
-        Предложено ИИ: данные и фото собраны из Wikidata, сайта вуза и открытых источников
-        {university.enriched_at && <span className="font-normal text-muted"> · обновлено {new Date(university.enriched_at).toLocaleDateString("ru-RU")}</span>}
+        {t("Предложено ИИ: данные и фото собраны из Wikidata, сайта вуза и открытых источников")}
+        {university.enriched_at && (
+          <span className="font-normal text-muted">
+            {" "}
+            {t("· обновлено")} {new Date(university.enriched_at).toLocaleDateString(currentIntl())}
+          </span>
+        )}
       </p>
       <ul className="grid grid-cols-1 gap-1.5 text-xs sm:grid-cols-2">
         {rows.map(({ key, label, source }) => {
           const { text, tone } = describe(source);
           return (
             <li key={key} className="min-w-0 rounded-lg bg-surface px-2.5 py-1.5">
-              <span className="text-muted">{label}: </span>
+              <span className="text-muted">{t(label)}: </span>
               {source.url ? (
                 <a href={source.url} target="_blank" rel="noreferrer" className={`inline-flex items-center gap-0.5 font-semibold hover:underline ${tone}`}>
-                  {text} <ExternalLink className="size-3" aria-hidden />
+                  {t(text)} <ExternalLink className="size-3" aria-hidden />
                 </a>
               ) : (
-                <span className={`font-semibold ${tone}`}>{text}</span>
+                <span className={`font-semibold ${tone}`}>{t(text)}</span>
               )}
-              {source.evidence && <span className="mt-0.5 block truncate italic text-muted" title={source.evidence}>«{source.evidence}»</span>}
+              {source.evidence && (
+                <span className="mt-0.5 block truncate italic text-muted" title={t(source.evidence)}>
+                  «{t(source.evidence)}»
+                </span>
+              )}
             </li>
           );
         })}

@@ -6,6 +6,8 @@ import { TIER_LABEL } from "@/lib/engine/match";
 import type { MatchResult } from "@/lib/engine/types";
 import { formatScore } from "@/lib/exams";
 import { formatDate, formatUsd } from "@/lib/format";
+import type { Locale } from "@/i18n/config";
+import { promptLanguage } from "@/i18n/config";
 import type { AssistantStyle } from "@/types/models";
 import type { Answer } from "./compose";
 import type { AssistantContext } from "./context";
@@ -69,7 +71,7 @@ export function studentSummary(ctx: Pick<AssistantContext, "draft" | "name">): s
 }
 
 /** Everything the model may rely on, kept to ~2–3k tokens so a free Groq minute fits a reply. */
-export function buildSystemPrompt(message: string, style: AssistantStyle, ctx: AssistantContext, computed: Answer | null): string {
+export function buildSystemPrompt(message: string, style: AssistantStyle, ctx: AssistantContext, computed: Answer | null, locale: Locale = "ru"): string {
   const shown = new Set<number>();
   // each university appears once, in the first section that lists it
   const take = (list: MatchResult[], n: number) => {
@@ -94,12 +96,13 @@ export function buildSystemPrompt(message: string, style: AssistantStyle, ctx: A
   const scholarships = ctx.scholarshipMatches.filter((s) => s.status !== "not").slice(0, 3);
   const countryCount = new Set(ctx.universities.map((u) => u.country_code)).size;
 
+  const langLine = locale === "ru" ? "русском языке" : `${promptLanguage(locale)} (даже если ученик написал по-русски)`;
   return `Ты — Юни, ИИ-помощник UniRoute (маскот сервиса — аниме-парень в выпускной шапочке): помогаешь школьникам 9–11 классов из Казахстана и стран СНГ спланировать поступление в зарубежные и казахстанские вузы.
 
 ${STYLE_RULES[style]}
 
 Правила:
-1. Отвечай по-русски. Опирайся на данные ниже: числа о шансах, стоимости, требованиях и дедлайнах бери только оттуда. Если данных нет — честно скажи и предложи проверить на официальном сайте вуза.
+1. Отвечай на ${langLine}. Опирайся на данные ниже: числа о шансах, стоимости, требованиях и дедлайнах бери только оттуда. Если данных нет — честно скажи и предложи проверить на официальном сайте вуза.
 2. Шансы — оценка модели UniRoute, а не гарантия. Не обещай поступление.
 3. Эссе не пиши за ученика целиком: помогай идеями, структурой, разбором черновика и правкой отдельных фраз.
 4. Если ниже есть блок «Расчёт приложения», начни ответ с его вывода своими словами, сохранив цифры и названия вузов без изменений (сам блок так не называй). Не придумывай своих процентов, сумм и стипендий сверх данных.

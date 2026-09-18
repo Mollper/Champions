@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUserId } from "@/lib/auth";
 import {
   ACTIVITY_KINDS,
+  AGE_MAX,
+  AGE_MIN,
+  ageError,
   ASSISTANT_STYLES,
   BUDGETS,
   CITIZENSHIPS,
@@ -68,7 +71,7 @@ function sanitize(input: ProfileDraft) {
 
   return {
     grade: pick(input.grade, GRADES),
-    age: num(input.age, 10, 30),
+    age: num(input.age, AGE_MIN, AGE_MAX),
     citizenship: pick(input.citizenship, CITIZENSHIPS.map((c) => c.code)),
     interests: subset(input.interests, FIELDS.map((f) => f.id)),
     intended_major: text(input.intended_major, 120),
@@ -93,6 +96,8 @@ export async function saveProfile(input: ProfileDraft, complete: boolean): Promi
   if (!userId) return { ok: false, error: "Сессия истекла — войдите снова." };
 
   // an impossible score (SAT 1465, IELTS 6.3) would skew chances: refuse instead of guessing
+  const invalidAge = ageError(typeof input.age === "number" ? input.age : input.age == null ? null : Number(input.age));
+  if (invalidAge) return { ok: false, error: invalidAge };
   const examError = Array.isArray(input.exams) ? firstExamError(input.exams.filter((e) => e && typeof e === "object")) : null;
   if (examError) return { ok: false, error: examError };
 

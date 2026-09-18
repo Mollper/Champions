@@ -1,3 +1,4 @@
+import { getT } from "@/i18n/server";
 import { GitCompareArrows, ListChecks, Microscope, School } from "lucide-react";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
 import { Reveal } from "@/components/motion/reveal";
@@ -29,18 +30,15 @@ const ITEMS = [
   },
 ] as const;
 
-export function ValueGrid() {
+export async function ValueGrid() {
+  const t = await getT();
   return (
     <section id="result" className="scroll-mt-20 py-16 sm:py-24">
       <div className="container-page">
         <Reveal className="max-w-2xl">
-          <p className="text-sm font-semibold text-brand-600">Результат</p>
-          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            От анкеты — к плану, который можно выполнять
-          </h2>
-          <p className="mt-4 text-ink-soft">
-            Никаких списков «топ-100 вузов». Только то, что подходит именно тебе, с объяснением и конкретными шагами.
-          </p>
+          <p className="text-sm font-semibold text-brand-600">{t("Результат")}</p>
+          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{t("От анкеты — к плану, который можно выполнять")}</h2>
+          <p className="mt-4 text-ink-soft">{t("Никаких списков «топ-100 вузов». Только то, что подходит именно тебе, с объяснением и конкретными шагами.")}</p>
         </Reveal>
 
         <Stagger className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -53,9 +51,9 @@ export function ValueGrid() {
                   </span>
                   <span className="font-display text-sm font-semibold text-line-strong">0{i + 1}</span>
                 </div>
-                <h3 className="mt-5 text-lg font-semibold">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-soft">{text}</p>
-                <p className="mt-4 border-t border-line pt-3 text-xs font-semibold text-route-700">→ {result}</p>
+                <h3 className="mt-5 text-lg font-semibold">{t(title)}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-soft">{t(text)}</p>
+                <p className="mt-4 border-t border-line pt-3 text-xs font-semibold text-route-700">→ {t(result)}</p>
               </article>
             </StaggerItem>
           ))}

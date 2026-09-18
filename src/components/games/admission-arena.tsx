@@ -1,7 +1,25 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
-import { Award, BookOpenCheck, Brain, Coffee, Flame, GraduationCap, HandHeart, Heart, Rocket, RotateCcw, Shield, Sparkles, Swords, Trophy, Zap, type LucideIcon } from "lucide-react";
+import {
+  Award,
+  BookOpenCheck,
+  Brain,
+  Coffee,
+  Flame,
+  GraduationCap,
+  HandHeart,
+  Heart,
+  Rocket,
+  RotateCcw,
+  Shield,
+  Sparkles,
+  Swords,
+  Trophy,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -30,15 +48,57 @@ const CARDS: Record<string, CardDef> = {
   olympiad: { key: "olympiad", name: "Олимпиада по физике", cost: 2, neon: "violet", icon: Trophy, text: "35 урона требованиям вуза", damage: 35 },
   gpa: { key: "gpa", name: "GPA 4.0", cost: 1, neon: "indigo", icon: GraduationCap, text: "20 урона + 10 брони от дедлайнов", damage: 20, block: 10 },
   essay: { key: "essay", name: "AI Essay Polish", cost: 1, neon: "emerald", icon: Sparkles, text: "Следующий удар ×2 (крит)", doubleNext: true },
-  coffee: { key: "coffee", name: "Кофе в 3 ночи", cost: 0, neon: "amber", icon: Coffee, text: "+2 энергии, но −10 ментального здоровья", energy: 2, selfDamage: 10 },
+  coffee: {
+    key: "coffee",
+    name: "Кофе в 3 ночи",
+    cost: 0,
+    neon: "amber",
+    icon: Coffee,
+    text: "+2 энергии, но −10 ментального здоровья",
+    energy: 2,
+    selfDamage: 10,
+  },
   ielts: { key: "ielts", name: "IELTS 7.5", cost: 1, neon: "indigo", icon: BookOpenCheck, text: "15 урона", damage: 15 },
-  recommendation: { key: "recommendation", name: "Рекомендация профессора", cost: 2, neon: "violet", icon: Award, text: "25 урона + 8 брони", damage: 25, block: 8 },
-  volunteer: { key: "volunteer", name: "Волонтёрство", cost: 1, neon: "emerald", icon: HandHeart, text: "10 урона и +8 ментального здоровья", damage: 10, heal: 8 },
+  recommendation: {
+    key: "recommendation",
+    name: "Рекомендация профессора",
+    cost: 2,
+    neon: "violet",
+    icon: Award,
+    text: "25 урона + 8 брони",
+    damage: 25,
+    block: 8,
+  },
+  volunteer: {
+    key: "volunteer",
+    name: "Волонтёрство",
+    cost: 1,
+    neon: "emerald",
+    icon: HandHeart,
+    text: "10 урона и +8 ментального здоровья",
+    damage: 10,
+    heal: 8,
+  },
   project: { key: "project", name: "Open-source проект", cost: 2, neon: "emerald", icon: Rocket, text: "30 урона", damage: 30 },
   planner: { key: "planner", name: "План от Юни", cost: 1, neon: "indigo", icon: Brain, text: "15 брони от дедлайнов", block: 15 },
 };
 
-const STARTER_DECK = ["olympiad", "olympiad", "gpa", "gpa", "gpa", "essay", "essay", "coffee", "coffee", "ielts", "recommendation", "volunteer", "project", "planner"];
+const STARTER_DECK = [
+  "olympiad",
+  "olympiad",
+  "gpa",
+  "gpa",
+  "gpa",
+  "essay",
+  "essay",
+  "coffee",
+  "coffee",
+  "ielts",
+  "recommendation",
+  "volunteer",
+  "project",
+  "planner",
+];
 
 type Boss = { slug: string; name: string; hp: number; bonus: number; image: string | null };
 const BOSS_BASE: Omit<Boss, "image">[] = [
@@ -116,7 +176,19 @@ function drawCards(state: Pick<Battle, "draw" | "discard" | "hand">, n: number) 
 
 function startBattle(boss: Boss): Battle {
   const dealt = drawCards({ draw: makeDeck(), discard: [], hand: [] }, HAND);
-  return { boss, bossHp: boss.hp, hp: MAX_HP, energy: ENERGY, block: 0, crit: false, ...dealt, intent: pickEvent(boss), turn: 1, log: [`Бой с ${boss.name} начался!`], phase: "player" };
+  return {
+    boss,
+    bossHp: boss.hp,
+    hp: MAX_HP,
+    energy: ENERGY,
+    block: 0,
+    crit: false,
+    ...dealt,
+    intent: pickEvent(boss),
+    turn: 1,
+    log: [`Бой с ${boss.name} начался!`],
+    phase: "player",
+  };
 }
 
 /* ------------------------------------------------------------------ view */
@@ -124,6 +196,7 @@ function startBattle(boss: Boss): Battle {
 type Floater = { id: number; text: string; tone: "damage" | "crit" | "block" | "self" | "heal"; target: "boss" | "player" };
 
 export function AdmissionArena({ images }: { images: Record<string, string | null> }) {
+  const t = useT();
   const bosses: Boss[] = BOSS_BASE.map((b) => ({ ...b, image: images[b.slug] ?? null }));
   const [battle, setBattle] = useState<Battle | null>(null);
   const [floaters, setFloaters] = useState<Floater[]>([]);
@@ -170,7 +243,18 @@ export function AdmissionArena({ images }: { images: Record<string, string | nul
     const won = bossHp <= 0;
     const lost = !won && hp <= 0;
     if (won) setConfettiKey((k) => k + 1);
-    setBattle({ ...battle, bossHp, hp, energy, block, crit, hand, discard: [...battle.discard, card], log: [...log, ...battle.log].slice(0, 6), phase: won ? "won" : lost ? "lost" : "player" });
+    setBattle({
+      ...battle,
+      bossHp,
+      hp,
+      energy,
+      block,
+      crit,
+      hand,
+      discard: [...battle.discard, card],
+      log: [...log, ...battle.log].slice(0, 6),
+      phase: won ? "won" : lost ? "lost" : "player",
+    });
   };
 
   const endTurn = () => {
@@ -202,9 +286,9 @@ export function AdmissionArena({ images }: { images: Record<string, string | nul
           <p className="flex items-center gap-2 text-sm font-semibold text-brand-600">
             <Swords className="size-4" aria-hidden /> Admission Arena
           </p>
-          <h1 className="mt-1 font-display text-2xl font-semibold sm:text-3xl">Выбери вуз, который будешь штурмовать</h1>
+          <h1 className="mt-1 font-display text-2xl font-semibold sm:text-3xl">{t("Выбери вуз, который будешь штурмовать")}</h1>
           <p className="mt-2 max-w-2xl text-ink-soft">
-            Каждый ход — 3 энергии и 4 карты из твоей колоды достижений. Снизь требования вуза до нуля, пока не кончился ментальный запас.
+            {t("Каждый ход — 3 энергии и 4 карты из твоей колоды достижений. Снизь требования вуза до нуля, пока не кончился ментальный запас.")}
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -216,13 +300,21 @@ export function AdmissionArena({ images }: { images: Record<string, string | nul
               className="group overflow-hidden rounded-card bg-night text-left text-white ring-1 ring-white/10 transition hover:-translate-y-1 hover:shadow-[0_0_30px_-6px_#7c6bff]"
             >
               <div className="relative h-28 sm:h-36">
-                {b.image && <Image src={b.image} alt="" fill sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover opacity-70 transition group-hover:opacity-90" />}
+                {b.image && (
+                  <Image
+                    src={b.image}
+                    alt=""
+                    fill
+                    sizes="(max-width: 1024px) 50vw, 25vw"
+                    className="object-cover opacity-70 transition group-hover:opacity-90"
+                  />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-night via-night/30 to-transparent" />
               </div>
               <div className="p-3.5">
-                <p className="font-semibold">{b.name}</p>
+                <p className="font-semibold">{t(b.name)}</p>
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-white/70">
-                  <Heart className="size-3.5 text-[#ff6a8a]" aria-hidden /> {b.hp} HP требований
+                  <Heart className="size-3.5 text-[#ff6a8a]" aria-hidden /> {b.hp} {t("HP требований")}
                 </p>
               </div>
             </button>
@@ -238,7 +330,10 @@ export function AdmissionArena({ images }: { images: Record<string, string | nul
 
   return (
     <motion.div animate={shake} className="relative min-h-[calc(100dvh-3.5rem)] overflow-hidden bg-[#0b0a18] text-white">
-      <div aria-hidden className="absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(124,107,255,0.25),transparent_70%),radial-gradient(40%_40%_at_90%_90%,rgba(47,209,160,0.15),transparent_70%)]" />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(124,107,255,0.25),transparent_70%),radial-gradient(40%_40%_at_90%_90%,rgba(47,209,160,0.15),transparent_70%)]"
+      />
       {confettiKey > 0 && b.phase === "won" && <Confetti key={confettiKey} />}
 
       <div className="container-page relative flex min-h-[calc(100dvh-3.5rem)] flex-col gap-4 py-4 sm:py-6">
@@ -249,22 +344,28 @@ export function AdmissionArena({ images }: { images: Record<string, string | nul
           <div className="relative p-4 sm:p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/60">Босс · ход {b.turn}</p>
-                <h2 className="font-display text-xl font-semibold sm:text-2xl">{b.boss.name}</h2>
+                <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                  {t("Босс · ход")} {b.turn}
+                </p>
+                <h2 className="font-display text-xl font-semibold sm:text-2xl">{t(b.boss.name)}</h2>
               </div>
               <div className="rounded-xl bg-[#ff4d6d]/15 px-3 py-2 text-right ring-1 ring-[#ff4d6d]/40">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#ff9fb0]">Намерение</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#ff9fb0]">{t("Намерение")}</p>
                 <p className="text-sm font-semibold">
-                  {b.intent.name} <span className="text-[#ff9fb0]">−{b.intent.damage}</span>
+                  {t(b.intent.name)} <span className="text-[#ff9fb0]">−{b.intent.damage}</span>
                 </p>
               </div>
             </div>
             <div className="relative mt-4">
               <div className="h-4 overflow-hidden rounded-full bg-white/10 ring-1 ring-white/15">
-                <motion.div className="h-full rounded-full bg-gradient-to-r from-[#ff4d6d] to-[#ff9f43]" animate={{ width: `${bossPct}%` }} transition={{ type: "spring", stiffness: 120, damping: 18 }} />
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-[#ff4d6d] to-[#ff9f43]"
+                  animate={{ width: `${bossPct}%` }}
+                  transition={{ type: "spring", stiffness: 120, damping: 18 }}
+                />
               </div>
               <p className="mt-1 text-sm font-semibold tabular-nums">
-                {b.bossHp} / {b.boss.hp} HP требований
+                {b.bossHp} / {b.boss.hp} {t("HP требований")}
               </p>
               <Floaters list={floaters.filter((f) => f.target === "boss")} />
             </div>
@@ -273,15 +374,19 @@ export function AdmissionArena({ images }: { images: Record<string, string | nul
 
         {/* player */}
         <section className="grid grid-cols-3 gap-2 text-center text-sm">
-          <Stat icon={Heart} label="Ментальный запас" value={`${b.hp}`} tone="text-[#ff9fb0]">
+          <Stat icon={Heart} label={t("Ментальный запас")} value={`${b.hp}`} tone="text-[#ff9fb0]">
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10">
               <motion.div className="h-full rounded-full bg-[#ff6a8a]" animate={{ width: `${hpPct}%` }} />
             </div>
             <Floaters list={floaters.filter((f) => f.target === "player")} />
           </Stat>
-          <Stat icon={Zap} label="Энергия" value={`${b.energy}`} tone="text-[#ffd18a]" />
-          <Stat icon={Shield} label="Броня" value={`${b.block}`} tone="text-[#8fd8ff]">
-            {b.crit && <p className="mt-1 flex items-center justify-center gap-1 text-[11px] font-bold text-[#7ef0cb]"><Flame className="size-3" aria-hidden /> удар ×2</p>}
+          <Stat icon={Zap} label={t("Энергия")} value={`${b.energy}`} tone="text-[#ffd18a]" />
+          <Stat icon={Shield} label={t("Броня")} value={`${b.block}`} tone="text-[#8fd8ff]">
+            {b.crit && (
+              <p className="mt-1 flex items-center justify-center gap-1 text-[11px] font-bold text-[#7ef0cb]">
+                <Flame className="size-3" aria-hidden /> {t("удар ×2")}
+              </p>
+            )}
           </Stat>
         </section>
 
@@ -311,12 +416,14 @@ export function AdmissionArena({ images }: { images: Record<string, string | nul
                       n.ring,
                       playable ? n.glow : "opacity-45 grayscale",
                     )}
-                    aria-label={`${card.name}, стоимость ${card.cost}: ${card.text}`}
+                    aria-label={t("{0}, стоимость {1}: {2}", card.name, card.cost, card.text)}
                   >
-                    <span className="absolute -left-2 -top-2 grid size-7 place-items-center rounded-full bg-[#ffd166] text-sm font-bold text-[#1b1400] shadow-lg">{card.cost}</span>
+                    <span className="absolute -left-2 -top-2 grid size-7 place-items-center rounded-full bg-[#ffd166] text-sm font-bold text-[#1b1400] shadow-lg">
+                      {card.cost}
+                    </span>
                     <Icon className={cn("mx-auto mt-3 size-8 sm:size-10", n.text)} aria-hidden />
-                    <p className="mt-2 text-[11px] font-bold leading-tight sm:text-sm">{card.name}</p>
-                    <p className="mt-1 text-[10px] leading-snug text-white/65 sm:text-xs">{card.text}</p>
+                    <p className="mt-2 text-[11px] font-bold leading-tight sm:text-sm">{t(card.name)}</p>
+                    <p className="mt-1 text-[10px] leading-snug text-white/65 sm:text-xs">{t(card.text)}</p>
                   </motion.button>
                 );
               })}
@@ -324,7 +431,7 @@ export function AdmissionArena({ images }: { images: Record<string, string | nul
           </div>
           <div className="mt-4 flex items-center justify-between gap-3">
             <p className="text-xs text-white/50">
-              Колода: {b.draw.length} · Сброс: {b.discard.length}
+              {t("Колода:")} {b.draw.length} {t("· Сброс:")} {b.discard.length}
             </p>
             <button
               type="button"
@@ -332,12 +439,12 @@ export function AdmissionArena({ images }: { images: Record<string, string | nul
               disabled={b.phase !== "player"}
               className="h-11 rounded-xl bg-gradient-to-r from-[#7c6bff] to-[#c05bff] px-5 text-sm font-bold shadow-[0_0_24px_-6px_#c05bff] transition hover:brightness-110 disabled:opacity-50"
             >
-              {b.phase === "enemy" ? "Ход вуза…" : "Закончить ход"}
+              {t(b.phase === "enemy" ? "Ход вуза…" : "Закончить ход")}
             </button>
           </div>
           <ul className="mt-3 space-y-0.5 text-xs text-white/55" aria-live="polite">
             {b.log.slice(0, 3).map((line, i) => (
-              <li key={`${b.turn}-${i}-${line}`}>{line}</li>
+              <li key={`${b.turn}-${i}-${line}`}>{t(line)}</li>
             ))}
           </ul>
         </section>
@@ -346,29 +453,43 @@ export function AdmissionArena({ images }: { images: Record<string, string | nul
       {/* result */}
       <AnimatePresence>
         {(b.phase === "won" || b.phase === "lost") && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 z-50 grid place-items-center bg-[#0b0a18]/80 p-6 backdrop-blur-sm">
-            <motion.div initial={{ scale: 0.7, rotate: -4 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 260, damping: 16 }} className="max-w-sm text-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute inset-0 z-50 grid place-items-center bg-[#0b0a18]/80 p-6 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.7, rotate: -4 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 260, damping: 16 }}
+              className="max-w-sm text-center"
+            >
               {b.phase === "won" ? (
                 <>
                   <p className="inline-block rotate-[-3deg] rounded-2xl border-4 border-[#2fd1a0] bg-[#2fd1a0]/10 px-6 py-3 font-display text-3xl font-bold tracking-wide text-[#7ef0cb] shadow-[0_0_40px_-6px_#2fd1a0] sm:text-4xl">
                     OFFER RECEIVED!
                   </p>
                   <p className="mt-4 text-white/80">
-                    {b.boss.name} сдался за {b.turn} {b.turn === 1 ? "ход" : b.turn < 5 ? "хода" : "ходов"}. Осталось {b.hp} ментального запаса.
+                    {t(b.boss.name)} {t("сдался за")} {b.turn} {t(b.turn === 1 ? "ход" : b.turn < 5 ? "хода" : "ходов")}
+                    {t(". Осталось")} {b.hp} {t("ментального запаса.")}
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="font-display text-3xl font-bold text-[#ff9fb0]">Выгорание…</p>
-                  <p className="mt-3 text-white/80">Ментальный запас закончился. Выспись, сыграй меньше «Кофе в 3 ночи» и попробуй снова.</p>
+                  <p className="font-display text-3xl font-bold text-[#ff9fb0]">{t("Выгорание…")}</p>
+                  <p className="mt-3 text-white/80">{t("Ментальный запас закончился. Выспись, сыграй меньше «Кофе в 3 ночи» и попробуй снова.")}</p>
                 </>
               )}
               <div className="mt-6 flex justify-center gap-2">
-                <button type="button" onClick={() => setBattle(startBattle(b.boss))} className="inline-flex h-11 items-center gap-2 rounded-xl bg-white px-5 text-sm font-bold text-night">
-                  <RotateCcw className="size-4" aria-hidden /> Ещё раз
+                <button
+                  type="button"
+                  onClick={() => setBattle(startBattle(b.boss))}
+                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-white px-5 text-sm font-bold text-night"
+                >
+                  <RotateCcw className="size-4" aria-hidden /> {t("Ещё раз")}
                 </button>
                 <button type="button" onClick={() => setBattle(null)} className="h-11 rounded-xl bg-white/10 px-5 text-sm font-bold ring-1 ring-white/20">
-                  Другой вуз
+                  {t("Другой вуз")}
                 </button>
               </div>
             </motion.div>
@@ -380,12 +501,13 @@ export function AdmissionArena({ images }: { images: Record<string, string | nul
 }
 
 function Stat({ icon: Icon, label, value, tone, children }: { icon: LucideIcon; label: string; value: string; tone: string; children?: React.ReactNode }) {
+  const t = useT();
   return (
     <div className="relative rounded-2xl bg-white/5 p-2.5 ring-1 ring-white/10">
       <p className="flex items-center justify-center gap-1 text-[11px] text-white/60">
-        <Icon className={cn("size-3.5", tone)} aria-hidden /> {label}
+        <Icon className={cn("size-3.5", tone)} aria-hidden /> {t(label)}
       </p>
-      <p className={cn("font-display text-2xl font-semibold tabular-nums", tone)}>{value}</p>
+      <p className={cn("font-display text-2xl font-semibold tabular-nums", tone)}>{t(value)}</p>
       {children}
     </div>
   );
@@ -400,6 +522,7 @@ const FLOAT_TONE: Record<Floater["tone"], string> = {
 };
 
 function Floaters({ list }: { list: Floater[] }) {
+  const t = useT();
   return (
     <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-2 flex justify-center">
       <AnimatePresence>
@@ -411,7 +534,7 @@ function Floaters({ list }: { list: Floater[] }) {
             transition={{ duration: 1 }}
             className={cn("absolute whitespace-nowrap font-display font-bold drop-shadow", FLOAT_TONE[f.tone])}
           >
-            {f.text}
+            {t(f.text)}
           </motion.span>
         ))}
       </AnimatePresence>

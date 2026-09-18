@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { AnimatePresence, motion, useMotionValue, useTransform } from "framer-motion";
 import { Check, Clock, Gavel, Hourglass, RotateCcw, ShieldAlert, Sparkles, X } from "lucide-react";
 import Link from "next/link";
@@ -33,7 +34,8 @@ const POOL: Candidate[] = [
     gpa: 4.0,
     test: "SAT 1550",
     tags: ["Круглый отличник", "Курсы подготовки к SAT"],
-    essay: "Конечно! Вот эссе: С самого детства я всегда был страстно увлечён технологиями, которые меняют мир к лучшему. В современном быстро меняющемся мире…",
+    essay:
+      "Конечно! Вот эссе: С самого детства я всегда был страстно увлечён технологиями, которые меняют мир к лучшему. В современном быстро меняющемся мире…",
     needsAid: false,
     academic: 96,
     innovation: 18,
@@ -262,6 +264,7 @@ const STAMP: Record<Decision, { text: string; tone: string }> = {
 /* ------------------------------------------------------------------ view */
 
 export function DeansSeat() {
+  const t = useT();
   const [pool, setPool] = useState<Candidate[] | null>(null);
   const [index, setIndex] = useState(0);
   const [decisions, setDecisions] = useState<Record<string, Decision>>({});
@@ -303,22 +306,22 @@ export function DeansSeat() {
         <Gavel className="mx-auto size-12 text-[#a86a00]" aria-hidden />
         <h1 className="font-display text-3xl font-semibold">The Dean&apos;s Seat</h1>
         <p className="mx-auto max-w-xl text-ink-soft">
-          Вы — председатель приёмной комиссии факультета Computer Science. За {SECONDS} секунд рассмотрите {ROUND} досье и соберите идеальный курс: 3–5 студентов,
-          сильная учёба, живые проекты и бюджет стипендий в норме.
+          {t("Вы — председатель приёмной комиссии факультета Computer Science. За")} {SECONDS} {t("секунд рассмотрите")} {ROUND}{" "}
+          {t("досье и соберите идеальный курс: 3–5 студентов, сильная учёба, живые проекты и бюджет стипендий в норме.")}
         </p>
         <ul className="mx-auto grid max-w-lg grid-cols-1 gap-2 text-left text-sm sm:grid-cols-3">
           <li className="rounded-2xl bg-surface p-3 ring-1 ring-line">
-            <b className="text-[#1f9950]">Принять</b> — кнопка или свайп вправо
+            <b className="text-[#1f9950]">{t("Принять")}</b> {t("— кнопка или свайп вправо")}
           </li>
           <li className="rounded-2xl bg-surface p-3 ring-1 ring-line">
-            <b className="text-[#a86a00]">Лист ожидания</b> — кнопка или свайп вверх
+            <b className="text-[#a86a00]">{t("Лист ожидания")}</b> {t("— кнопка или свайп вверх")}
           </li>
           <li className="rounded-2xl bg-surface p-3 ring-1 ring-line">
-            <b className="text-[#b4262b]">Отклонить</b> — кнопка или свайп влево
+            <b className="text-[#b4262b]">{t("Отклонить")}</b> {t("— кнопка или свайп влево")}
           </li>
         </ul>
         <button type="button" onClick={start} className="h-12 rounded-xl bg-brand-600 px-8 font-semibold text-white hover:bg-brand-700">
-          Сесть в кресло декана
+          {t("Сесть в кресло декана")}
         </button>
       </div>
     );
@@ -331,21 +334,29 @@ export function DeansSeat() {
     <div className="container-page max-w-3xl space-y-4 py-5 sm:py-8">
       {/* live faculty metrics */}
       <section className="grid grid-cols-3 gap-2">
-        <Meter label="Балл курса" value={m.academic} tone="bg-[#0f86c9]" empty={!m.admitted.length} />
-        <Meter label="Инновации" value={m.innovation} tone="bg-[#b12fc7]" empty={!m.admitted.length} />
-        <Meter label="Стипендии" value={Math.max(0, m.budget)} tone={m.budget < 0 ? "bg-[#b4262b]" : "bg-[#1f9950]"} suffix={m.budget < 0 ? " (перерасход!)" : ""} />
+        <Meter label={t("Балл курса")} value={m.academic} tone="bg-[#0f86c9]" empty={!m.admitted.length} />
+        <Meter label={t("Инновации")} value={m.innovation} tone="bg-[#b12fc7]" empty={!m.admitted.length} />
+        <Meter
+          label={t("Стипендии")}
+          value={Math.max(0, m.budget)}
+          tone={m.budget < 0 ? "bg-[#b4262b]" : "bg-[#1f9950]"}
+          suffix={m.budget < 0 ? t(" (перерасход!)") : ""}
+        />
       </section>
 
       <div className="flex items-center justify-between text-sm">
         <span className="font-semibold text-ink-soft">
-          Досье {Math.min(index + 1, pool.length)} из {pool.length} · принято {m.admitted.length}
+          {t("Досье")} {Math.min(index + 1, pool.length)} {t("из")} {pool.length} {t("· принято")} {m.admitted.length}
         </span>
         <motion.span
           key={left <= 10 ? left : "calm"}
           animate={left <= 10 ? { scale: [1, 1.18, 1] } : undefined}
-          className={cn("inline-flex items-center gap-1.5 rounded-pill px-3 py-1 font-display font-semibold tabular-nums", left <= 10 ? "bg-[#ffe1e1] text-[#b4262b]" : "bg-surface text-ink ring-1 ring-line")}
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-pill px-3 py-1 font-display font-semibold tabular-nums",
+            left <= 10 ? "bg-[#ffe1e1] text-[#b4262b]" : "bg-surface text-ink ring-1 ring-line",
+          )}
         >
-          <Clock className="size-4" aria-hidden /> 0:{String(left).padStart(2, "0")}
+          <Clock className="size-4" aria-hidden /> 0:{t(String(left).padStart(2, "0"))}
         </motion.span>
       </div>
 
@@ -360,14 +371,26 @@ export function DeansSeat() {
 
       {playing && (
         <div className="grid grid-cols-3 gap-2">
-          <button type="button" onClick={() => decide("reject")} className="flex h-14 flex-col items-center justify-center rounded-2xl bg-[#fff0f0] text-sm font-bold text-[#b4262b] ring-1 ring-[#f3c1c1] active:scale-95">
-            <X className="size-5" aria-hidden /> Отклонить
+          <button
+            type="button"
+            onClick={() => decide("reject")}
+            className="flex h-14 flex-col items-center justify-center rounded-2xl bg-[#fff0f0] text-sm font-bold text-[#b4262b] ring-1 ring-[#f3c1c1] active:scale-95"
+          >
+            <X className="size-5" aria-hidden /> {t("Отклонить")}
           </button>
-          <button type="button" onClick={() => decide("waitlist")} className="flex h-14 flex-col items-center justify-center rounded-2xl bg-[#fff8e6] text-sm font-bold text-[#a86a00] ring-1 ring-[#f0d9a0] active:scale-95">
-            <Hourglass className="size-5" aria-hidden /> В ожидание
+          <button
+            type="button"
+            onClick={() => decide("waitlist")}
+            className="flex h-14 flex-col items-center justify-center rounded-2xl bg-[#fff8e6] text-sm font-bold text-[#a86a00] ring-1 ring-[#f0d9a0] active:scale-95"
+          >
+            <Hourglass className="size-5" aria-hidden /> {t("В ожидание")}
           </button>
-          <button type="button" onClick={() => decide("accept")} className="flex h-14 flex-col items-center justify-center rounded-2xl bg-[#ebfbf1] text-sm font-bold text-[#1f9950] ring-1 ring-[#b7e8c8] active:scale-95">
-            <Check className="size-5" aria-hidden /> Принять
+          <button
+            type="button"
+            onClick={() => decide("accept")}
+            className="flex h-14 flex-col items-center justify-center rounded-2xl bg-[#ebfbf1] text-sm font-bold text-[#1f9950] ring-1 ring-[#b7e8c8] active:scale-95"
+          >
+            <Check className="size-5" aria-hidden /> {t("Принять")}
           </button>
         </div>
       )}
@@ -378,21 +401,37 @@ export function DeansSeat() {
 }
 
 function Meter({ label, value, tone, empty = false, suffix = "" }: { label: string; value: number; tone: string; empty?: boolean; suffix?: string }) {
+  const t = useT();
   return (
     <div className="rounded-2xl bg-surface p-2.5 ring-1 ring-line">
-      <p className="truncate text-[11px] font-medium text-muted">{label}</p>
+      <p className="truncate text-[11px] font-medium text-muted">{t(label)}</p>
       <p className="font-display text-lg font-semibold tabular-nums">
         {empty ? "—" : value}
-        <span className="text-[10px] font-normal text-muted">{suffix}</span>
+        <span className="text-[10px] font-normal text-muted">{t(suffix)}</span>
       </p>
       <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-line">
-        <motion.div className={cn("h-full rounded-full", tone)} animate={{ width: `${empty ? 0 : Math.min(100, value)}%` }} transition={{ type: "spring", stiffness: 140, damping: 20 }} />
+        <motion.div
+          className={cn("h-full rounded-full", tone)}
+          animate={{ width: `${empty ? 0 : Math.min(100, value)}%` }}
+          transition={{ type: "spring", stiffness: 140, damping: 20 }}
+        />
       </div>
     </div>
   );
 }
 
-function Dossier({ candidate: c, stamp, exitDir, onSwipe }: { candidate: Candidate; stamp: Decision | null; exitDir: Decision; onSwipe: (d: Decision) => void }) {
+function Dossier({
+  candidate: c,
+  stamp,
+  exitDir,
+  onSwipe,
+}: {
+  candidate: Candidate;
+  stamp: Decision | null;
+  exitDir: Decision;
+  onSwipe: (d: Decision) => void;
+}) {
+  const t = useT();
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-12, 12]);
@@ -415,33 +454,36 @@ function Dossier({ candidate: c, stamp, exitDir, onSwipe }: { candidate: Candida
       className="absolute inset-0 cursor-grab touch-none select-none active:cursor-grabbing"
     >
       {/* folder tab */}
-      <div className="ml-5 h-6 w-32 rounded-t-xl bg-[#e9d8b4] px-3 pt-1 text-[11px] font-bold uppercase tracking-wider text-[#6b4f1d]">Досье · CS</div>
+      <div className="ml-5 h-6 w-32 rounded-t-xl bg-[#e9d8b4] px-3 pt-1 text-[11px] font-bold uppercase tracking-wider text-[#6b4f1d]">{t("Досье · CS")}</div>
       <div className="relative h-[calc(100%-1.5rem)] overflow-hidden rounded-2xl rounded-tl-none bg-[#f7edd8] p-4 text-[#2b2113] shadow-[0_18px_40px_-18px_rgba(60,40,10,0.55)] ring-1 ring-[#e0cda3] sm:p-5">
-        <div aria-hidden className="absolute right-4 top-4 grid size-16 rotate-12 place-items-center rounded-full border-2 border-[#6b4f1d]/30 text-center text-[8px] font-bold uppercase leading-tight text-[#6b4f1d]/40">
+        <div
+          aria-hidden
+          className="absolute right-4 top-4 grid size-16 rotate-12 place-items-center rounded-full border-2 border-[#6b4f1d]/30 text-center text-[8px] font-bold uppercase leading-tight text-[#6b4f1d]/40"
+        >
           UniRoute
           <br />
           University
         </div>
-        <p className="font-display text-xl font-semibold">{c.name}</p>
-        <p className="text-sm text-[#6b5a3a]">{c.from}</p>
+        <p className="font-display text-xl font-semibold">{t(c.name)}</p>
+        <p className="text-sm text-[#6b5a3a]">{t(c.from)}</p>
 
         <div className="mt-3 flex flex-wrap gap-2 text-sm">
           <span className="rounded-lg bg-white/70 px-2.5 py-1 font-semibold">GPA {c.gpa.toFixed(2)}</span>
-          <span className="rounded-lg bg-white/70 px-2.5 py-1 font-semibold">{c.test}</span>
-          {c.needsAid && <span className="rounded-lg bg-[#ffe8c7] px-2.5 py-1 font-semibold text-[#8a5200]">нужна стипендия</span>}
+          <span className="rounded-lg bg-white/70 px-2.5 py-1 font-semibold">{t(c.test)}</span>
+          {c.needsAid && <span className="rounded-lg bg-[#ffe8c7] px-2.5 py-1 font-semibold text-[#8a5200]">{t("нужна стипендия")}</span>}
         </div>
 
         <ul className="mt-3 space-y-1 text-sm">
-          {c.tags.map((t) => (
-            <li key={t} className="flex gap-2">
-              <Sparkles className="mt-0.5 size-4 shrink-0 text-[#a86a00]" aria-hidden /> {t}
+          {c.tags.map((tag) => (
+            <li key={tag} className="flex gap-2">
+              <Sparkles className="mt-0.5 size-4 shrink-0 text-[#a86a00]" aria-hidden /> {t(tag)}
             </li>
           ))}
         </ul>
 
         <figure className="mt-3 rounded-xl bg-white/60 p-3">
-          <figcaption className="text-[11px] font-bold uppercase tracking-wider text-[#8a7650]">Отрывок из эссе</figcaption>
-          <blockquote className="mt-1 font-serif text-[15px] italic leading-snug">«{c.essay}»</blockquote>
+          <figcaption className="text-[11px] font-bold uppercase tracking-wider text-[#8a7650]">{t("Отрывок из эссе")}</figcaption>
+          <blockquote className="mt-1 font-serif text-[15px] italic leading-snug">«{t(c.essay)}»</blockquote>
         </figure>
 
         <AnimatePresence>
@@ -450,9 +492,12 @@ function Dossier({ candidate: c, stamp, exitDir, onSwipe }: { candidate: Candida
               initial={{ scale: 2.2, opacity: 0, rotate: -18 }}
               animate={{ scale: 1, opacity: 0.92, rotate: -12 }}
               transition={{ type: "spring", stiffness: 500, damping: 22 }}
-              className={cn("absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl border-4 px-4 py-2 font-display text-2xl font-bold tracking-widest", STAMP[stamp].tone)}
+              className={cn(
+                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl border-4 px-4 py-2 font-display text-2xl font-bold tracking-widest",
+                STAMP[stamp].tone,
+              )}
             >
-              {STAMP[stamp].text}
+              {t(STAMP[stamp].text)}
             </motion.div>
           )}
         </AnimatePresence>
@@ -462,11 +507,16 @@ function Dossier({ candidate: c, stamp, exitDir, onSwipe }: { candidate: Candida
 }
 
 function Report({ pool, decisions, onRestart }: { pool: Candidate[]; decisions: Record<string, Decision>; onRestart: () => void }) {
+  const t = useT();
   const r = report(decisions, pool);
   return (
-    <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-card bg-[#f7edd8] p-5 text-[#2b2113] shadow-lift ring-1 ring-[#e0cda3] sm:p-7">
+    <motion.section
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-card bg-[#f7edd8] p-5 text-[#2b2113] shadow-lift ring-1 ring-[#e0cda3] sm:p-7"
+    >
       {(r.rank === "S" || r.rank === "A") && <Confetti />}
-      <p className="text-xs font-bold uppercase tracking-widest text-[#8a7650]">Отчёт перед ректоратом</p>
+      <p className="text-xs font-bold uppercase tracking-widest text-[#8a7650]">{t("Отчёт перед ректоратом")}</p>
       <div className="mt-3 flex items-center gap-4">
         <motion.span
           initial={{ scale: 2, rotate: -20, opacity: 0 }}
@@ -474,33 +524,41 @@ function Report({ pool, decisions, onRestart }: { pool: Candidate[]; decisions: 
           transition={{ type: "spring", stiffness: 400, damping: 18 }}
           className={cn("grid size-20 shrink-0 place-items-center rounded-2xl border-4 font-display text-5xl font-bold", RANK_TONE[r.rank])}
         >
-          {r.rank}
+          {t(r.rank)}
         </motion.span>
         <div>
-          <p className="font-display text-xl font-semibold">Эффективность декана: {r.rank}-Rank</p>
+          <p className="font-display text-xl font-semibold">
+            {t("Эффективность декана:")} {t(r.rank)}-Rank
+          </p>
           <p className="text-sm text-[#6b5a3a]">
-            Принято {r.admitted.length} · балл курса {r.academic || "—"} · инновации {r.innovation || "—"} · бюджет {r.budget}%
+            {t("Принято")} {r.admitted.length} {t("· балл курса")} {r.academic || "—"} {t("· инновации")} {r.innovation || "—"} {t("· бюджет")} {r.budget}%
           </p>
         </div>
       </div>
       <ul className="mt-4 space-y-2 text-sm">
         {r.lines.map((l) => (
           <li key={l.text} className="flex gap-2">
-            {l.good ? <Check className="mt-0.5 size-4 shrink-0 text-[#1f9950]" aria-hidden /> : <ShieldAlert className="mt-0.5 size-4 shrink-0 text-[#b4262b]" aria-hidden />}
-            {l.text}
+            {l.good ? (
+              <Check className="mt-0.5 size-4 shrink-0 text-[#1f9950]" aria-hidden />
+            ) : (
+              <ShieldAlert className="mt-0.5 size-4 shrink-0 text-[#b4262b]" aria-hidden />
+            )}
+            {t(l.text)}
           </li>
         ))}
       </ul>
       <p className="mt-5 rounded-xl bg-white/60 p-3 text-sm leading-relaxed">
-        <b>Вывод:</b> сухие оценки не показывают ни проектов, ни голоса в эссе. Поэтому UniRoute смотрит на профиль целиком — и подсказывает абитуриенту, что
-        сделает его заявку заметной.
+        <b>{t("Вывод:")}</b>{" "}
+        {t(
+          "сухие оценки не показывают ни проектов, ни голоса в эссе. Поэтому UniRoute смотрит на профиль целиком — и подсказывает абитуриенту, что сделает его заявку заметной.",
+        )}
       </p>
       <div className="mt-5 flex flex-wrap gap-2">
         <button type="button" onClick={onRestart} className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#2b2113] px-5 text-sm font-bold text-[#f7edd8]">
-          <RotateCcw className="size-4" aria-hidden /> Новый набор
+          <RotateCcw className="size-4" aria-hidden /> {t("Новый набор")}
         </button>
         <Link href="/games" className="inline-flex h-11 items-center rounded-xl px-4 text-sm font-bold ring-1 ring-[#c9b489]">
-          Все игры
+          {t("Все игры")}
         </Link>
       </div>
     </motion.section>

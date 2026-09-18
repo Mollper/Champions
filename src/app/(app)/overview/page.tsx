@@ -1,8 +1,12 @@
+import { getT } from "@/i18n/server";
 import type { Metadata } from "next";
 import { OverviewContent } from "@/components/overview/overview-content";
 import { getUserMatches } from "@/lib/data/matches";
 
-export const metadata: Metadata = { title: "Диагностика" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Диагностика") };
+}
 
 export default async function OverviewPage({ searchParams }: PageProps<"/overview">) {
   const { fresh } = await searchParams;

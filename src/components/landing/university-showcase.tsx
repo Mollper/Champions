@@ -1,3 +1,4 @@
+import { getT } from "@/i18n/server";
 import { ExternalLink, Languages, MapPin, Wallet } from "lucide-react";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/reveal";
 import { DemoNote } from "@/components/ui/demo-note";
@@ -12,7 +13,8 @@ const SCHOLARSHIP_LABEL: Record<University["scholarship_level"], string> = {
   none: "Без стипендий",
 };
 
-export function UniversityShowcase({ universities }: { universities: University[] }) {
+export async function UniversityShowcase({ universities }: { universities: University[] }) {
+  const t = await getT();
   if (universities.length === 0) return null;
 
   return (
@@ -20,13 +22,9 @@ export function UniversityShowcase({ universities }: { universities: University[
       <div className="container-page">
         <Reveal className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div className="max-w-2xl">
-            <p className="text-sm font-semibold text-brand-600">Реальные вузы</p>
-            <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-              От MIT до Назарбаев Университета
-            </h2>
-            <p className="mt-4 text-ink-soft">
-              Проходные баллы, стоимость, стипендии и дедлайны — рядом со ссылкой на официальный сайт.
-            </p>
+            <p className="text-sm font-semibold text-brand-600">{t("Реальные вузы")}</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{t("От MIT до Назарбаев Университета")}</h2>
+            <p className="mt-4 text-ink-soft">{t("Проходные баллы, стоимость, стипендии и дедлайны — рядом со ссылкой на официальный сайт.")}</p>
           </div>
           <DemoNote compact className="self-start md:self-auto" />
         </Reveal>
@@ -38,7 +36,7 @@ export function UniversityShowcase({ universities }: { universities: University[
                 <div className="relative">
                   <UniversityPhoto
                     src={u.image_url}
-                    alt={`Кампус ${u.name}`}
+                    alt={t("Кампус {0}", u.name)}
                     credit={u.image_credit}
                     sourceUrl={u.image_source_url}
                     className="h-44 transition-transform duration-500 group-hover:scale-[1.02]"
@@ -51,30 +49,30 @@ export function UniversityShowcase({ universities }: { universities: University[
                   )}
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold leading-snug">{u.name}</h3>
+                  <h3 className="font-semibold leading-snug">{t(u.name)}</h3>
                   <p className="mt-1 flex items-center gap-1 text-xs text-muted">
-                    <MapPin className="size-3.5" aria-hidden /> {u.city}, {u.country}
+                    <MapPin className="size-3.5" aria-hidden /> {t(u.city)}, {t(u.country)}
                   </p>
                   <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl bg-canvas px-1 py-2">
-                      <dt className="text-[10px] uppercase tracking-wide text-muted">Обучение</dt>
+                      <dt className="text-[10px] uppercase tracking-wide text-muted">{t("Обучение")}</dt>
                       <dd className="mt-0.5 text-sm font-semibold">{formatUsdShort(u.tuition_usd_per_year)}</dd>
                     </div>
                     <div className="rounded-xl bg-canvas px-1 py-2">
                       <dt className="text-[10px] uppercase tracking-wide text-muted">IELTS</dt>
-                      <dd className="mt-0.5 text-sm font-semibold">{u.min_ielts?.toFixed(1) ?? "—"}</dd>
+                      <dd className="mt-0.5 text-sm font-semibold">{t(u.min_ielts?.toFixed(1) ?? "—")}</dd>
                     </div>
                     <div className="rounded-xl bg-canvas px-1 py-2">
                       <dt className="text-[10px] uppercase tracking-wide text-muted">GPA</dt>
-                      <dd className="mt-0.5 text-sm font-semibold">{u.min_gpa_4?.toFixed(1) ?? "—"}</dd>
+                      <dd className="mt-0.5 text-sm font-semibold">{t(u.min_gpa_4?.toFixed(1) ?? "—")}</dd>
                     </div>
                   </dl>
                   <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-soft">
                     <span className="flex items-center gap-1">
-                      <Wallet className="size-3.5 text-route-600" aria-hidden /> {SCHOLARSHIP_LABEL[u.scholarship_level]}
+                      <Wallet className="size-3.5 text-route-600" aria-hidden /> {t(SCHOLARSHIP_LABEL[u.scholarship_level])}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Languages className="size-3.5 text-brand-500" aria-hidden /> {u.instruction_languages.join(", ")}
+                      <Languages className="size-3.5 text-brand-500" aria-hidden /> {t(u.instruction_languages.join(", "))}
                     </span>
                   </div>
                   <a
@@ -83,7 +81,7 @@ export function UniversityShowcase({ universities }: { universities: University[
                     rel="noreferrer"
                     className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-600 hover:text-brand-700"
                   >
-                    Официальный сайт <ExternalLink className="size-3.5" aria-hidden />
+                    {t("Официальный сайт")} <ExternalLink className="size-3.5" aria-hidden />
                   </a>
                 </div>
               </article>

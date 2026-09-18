@@ -4,6 +4,7 @@ import { loadAssistantContext } from "@/lib/assistant/context";
 import { buildSystemPrompt, streamLlmReply } from "@/lib/assistant/llm";
 import { ruleBasedAnswer, ruleBasedReply } from "@/lib/assistant/rule-based";
 import { ASSISTANT_STYLES } from "@/lib/constants";
+import { getLocale } from "@/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import type { AssistantStyle } from "@/types/models";
 
@@ -59,12 +60,12 @@ export async function POST(request: NextRequest) {
 
   await supabase.from("chat_messages").insert({ user_id: userId, role: "user", content: message, style });
 
-  const ctx = await loadAssistantContext(userId);
+  const [ctx, locale] = await Promise.all([loadAssistantContext(userId), getLocale()]);
   const history: ModelMessage[] = (recent ?? [])
     .reverse()
     .map((m) => ({ role: m.role === "assistant" ? ("assistant" as const) : ("user" as const), content: m.content.slice(0, 700) }));
   const computed = ruleBasedAnswer(message, ctx);
-  const system = buildSystemPrompt(message, style, ctx, computed);
+  const system = buildSystemPrompt(message, style, ctx, computed, locale);
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({

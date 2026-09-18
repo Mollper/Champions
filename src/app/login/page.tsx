@@ -1,3 +1,4 @@
+import { getT } from "@/i18n/server";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { CalendarCheck2, GraduationCap, ShieldCheck, Sparkles } from "lucide-react";
@@ -6,7 +7,10 @@ import { AuthForm } from "@/components/auth/auth-form";
 import { getCurrentUserId, safeNext } from "@/lib/auth";
 import { getAuthProviders } from "@/lib/auth-providers";
 
-export const metadata: Metadata = { title: "Вход" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Вход") };
+}
 
 const PERKS = [
   { icon: Sparkles, text: "Диагностика профиля и оценка шансов" },
@@ -16,6 +20,7 @@ const PERKS = [
 ] as const;
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
+  const t = await getT();
   const params = await searchParams;
   const next = safeNext(params.next, "");
 
@@ -37,22 +42,20 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         </div>
 
         <div className="relative max-w-md">
-          <h2 className="font-display text-3xl font-semibold leading-tight">
-            5 минут на анкету — и у тебя есть план поступления
-          </h2>
+          <h2 className="font-display text-3xl font-semibold leading-tight">{t("5 минут на анкету — и у тебя есть план поступления")}</h2>
           <ul className="mt-8 space-y-4">
             {PERKS.map(({ icon: Icon, text }) => (
               <li key={text} className="flex items-center gap-3 text-white/85">
                 <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/10 text-brand-300">
                   <Icon className="size-5" aria-hidden />
                 </span>
-                {text}
+                {t(text)}
               </li>
             ))}
           </ul>
         </div>
 
-        <p className="relative text-xs text-white/50">Бесплатно · без рекламы · можно удалить аккаунт в любой момент</p>
+        <p className="relative text-xs text-white/50">{t("Бесплатно · без рекламы · можно удалить аккаунт в любой момент")}</p>
       </aside>
 
       <main className="flex flex-col px-4 py-6 sm:px-8">

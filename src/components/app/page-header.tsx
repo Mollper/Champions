@@ -1,3 +1,4 @@
+import { getT } from "@/i18n/server";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -28,33 +29,22 @@ export function PageHeader({
 }
 
 /** "What's next" block that closes every stage of the journey. */
-export function NextStage({
-  label,
-  title,
-  description,
-  href,
-  cta,
-}: {
-  label?: string;
-  title: string;
-  description: string;
-  href: string;
-  cta: string;
-}) {
+export async function NextStage({ label, title, description, href, cta }: { label?: string; title: string; description: string; href: string; cta: string }) {
+  const t = await getT();
   return (
     <div className="relative overflow-hidden rounded-card bg-night p-5 text-white sm:p-6">
       <div aria-hidden className="bg-grid absolute inset-0 opacity-10" />
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-300">{label ?? "Что дальше"}</p>
-          <p className="mt-1 text-lg font-semibold">{title}</p>
-          <p className="mt-1 text-sm text-white/70">{description}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand-300">{t(label ?? "Что дальше")}</p>
+          <p className="mt-1 text-lg font-semibold">{t(title)}</p>
+          <p className="mt-1 text-sm text-white/70">{t(description)}</p>
         </div>
         <Link
           href={href}
           className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 text-[15px] font-semibold text-night transition hover:bg-brand-50 active:scale-[0.98]"
         >
-          {cta} <ArrowRight className="size-4" aria-hidden />
+          {t(cta)} <ArrowRight className="size-4" aria-hidden />
         </Link>
       </div>
     </div>

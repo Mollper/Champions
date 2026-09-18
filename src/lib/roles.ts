@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { homeFor, type Role } from "@/lib/role-labels";
 
 export { homeFor, ROLE_LABEL, type Role } from "@/lib/role-labels";
-export type Account = { id: string; email: string | null; full_name: string | null; role: Role };
+export type Account = { id: string; email: string | null; full_name: string | null; avatar_url: string | null; role: Role };
 
 /** Emails that become admins on their next visit (the first admin has no one to appoint them). */
 const adminEmails = () =>
@@ -22,8 +22,8 @@ const adminEmails = () =>
  */
 export const getAccountWithRole = cache(async (userId: string): Promise<Account> => {
   const supabase = await createClient();
-  const { data } = await supabase.from("users").select("email, full_name, role").eq("id", userId).maybeSingle();
-  const account: Account = { id: userId, email: data?.email ?? null, full_name: data?.full_name ?? null, role: (data?.role as Role) ?? "student" };
+  const { data } = await supabase.from("users").select("email, full_name, avatar_url, role").eq("id", userId).maybeSingle();
+  const account: Account = { id: userId, email: data?.email ?? null, full_name: data?.full_name ?? null, avatar_url: data?.avatar_url ?? null, role: (data?.role as Role) ?? "student" };
 
   if (account.role !== "admin" && account.email && adminEmails().includes(account.email.toLowerCase())) {
     const admin = createAdminClient();

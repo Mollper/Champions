@@ -1,3 +1,4 @@
+import { getT } from "@/i18n/server";
 import type { Metadata } from "next";
 import { MessagesSquare } from "lucide-react";
 import Link from "next/link";
@@ -9,9 +10,13 @@ import { getMentorStudents, getStudentMentorship, getThread } from "@/lib/data/m
 import { requireRole } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Сообщения" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Сообщения") };
+}
 
 export default async function MessagesPage({ searchParams }: PageProps<"/messages">) {
+  const t = await getT();
   const account = await requireRole(["student", "mentor", "admin"], "/messages");
   if (account.role === "admin") redirect("/admin/chats");
 
@@ -21,13 +26,16 @@ export default async function MessagesPage({ searchParams }: PageProps<"/message
     if (!current) {
       return (
         <div className="container-page py-6 sm:py-10">
-          <PageHeader eyebrow="Сообщения" title="Чат с ментором" />
+          <PageHeader eyebrow={t("Сообщения")} title={t("Чат с ментором")} />
           <div className="mt-6 rounded-card border border-dashed border-line-strong bg-surface p-8 text-center">
             <MessagesSquare className="mx-auto size-10 text-muted" aria-hidden />
-            <p className="mt-3 font-semibold">Пока не с кем переписываться</p>
-            <p className="mx-auto mt-1 max-w-sm text-sm text-muted">Выбери ментора — после того как он примет заявку, здесь откроется чат.</p>
-            <Link href="/mentors" className="mt-4 inline-flex h-10 items-center rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white hover:bg-brand-700">
-              Выбрать ментора
+            <p className="mt-3 font-semibold">{t("Пока не с кем переписываться")}</p>
+            <p className="mx-auto mt-1 max-w-sm text-sm text-muted">{t("Выбери ментора — после того как он примет заявку, здесь откроется чат.")}</p>
+            <Link
+              href="/mentors"
+              className="mt-4 inline-flex h-10 items-center rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white hover:bg-brand-700"
+            >
+              {t("Выбрать ментора")}
             </Link>
           </div>
         </div>
@@ -40,7 +48,7 @@ export default async function MessagesPage({ searchParams }: PageProps<"/message
         <div className="flex items-center gap-3">
           <MentorAvatar name={name} className="size-11 text-sm" />
           <div className="min-w-0">
-            <h1 className="truncate font-display text-xl font-semibold">{name}</h1>
+            <h1 className="truncate font-display text-xl font-semibold">{t(name)}</h1>
             <p className="truncate text-sm text-muted">{current.mentor?.headline}</p>
           </div>
         </div>
@@ -50,7 +58,7 @@ export default async function MessagesPage({ searchParams }: PageProps<"/message
           studentId={account.id}
           me={account.id}
           initial={thread}
-          otherName={name.split(" ")[0]}
+          otherName={t(name.split(" ")[0])}
           active={current.mentorship.status === "active"}
         />
       </div>
@@ -65,26 +73,31 @@ export default async function MessagesPage({ searchParams }: PageProps<"/message
 
   return (
     <div className="container-page py-4 sm:py-8">
-      <PageHeader eyebrow="Сообщения" title="Чаты с учениками" />
+      <PageHeader eyebrow={t("Сообщения")} title={t("Чаты с учениками")} />
       {students.length === 0 ? (
         <p className="mt-6 rounded-card border border-dashed border-line-strong bg-surface p-8 text-center text-sm text-muted">
-          Когда примешь заявку ученика, здесь появится чат с ним.
+          {t("Когда примешь заявку ученика, здесь появится чат с ним.")}
         </p>
       ) : (
         <div className="mt-5 grid h-[calc(100dvh-14rem)] grid-cols-1 gap-4 lg:h-[calc(100dvh-11rem)] lg:grid-cols-[280px_minmax(0,1fr)]">
           <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 scrollbar-none lg:mx-0 lg:block lg:space-y-1.5 lg:overflow-y-auto lg:px-0">
             {students.map((s) => {
-              const name = s.student.full_name || s.student.email || "Ученик";
+              const name = s.student.full_name || s.student.email || t("Ученик");
               const active = s.student.id === selected?.student.id;
               return (
                 <li key={s.student.id} className="shrink-0">
                   <Link
                     href={`/messages?student=${s.student.id}`}
-                    className={cn("flex items-center gap-3 rounded-2xl border p-2.5 pr-3", active ? "border-brand-300 bg-brand-50" : "border-line bg-surface hover:border-line-strong")}
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl border p-2.5 pr-3",
+                      active ? "border-brand-300 bg-brand-50" : "border-line bg-surface hover:border-line-strong",
+                    )}
                   >
                     <MentorAvatar name={name} className="size-9 text-xs" />
-                    <span className="min-w-0 flex-1 truncate text-sm font-semibold">{name}</span>
-                    {s.unread > 0 && <span className="grid size-5 place-items-center rounded-full bg-coral-500 text-[11px] font-bold text-white">{s.unread}</span>}
+                    <span className="min-w-0 flex-1 truncate text-sm font-semibold">{t(name)}</span>
+                    {s.unread > 0 && (
+                      <span className="grid size-5 place-items-center rounded-full bg-coral-500 text-[11px] font-bold text-white">{s.unread}</span>
+                    )}
                   </Link>
                 </li>
               );
@@ -98,7 +111,7 @@ export default async function MessagesPage({ searchParams }: PageProps<"/message
               studentId={selected.student.id}
               me={account.id}
               initial={thread}
-              otherName={(selected.student.full_name || "ученик").split(" ")[0]}
+              otherName={t((selected.student.full_name || "ученик").split(" ")[0])}
               active
             />
           )}

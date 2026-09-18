@@ -70,6 +70,12 @@ export const CITIZENSHIPS = [
 ] as const;
 
 export const GRADES = [8, 9, 10, 11, 12] as const;
+
+/** Allowed age in the questionnaire (the database checks the same range). */
+export const AGE_MIN = 15;
+export const AGE_MAX = 150;
+export const ageError = (age: number | null | undefined) =>
+  age != null && (!Number.isInteger(age) || age < AGE_MIN || age > AGE_MAX) ? "Возраст — от 15 до 150 лет" : null;
 export const GRADE_LABEL: Record<number, string> = { 8: "8 класс", 9: "9 класс", 10: "10 класс", 11: "11 класс", 12: "Выпускник" };
 
 export const GPA_SCALES: { value: GpaScale; label: string; max: number; step: number; example: string }[] = [

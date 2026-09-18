@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { examScoreError, formatScore, nearestScores, type ExamMeta } from "@/lib/exams";
@@ -10,17 +11,8 @@ import { cn } from "@/lib/utils";
  * digits (plus one decimal separator for IELTS), and a hint with the nearest
  * valid scores when the value falls between steps (SAT 1465 → 1460 / 1470).
  */
-export function ExamScoreInput({
-  id,
-  meta,
-  score,
-  onChange,
-}: {
-  id: string;
-  meta: ExamMeta;
-  score: number;
-  onChange: (score: number) => void;
-}) {
+export function ExamScoreInput({ id, meta, score, onChange }: { id: string; meta: ExamMeta; score: number; onChange: (score: number) => void }) {
+  const t = useT();
   const decimal = meta.step < 1;
   const [raw, setRaw] = useState(Number.isFinite(score) ? formatScore(meta.type, score) : "");
   const [focused, setFocused] = useState(false);
@@ -53,11 +45,11 @@ export function ExamScoreInput({
         type="text"
         inputMode={decimal ? "decimal" : "numeric"}
         autoComplete="off"
-        placeholder={meta.example}
+        placeholder={t(meta.example)}
         aria-invalid={showError}
         aria-describedby={showError ? `${id}-error` : undefined}
         className={cn("h-10 max-w-28", showError && "border-danger-500 focus:border-danger-500")}
-        value={raw}
+        value={t(raw)}
         onChange={(e) => handleChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => {
@@ -70,7 +62,7 @@ export function ExamScoreInput({
       {showError && (
         <div id={`${id}-error`} className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-danger-700" role="alert">
           {/* the buttons already show the nearest scores, so the text only states the rule */}
-          <span>{suggestions.length ? `${error?.replace(/ — например.*$/, "")}:` : error}</span>
+          <span>{t(suggestions.length ? `${error?.replace(/ — например.*$/, "")}:` : error)}</span>
           {suggestions.map((n) => (
             <button
               key={n}

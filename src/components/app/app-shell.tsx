@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronRight, Lock, LogOut, Menu, MoreHorizontal, Trash2, X } from "lucide-react";
 import Link from "next/link";
@@ -7,6 +8,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { signOut } from "@/app/login/actions";
 import { Logo } from "@/components/brand/logo";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import type { JourneyState } from "@/lib/data/journey";
 import { cn } from "@/lib/utils";
 import { DeleteAccountDialog } from "./delete-account-dialog";
@@ -14,12 +16,13 @@ import { isActive, JOURNEY, mobileNavFor, navFor } from "./nav-config";
 import { ROLE_LABEL, type Role } from "@/lib/role-labels";
 
 type Props = {
-  account: { email: string | null; full_name: string | null; role?: Role };
+  account: { email: string | null; full_name: string | null; avatar_url?: string | null; role?: Role };
   journey: JourneyState;
   children: React.ReactNode;
 };
 
 export function AppShell({ account, journey, children }: Props) {
+  const t = useT();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -30,14 +33,14 @@ export function AppShell({ account, journey, children }: Props) {
   const mobileNav = mobileNavFor(role);
   // the questionnaire unlocks the student journey; mentors and admins have none
   const locked = role === "student" && !journey.profileComplete;
-  const initials = (account.full_name || account.email || "?").trim().charAt(0).toUpperCase();
+
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
       {/* ---------- desktop sidebar ---------- */}
       <aside className="sticky top-0 hidden h-dvh flex-col border-r border-line bg-surface px-4 py-5 lg:flex">
         <Logo href="/dashboard" className="px-2" />
-        <nav className="mt-8 flex-1 space-y-1" aria-label="Разделы">
+        <nav className="mt-8 flex-1 space-y-1" aria-label={t("Разделы")}>
           {NAV.map((item) => {
             const active = isActive(pathname, item.href, NAV);
             const disabled = locked && item.requiresProfile;
@@ -55,11 +58,15 @@ export function AppShell({ account, journey, children }: Props) {
                 )}
               >
                 {active && (
-                  <motion.span layoutId="nav-active" className="absolute inset-0 rounded-xl bg-brand-50" transition={{ type: "spring", stiffness: 400, damping: 35 }} />
+                  <motion.span
+                    layoutId="nav-active"
+                    className="absolute inset-0 rounded-xl bg-brand-50"
+                    transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                  />
                 )}
                 <Icon className="relative size-[18px]" aria-hidden />
-                <span className="relative flex-1">{item.label}</span>
-                {disabled && <Lock className="relative size-3.5" aria-label="Сначала заполните анкету" />}
+                <span className="relative flex-1">{t(item.label)}</span>
+                {disabled && <Lock className="relative size-3.5" aria-label={t("Сначала заполните анкету")} />}
               </Link>
             );
           })}
@@ -68,26 +75,29 @@ export function AppShell({ account, journey, children }: Props) {
         {role === "student" && journey.stepsTotal > 0 && (
           <div className="mb-4 rounded-2xl bg-canvas p-3">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-ink-soft">Прогресс маршрута</span>
+              <span className="font-semibold text-ink-soft">{t("Прогресс маршрута")}</span>
               <span className="font-bold text-brand-700">{Math.round((journey.stepsDone / journey.stepsTotal) * 100)}%</span>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line">
-              <div className="h-full rounded-full bg-gradient-to-r from-brand-600 to-route-500" style={{ width: `${(journey.stepsDone / journey.stepsTotal) * 100}%` }} />
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-brand-600 to-route-500"
+                style={{ width: `${(journey.stepsDone / journey.stepsTotal) * 100}%` }}
+              />
             </div>
           </div>
         )}
 
         <div className="relative flex items-center gap-3 border-t border-line px-2 pt-4">
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">{initials}</span>
+          <UserAvatar src={account.avatar_url} name={account.full_name || account.email} />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{account.full_name || ROLE_LABEL[role]}</p>
-            <p className="truncate text-xs text-muted">{role === "student" ? account.email : ROLE_LABEL[role]}</p>
+            <p className="truncate text-sm font-semibold">{t(account.full_name || ROLE_LABEL[role])}</p>
+            <p className="truncate text-xs text-muted">{t(role === "student" ? account.email : ROLE_LABEL[role])}</p>
           </div>
           <button
             type="button"
             onClick={() => setAccountOpen((v) => !v)}
             className="grid size-9 place-items-center rounded-lg text-muted hover:bg-canvas hover:text-ink"
-            aria-label="Аккаунт"
+            aria-label={t("Аккаунт")}
             aria-expanded={accountOpen}
             aria-haspopup="menu"
           >
@@ -105,8 +115,12 @@ export function AppShell({ account, journey, children }: Props) {
                   className="absolute bottom-full right-0 z-50 mb-2 w-56 rounded-2xl border border-line bg-surface p-1.5 shadow-card"
                 >
                   <form action={signOut}>
-                    <button type="submit" role="menuitem" className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-ink-soft hover:bg-canvas hover:text-ink">
-                      <LogOut className="size-4" aria-hidden /> Выйти
+                    <button
+                      type="submit"
+                      role="menuitem"
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-ink-soft hover:bg-canvas hover:text-ink"
+                    >
+                      <LogOut className="size-4" aria-hidden /> {t("Выйти")}
                     </button>
                   </form>
                   <button
@@ -118,7 +132,7 @@ export function AppShell({ account, journey, children }: Props) {
                     }}
                     className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-danger-700 hover:bg-danger-50"
                   >
-                    <Trash2 className="size-4" aria-hidden /> Удалить аккаунт
+                    <Trash2 className="size-4" aria-hidden /> {t("Удалить аккаунт")}
                   </button>
                 </motion.div>
               </>
@@ -136,7 +150,7 @@ export function AppShell({ account, journey, children }: Props) {
             onClick={() => setMenuOpen((v) => !v)}
             className="grid size-10 place-items-center rounded-xl text-ink-soft hover:bg-surface"
             aria-expanded={menuOpen}
-            aria-label="Меню"
+            aria-label={t("Меню")}
           >
             {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
@@ -150,7 +164,7 @@ export function AppShell({ account, journey, children }: Props) {
               exit={{ opacity: 0, y: -8 }}
               className="fixed inset-x-0 top-14 z-30 border-b border-line bg-surface px-4 pb-4 pt-2 shadow-card lg:hidden"
             >
-              <nav className="grid gap-1" aria-label="Все разделы" onClick={() => setMenuOpen(false)}>
+              <nav className="grid gap-1" aria-label={t("Все разделы")} onClick={() => setMenuOpen(false)}>
                 {NAV.map((item) => {
                   const disabled = locked && item.requiresProfile;
                   const Icon = item.icon;
@@ -165,7 +179,7 @@ export function AppShell({ account, journey, children }: Props) {
                       )}
                     >
                       <Icon className="size-5" aria-hidden />
-                      <span className="flex-1">{item.label}</span>
+                      <span className="flex-1">{t(item.label)}</span>
                       {disabled && <Lock className="size-4" aria-hidden />}
                     </Link>
                   );
@@ -173,11 +187,11 @@ export function AppShell({ account, journey, children }: Props) {
               </nav>
               <div className="mt-3 border-t border-line pt-3">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">{initials}</span>
+                  <UserAvatar src={account.avatar_url} name={account.full_name || account.email} />
                   <p className="min-w-0 flex-1 truncate text-sm text-muted">{account.email}</p>
                   <form action={signOut}>
                     <button type="submit" className="flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-ink-soft hover:bg-canvas">
-                      <LogOut className="size-4" aria-hidden /> Выйти
+                      <LogOut className="size-4" aria-hidden /> {t("Выйти")}
                     </button>
                   </form>
                 </div>
@@ -189,7 +203,7 @@ export function AppShell({ account, journey, children }: Props) {
                   }}
                   className="mt-2 flex h-10 w-full items-center gap-2 rounded-xl px-3 text-sm font-medium text-danger-700 hover:bg-danger-50"
                 >
-                  <Trash2 className="size-4" aria-hidden /> Удалить аккаунт
+                  <Trash2 className="size-4" aria-hidden /> {t("Удалить аккаунт")}
                 </button>
               </div>
             </motion.div>
@@ -207,7 +221,7 @@ export function AppShell({ account, journey, children }: Props) {
         <nav
           style={{ gridTemplateColumns: `repeat(${mobileNav.length}, minmax(0, 1fr))` }}
           className="fixed inset-x-0 bottom-0 z-30 glass-bar grid border-t border-line bg-surface/95 px-1 pb-[max(env(safe-area-inset-bottom),6px)] pt-1.5 backdrop-blur-xl lg:hidden"
-          aria-label="Основные разделы"
+          aria-label={t("Основные разделы")}
         >
           {mobileNav.map((item) => {
             const href = item.href;
@@ -228,7 +242,7 @@ export function AppShell({ account, journey, children }: Props) {
                 <span className={cn("grid h-7 w-12 place-items-center rounded-full transition-colors", active && "bg-brand-50")}>
                   <Icon className="size-[19px]" aria-hidden />
                 </span>
-                {item.label}
+                {t(item.label)}
               </Link>
             );
           })}
@@ -239,12 +253,13 @@ export function AppShell({ account, journey, children }: Props) {
 }
 
 function JourneyBar({ journey, pathname }: { journey: JourneyState; pathname: string }) {
+  const t = useT();
   const currentIndex = JOURNEY.findIndex((s) => isActive(pathname, s.href));
   const nextIndex = JOURNEY.findIndex((s) => !s.done(journey));
 
   return (
     <div className="border-b border-line bg-surface/60">
-      <ol className="container-page flex items-center gap-1 overflow-x-auto py-2.5 scrollbar-none" aria-label="Этапы маршрута">
+      <ol className="container-page flex items-center gap-1 overflow-x-auto py-2.5 scrollbar-none" aria-label={t("Этапы маршрута")}>
         {JOURNEY.map((stage, i) => {
           const done = stage.done(journey);
           const current = i === currentIndex;
@@ -271,8 +286,8 @@ function JourneyBar({ journey, pathname }: { journey: JourneyState; pathname: st
                 >
                   {done && !current ? <Check className="size-2.5" strokeWidth={4} aria-hidden /> : i + 1}
                 </span>
-                {stage.label}
-                {isNext && <span className="sr-only">(следующий этап)</span>}
+                {t(stage.label)}
+                {isNext && <span className="sr-only">{t("(следующий этап)")}</span>}
               </Link>
             </li>
           );

@@ -100,6 +100,101 @@ export type Database = {
           },
         ]
       }
+      essay_reviews: {
+        Row: {
+          created_at: string
+          essay_id: string
+          id: string
+          locale: string | null
+          model: string | null
+          review: Json
+          score: number
+          user_id: string
+          word_count: number
+        }
+        Insert: {
+          created_at?: string
+          essay_id: string
+          id?: string
+          locale?: string | null
+          model?: string | null
+          review: Json
+          score: number
+          user_id: string
+          word_count?: number
+        }
+        Update: {
+          created_at?: string
+          essay_id?: string
+          id?: string
+          locale?: string | null
+          model?: string | null
+          review?: Json
+          score?: number
+          user_id?: string
+          word_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "essay_reviews_essay_id_fkey"
+            columns: ["essay_id"]
+            isOneToOne: false
+            referencedRelation: "essays"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "essay_reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      essays: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          kind: string
+          prompt: string | null
+          target: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          kind: string
+          prompt?: string | null
+          target?: string | null
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          prompt?: string | null
+          target?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "essays_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           created_at: string

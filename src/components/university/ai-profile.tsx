@@ -1,10 +1,12 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { motion } from "framer-motion";
 import { Briefcase, CheckCircle2, Lightbulb, MapPinned, RotateCw, Sparkles, ThumbsUp, TriangleAlert } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MascotAvatar } from "@/components/brand/mascot";
 import type { UniversityProfile } from "@/types/models";
+import { currentIntl } from "@/lib/format";
 
 const ERRORS: Record<string, string> = {
   busy: "Юни сейчас перегружен — бесплатные модели на минуту заняты. Попробуй ещё раз чуть позже.",
@@ -17,6 +19,7 @@ const ERRORS: Record<string, string> = {
  * written on first visit (about 10 seconds) and cached for everyone after.
  */
 export function AiProfile({ slug, name, initial }: { slug: string; name: string; initial: UniversityProfile | null }) {
+  const t = useT();
   const [profile, setProfile] = useState(initial);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(!initial);
@@ -54,8 +57,8 @@ export function AiProfile({ slug, name, initial }: { slug: string; name: string;
         <div className="flex items-center gap-3">
           <MascotAvatar className="size-12" />
           <div className="min-w-0">
-            <p className="font-semibold">{loading ? "Юни пишет подробный профиль…" : "Профиль пока не готов"}</p>
-            <p className="text-sm text-muted">{loading ? `Собираю факты о ${name} из каталога и Википедии — около 10 секунд.` : error}</p>
+            <p className="font-semibold">{t(loading ? "Юни пишет подробный профиль…" : "Профиль пока не готов")}</p>
+            <p className="text-sm text-muted">{t(loading ? `Собираю факты о ${name} из каталога и Википедии — около 10 секунд.` : error)}</p>
           </div>
         </div>
         {loading ? (
@@ -71,8 +74,12 @@ export function AiProfile({ slug, name, initial }: { slug: string; name: string;
             ))}
           </div>
         ) : (
-          <button type="button" onClick={retry} className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-brand-50 px-4 text-sm font-semibold text-brand-700 hover:bg-brand-100">
-            <RotateCw className="size-4" aria-hidden /> Попробовать снова
+          <button
+            type="button"
+            onClick={retry}
+            className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-brand-50 px-4 text-sm font-semibold text-brand-700 hover:bg-brand-100"
+          >
+            <RotateCw className="size-4" aria-hidden /> {t("Попробовать снова")}
           </button>
         )}
       </section>
@@ -84,20 +91,20 @@ export function AiProfile({ slug, name, initial }: { slug: string; name: string;
     <motion.div initial={initial ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
       <section className="rounded-card border border-line bg-surface p-5 sm:p-6">
         <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-brand-600">
-          <Sparkles className="size-3.5" aria-hidden /> Профиль от ИИ
+          <Sparkles className="size-3.5" aria-hidden /> {t("Профиль от ИИ")}
         </p>
-        {c.tagline && <p className="mt-2 font-display text-lg font-semibold leading-snug sm:text-xl">{c.tagline}</p>}
+        {c.tagline && <p className="mt-2 font-display text-lg font-semibold leading-snug sm:text-xl">{t(c.tagline)}</p>}
         <div className="mt-3 space-y-3 text-[15px] leading-relaxed text-ink-soft">
           {c.overview.map((p) => (
-            <p key={p}>{p}</p>
+            <p key={p}>{t(p)}</p>
           ))}
         </div>
         {c.facts.length > 0 && (
           <dl className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {c.facts.map((f) => (
               <div key={f.label} className="min-w-0 rounded-xl bg-canvas px-3 py-2">
-                <dt className="truncate text-[11px] text-muted">{f.label}</dt>
-                <dd className="mt-0.5 text-sm font-semibold [overflow-wrap:anywhere]">{f.value}</dd>
+                <dt className="truncate text-[11px] text-muted">{t(f.label)}</dt>
+                <dd className="mt-0.5 text-sm font-semibold [overflow-wrap:anywhere]">{t(f.value)}</dd>
               </div>
             ))}
           </dl>
@@ -109,9 +116,9 @@ export function AiProfile({ slug, name, initial }: { slug: string; name: string;
           {c.strengths.map((s) => (
             <div key={s.title} className="rounded-card border border-line bg-surface p-4">
               <p className="flex items-center gap-2 font-semibold">
-                <CheckCircle2 className="size-4 shrink-0 text-success-500" aria-hidden /> {s.title}
+                <CheckCircle2 className="size-4 shrink-0 text-success-500" aria-hidden /> {t(s.title)}
               </p>
-              <p className="mt-1.5 text-sm text-ink-soft">{s.text}</p>
+              <p className="mt-1.5 text-sm text-ink-soft">{t(s.text)}</p>
             </div>
           ))}
         </section>
@@ -119,12 +126,12 @@ export function AiProfile({ slug, name, initial }: { slug: string; name: string;
 
       {c.programs.length > 0 && (
         <section className="rounded-card border border-line bg-surface p-5 sm:p-6">
-          <h2 className="font-semibold">Программы, на которые стоит посмотреть</h2>
+          <h2 className="font-semibold">{t("Программы, на которые стоит посмотреть")}</h2>
           <ul className="mt-3 divide-y divide-line">
             {c.programs.map((p) => (
               <li key={p.name} className="py-2.5 first:pt-0 last:pb-0">
-                <p className="text-sm font-semibold">{p.name}</p>
-                <p className="text-sm text-ink-soft">{p.why}</p>
+                <p className="text-sm font-semibold">{t(p.name)}</p>
+                <p className="text-sm text-ink-soft">{t(p.why)}</p>
               </li>
             ))}
           </ul>
@@ -132,20 +139,20 @@ export function AiProfile({ slug, name, initial }: { slug: string; name: string;
       )}
 
       <section className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <InfoBlock icon={MapPinned} title="Жизнь и город" text={c.student_life} />
-        <InfoBlock icon={Briefcase} title="Карьера после выпуска" text={c.careers} />
+        <InfoBlock icon={MapPinned} title={t("Жизнь и город")} text={t(c.student_life)} />
+        <InfoBlock icon={Briefcase} title={t("Карьера после выпуска")} text={t(c.careers)} />
       </section>
 
       {c.admission_tips.length > 0 && (
         <section className="rounded-card border border-brand-100 bg-brand-50/60 p-5 sm:p-6">
           <h2 className="flex items-center gap-2 font-semibold text-brand-700">
-            <Lightbulb className="size-4" aria-hidden /> Как поступить: советы
+            <Lightbulb className="size-4" aria-hidden /> {t("Как поступить: советы")}
           </h2>
           <ol className="mt-3 space-y-2">
             {c.admission_tips.map((tip, i) => (
               <li key={tip} className="flex gap-3 text-sm text-ink-soft">
                 <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-600 text-xs font-bold text-white">{i + 1}</span>
-                <span className="pt-0.5">{tip}</span>
+                <span className="pt-0.5">{t(tip)}</span>
               </li>
             ))}
           </ol>
@@ -154,41 +161,44 @@ export function AiProfile({ slug, name, initial }: { slug: string; name: string;
 
       {(c.good_fit.length > 0 || c.not_for.length > 0) && (
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <FitList icon={ThumbsUp} tone="text-success-700" title="Кому подойдёт" items={c.good_fit} />
-          <FitList icon={TriangleAlert} tone="text-warn-700" title="Кому лучше поискать другое" items={c.not_for} />
+          <FitList icon={ThumbsUp} tone="text-success-700" title={t("Кому подойдёт")} items={c.good_fit} />
+          <FitList icon={TriangleAlert} tone="text-warn-700" title={t("Кому лучше поискать другое")} items={c.not_for} />
         </section>
       )}
 
       <p className="text-xs text-muted">
-        Текст составил ИИ ({profile.model ?? "модель"}) {new Date(profile.generated_at).toLocaleDateString("ru-RU")} по данным каталога и Википедии. Цифры о
-        стоимости и требованиях — из карточки вуза; всё важное проверяйте на официальном сайте.
+        {t("Текст составил ИИ (")}
+        {t(profile.model ?? "модель")}) {new Date(profile.generated_at).toLocaleDateString(currentIntl())}{" "}
+        {t("по данным каталога и Википедии. Цифры о стоимости и требованиях — из карточки вуза; всё важное проверяйте на официальном сайте.")}
       </p>
     </motion.div>
   );
 }
 
 function InfoBlock({ icon: Icon, title, text }: { icon: typeof Briefcase; title: string; text: string }) {
+  const t = useT();
   if (!text) return null;
   return (
     <div className="rounded-card border border-line bg-surface p-5">
       <h2 className="flex items-center gap-2 font-semibold">
-        <Icon className="size-4 text-brand-600" aria-hidden /> {title}
+        <Icon className="size-4 text-brand-600" aria-hidden /> {t(title)}
       </h2>
-      <p className="mt-2 text-sm leading-relaxed text-ink-soft">{text}</p>
+      <p className="mt-2 text-sm leading-relaxed text-ink-soft">{t(text)}</p>
     </div>
   );
 }
 
 function FitList({ icon: Icon, tone, title, items }: { icon: typeof Briefcase; tone: string; title: string; items: string[] }) {
+  const t = useT();
   if (!items.length) return null;
   return (
     <div className="rounded-card border border-line bg-surface p-4">
       <p className={`flex items-center gap-2 text-sm font-semibold ${tone}`}>
-        <Icon className="size-4" aria-hidden /> {title}
+        <Icon className="size-4" aria-hidden /> {t(title)}
       </p>
       <ul className="mt-2 space-y-1 text-sm text-ink-soft">
         {items.map((i) => (
-          <li key={i}>• {i}</li>
+          <li key={i}>• {t(i)}</li>
         ))}
       </ul>
     </div>

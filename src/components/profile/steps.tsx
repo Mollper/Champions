@@ -1,8 +1,11 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { Award, BadgeCheck, CalendarRange, HandCoins, Plus } from "lucide-react";
 import {
   ACTIVITY_KINDS,
+  AGE_MAX,
+  ageError,
   ASSISTANT_STYLES,
   BUDGETS,
   CITIZENSHIPS,
@@ -38,37 +41,49 @@ const toggle = <T,>(list: T[], value: T) => (list.includes(value) ? list.filter(
 
 /* ------------------------------------------------------------------ 1 */
 export function AboutStep({ draft, update }: StepProps) {
+  const t = useT();
   return (
     <div className="space-y-8">
-      <QuestionBlock title="В каком ты классе?">
+      <QuestionBlock title={t("В каком ты классе?")}>
         <div className="flex flex-wrap gap-2">
           {GRADES.map((g) => (
             <Chip key={g} selected={draft.grade === g} onClick={() => update({ grade: g })}>
-              {GRADE_LABEL[g]}
+              {t(GRADE_LABEL[g])}
             </Chip>
           ))}
         </div>
       </QuestionBlock>
 
-      <QuestionBlock title="Сколько тебе лет?" hint="Необязательно — помогает с визами и возрастными требованиями.">
+      <QuestionBlock title={t("Сколько тебе лет?")} hint={t("Необязательно — помогает с визами и возрастными требованиями.")}>
         <Input
-          type="number"
+          type="text"
           inputMode="numeric"
-          min={10}
-          max={30}
+          autoComplete="off"
+          maxLength={3}
           placeholder="16"
           className="max-w-32"
           value={draft.age ?? ""}
-          onChange={(e) => update({ age: e.target.value ? Number(e.target.value) : null })}
-          aria-label="Возраст"
+          onChange={(e) => {
+            const digits = e.target.value.replace(/\D/g, "").slice(0, 3);
+            // more than 150 is refused as you type; too young is explained below
+            if (digits && Number(digits) > AGE_MAX) return;
+            update({ age: digits ? Number(digits) : null });
+          }}
+          aria-label={t("Возраст")}
+          aria-invalid={ageError(draft.age) && draft.age != null && String(draft.age).length >= 2 ? true : undefined}
         />
+        {draft.age != null && String(draft.age).length >= 2 && ageError(draft.age) && (
+          <p className="mt-2 text-sm font-medium text-danger-700" role="alert">
+            {t(ageError(draft.age))}
+          </p>
+        )}
       </QuestionBlock>
 
-      <QuestionBlock title="Гражданство" hint="От него зависят гранты: например, грант NU доступен гражданам Казахстана.">
+      <QuestionBlock title={t("Гражданство")} hint={t("От него зависят гранты: например, грант NU доступен гражданам Казахстана.")}>
         <div className="flex flex-wrap gap-2">
           {CITIZENSHIPS.map((c) => (
             <Chip key={c.code} selected={draft.citizenship === c.code} onClick={() => update({ citizenship: c.code })}>
-              {c.name}
+              {t(c.name)}
             </Chip>
           ))}
         </div>
@@ -79,10 +94,11 @@ export function AboutStep({ draft, update }: StepProps) {
 
 /* ------------------------------------------------------------------ 2 */
 export function InterestsStep({ draft, update }: StepProps) {
+  const t = useT();
   const max = 5;
   return (
     <div className="space-y-8">
-      <QuestionBlock title="Что тебе интересно?" hint={`Выбери от 1 до ${max} направлений — по ним подберём программы.`}>
+      <QuestionBlock title={t("Что тебе интересно?")} hint={t("Выбери от 1 до {0} направлений — по ним подберём программы.", max)}>
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {FIELDS.map((f) => {
             const Icon = FIELD_ICON[f.id];
@@ -96,22 +112,22 @@ export function InterestsStep({ draft, update }: StepProps) {
                   update({ interests: toggle(draft.interests, f.id) });
                 }}
                 icon={<Icon />}
-                title={f.label}
+                title={t(f.label)}
               />
             );
           })}
         </div>
         <p className="text-xs text-muted" aria-live="polite">
-          Выбрано {draft.interests.length} из {max}
+          {t("Выбрано")} {draft.interests.length} {t("из")} {max}
         </p>
       </QuestionBlock>
 
-      <QuestionBlock title="Есть конкретная специальность?" hint="Необязательно. Например: «Computer Science» или «Биомедицинская инженерия».">
+      <QuestionBlock title={t("Есть конкретная специальность?")} hint={t("Необязательно. Например: «Computer Science» или «Биомедицинская инженерия».")}>
         <Input
-          placeholder="Если уже знаешь"
-          value={draft.intended_major ?? ""}
+          placeholder={t("Если уже знаешь")}
+          value={t(draft.intended_major ?? "")}
           onChange={(e) => update({ intended_major: e.target.value })}
-          aria-label="Специальность"
+          aria-label={t("Специальность")}
         />
       </QuestionBlock>
     </div>
@@ -120,6 +136,7 @@ export function InterestsStep({ draft, update }: StepProps) {
 
 /* ------------------------------------------------------------------ 3 */
 export function AcademicsStep({ draft, update }: StepProps) {
+  const t = useT();
   const scale = GPA_SCALES.find((s) => s.value === draft.gpa_scale) ?? GPA_SCALES[0];
   const gpa4 = gpaTo4(draft.gpa, draft.gpa_scale);
   const activityOf = (kind: string) => draft.activities.find((a) => a.kind === kind);
@@ -134,9 +151,9 @@ export function AcademicsStep({ draft, update }: StepProps) {
 
   return (
     <div className="space-y-8">
-      <QuestionBlock title="Средний балл" hint="Годовые оценки за последний год. Шкалу выбери свою — пересчитаем сами.">
+      <QuestionBlock title={t("Средний балл")} hint={t("Годовые оценки за последний год. Шкалу выбери свою — пересчитаем сами.")}>
         <Segmented
-          label="Шкала оценок"
+          label={t("Шкала оценок")}
           value={draft.gpa_scale}
           options={GPA_SCALES.map((s) => ({ value: s.value, label: s.label }))}
           onChange={(v) => update({ gpa_scale: v, gpa: null })}
@@ -148,18 +165,22 @@ export function AcademicsStep({ draft, update }: StepProps) {
             step={scale.step}
             min={0}
             max={scale.max}
-            placeholder={scale.example.replace("например, ", "")}
+            placeholder={t(scale.example.replace("например, ", ""))}
             className="max-w-36 text-lg font-semibold"
             value={draft.gpa ?? ""}
             onChange={(e) => {
               const v = e.target.value === "" ? null : Math.min(scale.max, Math.max(0, Number(e.target.value)));
               update({ gpa: v });
             }}
-            aria-label={`Средний балл по шкале ${scale.label}`}
+            aria-label={t("Средний балл по шкале {0}", scale.label)}
           />
-          <span className="text-sm text-muted">из {scale.max}</span>
+          <span className="text-sm text-muted">
+            {t("из")} {scale.max}
+          </span>
           {gpa4 != null && draft.gpa_scale !== 4 && (
-            <span className="rounded-pill bg-route-50 px-3 py-1 text-sm font-semibold text-route-700">≈ {gpa4.toFixed(1)} по шкале 4.0</span>
+            <span className="rounded-pill bg-route-50 px-3 py-1 text-sm font-semibold text-route-700">
+              ≈ {gpa4.toFixed(1)} {t("по шкале 4.0")}
+            </span>
           )}
         </div>
         <input
@@ -170,11 +191,11 @@ export function AcademicsStep({ draft, update }: StepProps) {
           value={draft.gpa ?? (draft.gpa_scale === 100 ? 50 : draft.gpa_scale === 5 ? 2 : 0)}
           onChange={(e) => update({ gpa: Number(e.target.value) })}
           className="w-full accent-brand-600"
-          aria-label="Средний балл, слайдер"
+          aria-label={t("Средний балл, слайдер")}
         />
       </QuestionBlock>
 
-      <QuestionBlock title="Чем занимаешься кроме учёбы?" hint="Олимпиады и проекты заметно повышают шансы в сильных вузах.">
+      <QuestionBlock title={t("Чем занимаешься кроме учёбы?")} hint={t("Олимпиады и проекты заметно повышают шансы в сильных вузах.")}>
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {ACTIVITY_KINDS.map((k) => {
             const current = activityOf(k.kind);
@@ -184,14 +205,14 @@ export function AcademicsStep({ draft, update }: StepProps) {
                   selected={Boolean(current)}
                   onClick={() => setActivity(k.kind, current ? null : k.kind === "olympiad" ? { level: "региональный" } : {})}
                   icon={k.kind === "olympiad" ? <Award /> : <BadgeCheck />}
-                  title={k.label}
+                  title={t(k.label)}
                 />
                 {k.kind === "olympiad" && current && "levels" in k && (
                   <div className="mt-2 flex flex-wrap items-center gap-2 pl-1">
-                    <span className="text-xs font-medium text-muted">Лучший уровень:</span>
+                    <span className="text-xs font-medium text-muted">{t("Лучший уровень:")}</span>
                     {k.levels.map((level) => (
                       <Chip key={level} selected={current.level === level} onClick={() => setActivity("olympiad", { level })} className="min-h-8 px-3 text-xs">
-                        {level}
+                        {t(level)}
                       </Chip>
                     ))}
                   </div>
@@ -207,6 +228,7 @@ export function AcademicsStep({ draft, update }: StepProps) {
 
 /* ------------------------------------------------------------------ 4 */
 export function LanguagesStep({ draft, update }: StepProps) {
+  const t = useT();
   const english = draft.languages.find((l) => l.language === "Английский");
   const others = draft.languages.filter((l) => l.language !== "Английский");
 
@@ -225,21 +247,25 @@ export function LanguagesStep({ draft, update }: StepProps) {
 
   return (
     <div className="space-y-8">
-      <QuestionBlock title="Уровень английского" hint="Честная самооценка. Если не знаешь — ориентир: B2 ≈ IELTS 6.0, C1 ≈ 7.0.">
+      <QuestionBlock title={t("Уровень английского")} hint={t("Честная самооценка. Если не знаешь — ориентир: B2 ≈ IELTS 6.0, C1 ≈ 7.0.")}>
         <div className="flex flex-wrap gap-2">
           {LANGUAGE_LEVELS.map((level) => (
             <Chip key={level} selected={english?.level === level} onClick={() => setLanguage("Английский", level)} className="min-w-14 justify-center">
-              {LEVEL_LABEL[level]}
+              {t(LEVEL_LABEL[level])}
             </Chip>
           ))}
         </div>
       </QuestionBlock>
 
-      <QuestionBlock title="Другие языки" hint="Например, немецкий для Германии или корейский для Кореи. Родные языки можно не указывать.">
+      <QuestionBlock title={t("Другие языки")} hint={t("Например, немецкий для Германии или корейский для Кореи. Родные языки можно не указывать.")}>
         <div className="flex flex-wrap gap-2">
           {OTHER_LANGUAGES.map((lang) => (
-            <Chip key={lang} selected={others.some((o) => o.language === lang)} onClick={() => setLanguage(lang, others.some((o) => o.language === lang) ? null : "A2")}>
-              {lang}
+            <Chip
+              key={lang}
+              selected={others.some((o) => o.language === lang)}
+              onClick={() => setLanguage(lang, others.some((o) => o.language === lang) ? null : "A2")}
+            >
+              {t(lang)}
             </Chip>
           ))}
         </div>
@@ -247,10 +273,10 @@ export function LanguagesStep({ draft, update }: StepProps) {
           <div className="space-y-2">
             {others.map((o) => (
               <div key={o.language} className="flex flex-wrap items-center gap-3 rounded-xl bg-canvas px-3 py-2">
-                <span className="w-24 text-sm font-semibold">{o.language}</span>
+                <span className="w-24 text-sm font-semibold">{t(o.language)}</span>
                 <Segmented
                   size="sm"
-                  label={`Уровень: ${o.language}`}
+                  label={t("Уровень: {0}", o.language)}
                   value={o.level}
                   options={LANGUAGE_LEVELS.filter((l) => l !== "native").map((l) => ({ value: l, label: l }))}
                   onChange={(level) => setLanguage(o.language, level)}
@@ -261,7 +287,7 @@ export function LanguagesStep({ draft, update }: StepProps) {
         )}
       </QuestionBlock>
 
-      <QuestionBlock title="Экзамены" hint="Отметь сданные и запланированные. Для запланированных укажи целевой балл.">
+      <QuestionBlock title={t("Экзамены")} hint={t("Отметь сданные и запланированные. Для запланированных укажи целевой балл.")}>
         <div className="space-y-2.5">
           {EXAMS.map((meta) => {
             const exam = examOf(meta.type);
@@ -270,17 +296,17 @@ export function LanguagesStep({ draft, update }: StepProps) {
               <div key={meta.type} className="rounded-2xl border border-line bg-surface p-3.5 sm:p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="font-semibold">{meta.label}</p>
-                    <p className="text-xs text-muted">{meta.hint}</p>
+                    <p className="font-semibold">{t(meta.label)}</p>
+                    <p className="text-xs text-muted">{t(meta.hint)}</p>
                   </div>
                   <Segmented
                     size="sm"
-                    label={`Статус экзамена ${meta.label}`}
+                    label={t("Статус экзамена {0}", meta.label)}
                     value={status}
                     options={[
-                      { value: "none", label: "Нет" },
-                      { value: "taken", label: "Сдан" },
-                      { value: "planned", label: "Планирую" },
+                      { value: "none", label: t("Нет") },
+                      { value: "taken", label: t("Сдан") },
+                      { value: "planned", label: t("Планирую") },
                     ]}
                     onChange={(v) => setExam(meta.type, v === "none" ? null : { status: v })}
                   />
@@ -288,7 +314,7 @@ export function LanguagesStep({ draft, update }: StepProps) {
                 {exam && (
                   <div className="mt-3 flex items-start gap-3">
                     <label htmlFor={`exam-${meta.type}`} className="mt-2.5 shrink-0 text-sm text-ink-soft">
-                      {exam.status === "taken" ? "Балл" : "Целевой балл"}
+                      {t(exam.status === "taken" ? "Балл" : "Целевой балл")}
                     </label>
                     <ExamScoreInput id={`exam-${meta.type}`} meta={meta} score={exam.score} onChange={(score) => setExam(meta.type, { score })} />
                   </div>
@@ -304,12 +330,13 @@ export function LanguagesStep({ draft, update }: StepProps) {
 
 /* ------------------------------------------------------------------ 5 */
 export function CountriesStep({ draft, update, countryCounts }: StepProps) {
+  const t = useT();
   const any = draft.target_countries.length === 0;
   return (
     <div className="space-y-6">
-      <QuestionBlock title="Где хочешь учиться?" hint="Можно выбрать несколько стран или оставить «Любая страна» — подберём по остальным ответам.">
+      <QuestionBlock title={t("Где хочешь учиться?")} hint={t("Можно выбрать несколько стран или оставить «Любая страна» — подберём по остальным ответам.")}>
         <Chip selected={any} onClick={() => update({ target_countries: [] })}>
-          Любая страна
+          {t("Любая страна")}
         </Chip>
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {COUNTRIES.filter((c) => (countryCounts[c.code] ?? 0) > 0 || draft.target_countries.includes(c.code)).map((c) => (
@@ -317,11 +344,11 @@ export function CountriesStep({ draft, update, countryCounts }: StepProps) {
               key={c.code}
               selected={draft.target_countries.includes(c.code)}
               onClick={() => update({ target_countries: toggle(draft.target_countries, c.code) })}
-              title={c.name}
-              description={c.hint}
+              title={t(c.name)}
+              description={t(c.hint)}
               aside={
                 <span className="mt-0.5 shrink-0 rounded-pill bg-canvas px-2 py-0.5 text-[11px] font-semibold text-muted">
-                  {countryCounts[c.code] ?? 0} {plural(countryCounts[c.code] ?? 0, ["вуз", "вуза", "вузов"])}
+                  {countryCounts[c.code] ?? 0} {t(plural(countryCounts[c.code] ?? 0, ["вуз", "вуза", "вузов"]))}
                 </span>
               }
             />
@@ -334,9 +361,10 @@ export function CountriesStep({ draft, update, countryCounts }: StepProps) {
 
 /* ------------------------------------------------------------------ 6 */
 export function BudgetStep({ draft, update, startYears }: StepProps) {
+  const t = useT();
   return (
     <div className="space-y-8">
-      <QuestionBlock title="Бюджет на год" hint="Обучение + проживание. Сумма, которую семья готова тратить без учёта стипендий.">
+      <QuestionBlock title={t("Бюджет на год")} hint={t("Обучение + проживание. Сумма, которую семья готова тратить без учёта стипендий.")}>
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {BUDGETS.map((b) => (
             <OptionCard
@@ -345,7 +373,7 @@ export function BudgetStep({ draft, update, startYears }: StepProps) {
               selected={draft.budget_usd_per_year === b.value}
               onClick={() => update({ budget_usd_per_year: b.value, needs_scholarship: b.value === 0 ? true : draft.needs_scholarship })}
               icon={<HandCoins />}
-              title={b.label}
+              title={t(b.label)}
             />
           ))}
         </div>
@@ -354,15 +382,15 @@ export function BudgetStep({ draft, update, startYears }: StepProps) {
       <Switch
         checked={draft.needs_scholarship}
         onChange={(v) => update({ needs_scholarship: v })}
-        label="Ищу стипендию или грант"
-        description="Поднимем вузы с полными стипендиями и добавим подачу на гранты в маршрут."
+        label={t("Ищу стипендию или грант")}
+        description={t("Поднимем вузы с полными стипендиями и добавим подачу на гранты в маршрут.")}
       />
 
-      <QuestionBlock title="Когда планируешь начать учёбу?" hint="Бакалавриат обычно стартует осенью.">
+      <QuestionBlock title={t("Когда планируешь начать учёбу?")} hint={t("Бакалавриат обычно стартует осенью.")}>
         <div className="flex flex-wrap gap-2">
           {startYears.map((y) => (
             <Chip key={y} selected={draft.start_year === y} onClick={() => update({ start_year: y })}>
-              <CalendarRange className="size-4" aria-hidden /> Осень {y}
+              <CalendarRange className="size-4" aria-hidden /> {t("Осень")} {y}
             </Chip>
           ))}
         </div>
@@ -373,35 +401,36 @@ export function BudgetStep({ draft, update, startYears }: StepProps) {
 
 /* ------------------------------------------------------------------ 7 */
 export function GoalStep({ draft, update }: StepProps) {
+  const t = useT();
   return (
     <div className="space-y-8">
-      <QuestionBlock title="Ограничения" hint="Отметь то, что точно не подходит — такие вузы уйдут вниз списка.">
+      <QuestionBlock title={t("Ограничения")} hint={t("Отметь то, что точно не подходит — такие вузы уйдут вниз списка.")}>
         <div className="space-y-2.5">
           {CONSTRAINTS.map((c) => (
             <OptionCard
               key={c.id}
               selected={draft.constraints.includes(c.id)}
               onClick={() => update({ constraints: toggle(draft.constraints, c.id) })}
-              title={c.label}
-              description={c.hint}
+              title={t(c.label)}
+              description={t(c.hint)}
             />
           ))}
         </div>
         <Textarea
-          placeholder="Другие ограничения: здоровье, семья, город, безопасность…"
-          value={draft.constraints_note ?? ""}
+          placeholder={t("Другие ограничения: здоровье, семья, город, безопасность…")}
+          value={t(draft.constraints_note ?? "")}
           onChange={(e) => update({ constraints_note: e.target.value })}
-          aria-label="Другие ограничения"
+          aria-label={t("Другие ограничения")}
           rows={2}
         />
       </QuestionBlock>
 
-      <QuestionBlock title="Твоя образовательная цель" hint="Кем хочешь стать или чего добиться? Помощник будет учитывать это в советах.">
+      <QuestionBlock title={t("Твоя образовательная цель")} hint={t("Кем хочешь стать или чего добиться? Помощник будет учитывать это в советах.")}>
         <Textarea
-          placeholder="Например: хочу стать ML-инженером и работать в международной компании"
-          value={draft.goal ?? ""}
+          placeholder={t("Например: хочу стать ML-инженером и работать в международной компании")}
+          value={t(draft.goal ?? "")}
           onChange={(e) => update({ goal: e.target.value })}
-          aria-label="Образовательная цель"
+          aria-label={t("Образовательная цель")}
           rows={3}
           maxLength={300}
         />
@@ -413,20 +442,26 @@ export function GoalStep({ draft, update }: StepProps) {
               onClick={() => update({ goal: g })}
               className="inline-flex items-center gap-1 rounded-pill border border-dashed border-line-strong px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-brand-400 hover:text-brand-700"
             >
-              <Plus className="size-3" aria-hidden /> {g}
+              <Plus className="size-3" aria-hidden /> {t(g)}
             </button>
           ))}
         </div>
       </QuestionBlock>
 
-      <QuestionBlock title="Как с тобой общаться AI-помощнику?">
+      <QuestionBlock title={t("Как с тобой общаться AI-помощнику?")}>
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {ASSISTANT_STYLES.map((s) => (
-            <OptionCard key={s.id} role="radio" selected={draft.assistant_style === s.id} onClick={() => update({ assistant_style: s.id })} title={s.label} description={s.description} />
+            <OptionCard
+              key={s.id}
+              role="radio"
+              selected={draft.assistant_style === s.id}
+              onClick={() => update({ assistant_style: s.id })}
+              title={t(s.label)}
+              description={t(s.description)}
+            />
           ))}
         </div>
       </QuestionBlock>
     </div>
   );
 }
-
