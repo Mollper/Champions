@@ -100,6 +100,53 @@ export type Database = {
           },
         ]
       }
+      plans: {
+        Row: {
+          content: Json
+          created_at: string
+          done: string[]
+          id: number
+          kind: string
+          model: string | null
+          params: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          done?: string[]
+          id?: never
+          kind: string
+          model?: string | null
+          params?: Json
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          done?: string[]
+          id?: never
+          kind?: string
+          model?: string | null
+          params?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           activities: Json
@@ -543,6 +590,35 @@ export type Database = {
           wikidata_id?: string | null
         }
         Relationships: []
+      }
+      university_profiles: {
+        Row: {
+          content: Json
+          generated_at: string
+          model: string | null
+          university_id: number
+        }
+        Insert: {
+          content: Json
+          generated_at?: string
+          model?: string | null
+          university_id: number
+        }
+        Update: {
+          content?: Json
+          generated_at?: string
+          model?: string | null
+          university_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "university_profiles_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: true
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {

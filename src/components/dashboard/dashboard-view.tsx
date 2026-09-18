@@ -7,6 +7,7 @@ import { CATEGORY } from "@/components/roadmap/categories";
 import { NextActionCard } from "@/components/roadmap/next-action-card";
 import { useSteps } from "@/components/roadmap/use-steps";
 import { TierBadge } from "@/components/university/chance";
+import { MascotAvatar } from "@/components/brand/mascot";
 import { AiBadge } from "@/components/university/data-sources";
 import { pickNextAction } from "@/lib/engine/roadmap";
 import type { Tier } from "@/lib/engine/types";
@@ -37,7 +38,20 @@ export function DashboardView({ steps: initialSteps, top, universities, readines
     <div className="space-y-6">
       <NextActionCard steps={steps} onStatus={setStatus} universityName={universityName} />
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      {/* planner entry */}
+      <Link
+        href="/planner"
+        className="group flex items-center gap-4 rounded-card border border-brand-100 bg-gradient-to-r from-brand-50 via-surface to-[#fff0f7] p-4 transition hover:-translate-y-0.5 hover:shadow-lift sm:p-5"
+      >
+        <MascotAvatar className="size-14 shrink-0 ring-2 ring-white" />
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold">ИИ-планировщик</p>
+          <p className="text-sm text-ink-soft">Юни составит план по неделям: поступление, IELTS/SAT, учёба, портфолио или эссе.</p>
+        </div>
+        <ArrowRight className="size-5 shrink-0 text-brand-600 transition group-hover:translate-x-0.5" aria-hidden />
+      </Link>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* upcoming */}
         <section className="rounded-card border border-line bg-surface p-5 lg:col-span-2">
           <div className="flex items-center justify-between">
@@ -119,9 +133,9 @@ export function DashboardView({ steps: initialSteps, top, universities, readines
             Все вузы <ArrowRight className="size-4" aria-hidden />
           </Link>
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {top.map((u) => (
-            <Link key={u.id} href={`/recommendations#u-${u.slug}`} className="group overflow-hidden rounded-card border border-line bg-surface transition hover:-translate-y-0.5 hover:shadow-lift">
+            <Link key={u.id} href={`/universities/${u.slug}`} className="group overflow-hidden rounded-card border border-line bg-surface transition hover:-translate-y-0.5 hover:shadow-lift">
               <div className="relative h-28">
                 <Image src={u.image_url} alt="" fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
                 {u.origin === "ai" && (
@@ -143,7 +157,7 @@ export function DashboardView({ steps: initialSteps, top, universities, readines
       </section>
 
       {/* quick links */}
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[
           { href: "/overview", icon: Microscope, title: "Диагностика", text: `Готовность профиля: ${readiness}/100` },
           { href: "/compare", icon: GitCompareArrows, title: "Сравнение", text: shortlistCount >= 2 ? `В сравнении ${shortlistCount} вуза` : "Выбери 2–3 вуза" },

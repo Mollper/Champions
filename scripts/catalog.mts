@@ -5,6 +5,7 @@
  *   npm run catalog -- add "ETH Zurich" --country=CH
  *   npm run catalog -- seed                      (curated list in scripts/catalog-seed.ts)
  *   npm run catalog -- link-curated
+ *   npm run catalog -- profiles [--limit=20]     (AI profiles for university pages)
  *
  * Writes through SUPABASE_SECRET_KEY when it is set, otherwise through the
  * logged-in Supabase CLI (`supabase db query --linked`). Add --dry-run to only print.
@@ -16,9 +17,11 @@ import path from "node:path";
 import { hostOf, sleep } from "../src/lib/catalog/http";
 import type { UniversityRow } from "../src/lib/catalog/normalize";
 import { enrichUniversity } from "../src/lib/catalog/pipeline";
+import { generateUniversityProfile } from "../src/lib/catalog/profile";
 import { rowsToSql, saveUniversity } from "../src/lib/catalog/store";
 import { discover, searchUniversity } from "../src/lib/catalog/wikidata";
 import { createAdminClient } from "../src/lib/supabase/admin";
+import type { University } from "../src/types/models";
 import { SEED } from "./catalog-seed";
 
 const [command, ...rest] = process.argv.slice(2);
@@ -142,6 +145,40 @@ if (command === "discover") {
     }),
   );
   await enrichAll(items);
+} else if (command === "profiles") {
+  // Pre-write the AI profiles, so university pages open instantly instead of generating on first visit.
+  const missing = (
+    admin
+      ? ((await admin.from("universities").select("*").eq("status", "published")).data ?? [])
+      : cliQuery("select u.* from public.universities u where u.status = 'published' and not exists (select 1 from public.university_profiles p where p.university_id = u.id)")
+  ) as unknown as University[];
+  const queue = missing.slice(0, Number(flags.limit ?? missing.length));
+  console.log(`${queue.length} universities without a profile`);
+  let saved = 0;
+  const worker = async () => {
+    for (let u = queue.shift(); u; u = queue.shift()) {
+      try {
+        const { content, model } = await generateUniversityProfile(u);
+        if (dryRun) {
+          console.log(`  ${u.name}: ${content.tagline}`);
+          continue;
+        }
+        if (admin) await admin.from("university_profiles").upsert({ university_id: u.id, content, model });
+        else {
+          const tag = `j${Math.random().toString(36).slice(2, 10)}`;
+          cliQuery(
+            `insert into public.university_profiles (university_id, content, model) values (${Number(u.id)}, $${tag}$${JSON.stringify(content)}$${tag}$::jsonb, '${model.replace(/[^\w./-]/g, "")}') on conflict (university_id) do update set content = excluded.content, model = excluded.model, generated_at = now();`,
+          );
+        }
+        saved++;
+        console.log(`  ✓ ${u.name} (${model})`);
+      } catch (error) {
+        console.log(`  ✗ ${u.name}: ${error instanceof Error ? error.message.slice(0, 160) : error}`);
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Number(flags.concurrency ?? 3) }, worker));
+  console.log(`\nDone: ${saved} profiles saved`);
 } else if (command === "link-curated") {
   // Give hand-curated universities their Wikidata ids so discovery never duplicates them.
   const existing = (await existingUniversities()).filter((e) => e.origin === "curated" && !e.wikidata_id);

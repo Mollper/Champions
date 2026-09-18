@@ -41,7 +41,7 @@ export function OverviewContent({ diagnosis, recommended, draft, fresh }: Props)
         }
       />
 
-      <div className="grid gap-4 lg:grid-cols-[1.1fr_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         {/* goal */}
         <Reveal>
           <Card className="h-full p-5 sm:p-6">
@@ -49,7 +49,7 @@ export function OverviewContent({ diagnosis, recommended, draft, fresh }: Props)
               <Flag className="size-4 text-brand-600" aria-hidden /> Образовательная цель
             </div>
             <p className="mt-3 font-display text-xl font-semibold leading-snug sm:text-2xl">{goal.headline}</p>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+            <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
               {goal.details.map((d) => (
                 <li key={d} className="rounded-xl bg-canvas px-3 py-2 text-sm text-ink-soft">
                   {d}
@@ -109,7 +109,7 @@ export function OverviewContent({ diagnosis, recommended, draft, fresh }: Props)
       </Stagger>
 
       {/* strengths & limitations */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Reveal>
           <Card className="h-full p-5 sm:p-6">
             <h2 className="flex items-center gap-2 text-lg font-semibold">
@@ -174,7 +174,7 @@ export function OverviewContent({ diagnosis, recommended, draft, fresh }: Props)
               {recommended.slice(0, 3).map((m, i) => (
                 <span key={m.university.id}>
                   {i > 0 && ", "}
-                  <Link href={`/recommendations#u-${m.university.slug}`} className="font-semibold text-brand-700 hover:underline">
+                  <Link href={`/universities/${m.university.slug}`} className="font-semibold text-brand-700 hover:underline">
                     {m.university.name}
                   </Link>
                 </span>

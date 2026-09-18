@@ -1,4 +1,5 @@
 import {
+  CalendarCheck2,
   ClipboardList,
   GitCompareArrows,
   GraduationCap,
@@ -10,16 +11,18 @@ import {
 } from "lucide-react";
 import type { JourneyState } from "@/lib/data/journey";
 
-export type NavItem = { href: string; label: string; icon: LucideIcon; requiresProfile: boolean };
+/** `also`: other paths that belong to the section (a university page lives under "Вузы"). */
+export type NavItem = { href: string; label: string; icon: LucideIcon; requiresProfile: boolean; also?: string[] };
 
 export const NAV: NavItem[] = [
   { href: "/dashboard", label: "Главная", icon: LayoutDashboard, requiresProfile: true },
   { href: "/profile", label: "Анкета", icon: ClipboardList, requiresProfile: false },
   { href: "/overview", label: "Диагностика", icon: Microscope, requiresProfile: true },
-  { href: "/recommendations", label: "Вузы", icon: GraduationCap, requiresProfile: true },
+  { href: "/recommendations", label: "Вузы", icon: GraduationCap, requiresProfile: true, also: ["/universities"] },
   { href: "/compare", label: "Сравнение", icon: GitCompareArrows, requiresProfile: true },
   { href: "/roadmap", label: "Маршрут", icon: Route, requiresProfile: true },
   { href: "/scholarships", label: "Стипендии", icon: HandCoins, requiresProfile: true },
+  { href: "/planner", label: "Планировщик", icon: CalendarCheck2, requiresProfile: true },
 ];
 
 export const MOBILE_NAV = ["/dashboard", "/recommendations", "/compare", "/roadmap", "/profile"];
@@ -34,5 +37,6 @@ export const JOURNEY = [
 ] as const;
 
 export function isActive(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(`${href}/`);
+  const match = (h: string) => pathname === h || pathname.startsWith(`${h}/`);
+  return match(href) || (NAV.find((n) => n.href === href)?.also ?? []).some(match);
 }

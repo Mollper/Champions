@@ -1,29 +1,15 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { Mascot } from "./mascot";
 
-// Gradient lives in CSS, not in <defs>: SVG gradient ids clash when the logo
-// renders twice and the first copy is display:none (e.g. the desktop-only aside).
+/** Юни, the mascot, on the brand tile. */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <span
-      className={cn(
-        "inline-grid size-8 shrink-0 place-items-center rounded-[9px] bg-gradient-to-tr from-brand-600 to-route-500",
-        className,
-      )}
+      className={cn("relative inline-block size-9 shrink-0 overflow-hidden rounded-[11px] bg-gradient-to-tr from-brand-600 to-route-500 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.15)]", className)}
       aria-hidden
     >
-      <svg viewBox="0 0 32 32" className="size-full">
-        <path
-          d="M9 23c0-5 4-5.5 7-7s7-2.5 7-7"
-          fill="none"
-          stroke="white"
-          strokeWidth="2.6"
-          strokeLinecap="round"
-          strokeDasharray="0.1 4.6"
-        />
-        <circle cx="9" cy="23" r="2.6" fill="white" />
-        <circle cx="23" cy="9" r="2.6" fill="#ff6a3d" stroke="white" strokeWidth="1.4" />
-      </svg>
+      <Mascot className="absolute -bottom-[4%] left-1/2 w-[112%] max-w-none -translate-x-1/2" />
     </span>
   );
 }

@@ -168,7 +168,10 @@ export function RecommendationsView({
                   <li key={m.university.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center">
                     <div className="min-w-0 flex-1">
                       <p className="font-medium">
-                        {m.university.name} <span className="text-sm font-normal text-muted">· {m.university.country}</span>
+                        <Link href={`/universities/${m.university.slug}`} className="hover:text-brand-700 hover:underline">
+                          {m.university.name}
+                        </Link>{" "}
+                        <span className="text-sm font-normal text-muted">· {m.university.country}</span>
                         {m.university.origin === "ai" && (
                           <Sparkles className="ml-1.5 inline size-3.5 text-brand-600" aria-label="Предложено ИИ">
                             <title>Предложено ИИ</title>

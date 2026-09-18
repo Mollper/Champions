@@ -30,7 +30,7 @@ export function Features() {
   return (
     <section className="py-16 sm:py-24">
       <div className="container-page">
-        <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map(({ icon: Icon, title, text }) => (
             <StaggerItem key={title}>
               <div className="h-full rounded-card border border-line bg-surface p-5">

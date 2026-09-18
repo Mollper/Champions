@@ -5,6 +5,7 @@ import {
   AlertCircle,
   Check,
   ChevronDown,
+  ArrowRight,
   ExternalLink,
   GitCompareArrows,
   HandCoins,
@@ -12,6 +13,7 @@ import {
   MapPin,
   Plus,
 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { DemoNote } from "@/components/ui/demo-note";
 import { UniversityPhoto } from "@/components/university/university-photo";
@@ -36,7 +38,7 @@ export function UniversityCard({ match, inShortlist, pending, onToggleShortlist,
 
   return (
     <article id={`u-${u.slug}`} className="scroll-mt-28 overflow-hidden rounded-card border border-line bg-surface shadow-card">
-      <div className="grid md:grid-cols-[280px_1fr]">
+      <div className="grid grid-cols-1 md:grid-cols-[280px_minmax(0,1fr)]">
         <div className="relative">
           <UniversityPhoto
             src={u.image_url}
@@ -61,7 +63,11 @@ export function UniversityCard({ match, inShortlist, pending, onToggleShortlist,
                 <TierBadge tier={match.tier} chance={match.chance} />
                 <span className="rounded-pill bg-route-50 px-2.5 py-0.5 text-xs font-bold text-route-700">совпадение {match.score}%</span>
               </div>
-              <h3 className="mt-2 text-lg font-semibold leading-snug sm:text-xl">{u.name}</h3>
+              <h3 className="mt-2 text-lg font-semibold leading-snug sm:text-xl">
+                <Link href={`/universities/${u.slug}`} className="hover:text-brand-700 hover:underline">
+                  {u.name}
+                </Link>
+              </h3>
               <p className="mt-0.5 flex items-center gap-1 text-sm text-muted">
                 <MapPin className="size-3.5 shrink-0" aria-hidden /> {u.city}, {u.country}
                 {u.name_ru && <span className="hidden truncate sm:inline">· {u.name_ru}</span>}
@@ -145,13 +151,19 @@ export function UniversityCard({ match, inShortlist, pending, onToggleShortlist,
               Шансы и источники
               <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} aria-hidden />
             </button>
+            <Link
+              href={`/universities/${u.slug}`}
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-brand-700 hover:bg-brand-50"
+            >
+              Профиль вуза <ArrowRight className="size-3.5" aria-hidden />
+            </Link>
             <a
               href={u.admissions_url ?? u.website_url}
               target="_blank"
               rel="noreferrer"
-              className="ml-auto inline-flex h-10 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-brand-700 hover:bg-brand-50"
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-ink-soft hover:bg-canvas sm:ml-auto"
             >
-              Сайт вуза <ExternalLink className="size-3.5" aria-hidden />
+              Сайт <ExternalLink className="size-3.5" aria-hidden />
             </a>
           </div>
 

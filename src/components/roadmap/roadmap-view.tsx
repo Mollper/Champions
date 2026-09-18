@@ -57,7 +57,7 @@ export function RoadmapView({ initialSteps, summary, universities, initialView =
           <summary className="flex cursor-pointer list-none items-center gap-2 font-semibold text-brand-700">
             <RefreshCw className="size-4" aria-hidden /> Маршрут перестроен: +{changes.added.length} {plural(changes.added.length, ["шаг", "шага", "шагов"])}, −{changes.removed.length}
           </summary>
-          <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+          <div className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             {changes.added.length > 0 && (
               <ul className="space-y-1">
                 {changes.added.slice(0, 8).map((t) => (

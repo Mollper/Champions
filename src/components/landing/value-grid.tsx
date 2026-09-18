@@ -43,7 +43,7 @@ export function ValueGrid() {
           </p>
         </Reveal>
 
-        <Stagger className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Stagger className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {ITEMS.map(({ icon: Icon, title, text, result }, i) => (
             <StaggerItem key={title}>
               <article className="group relative h-full rounded-card border border-line bg-surface p-5 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lift">

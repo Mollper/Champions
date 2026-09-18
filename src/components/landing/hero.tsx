@@ -36,7 +36,7 @@ export function Hero({ ctaHref, universityCount, countryCount, scholarshipCount,
         <div className="absolute -right-24 top-64 size-80 rounded-full bg-route-400/20 blur-3xl" />
       </div>
 
-      <div className="container-page grid items-center gap-12 pb-16 pt-10 sm:pt-16 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:pb-24">
+      <div className="container-page grid grid-cols-1 items-center gap-12 pb-16 pt-10 sm:pt-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-10 lg:pb-24">
         <div>
           <motion.div {...fadeUp(0)}>
             <span className="inline-flex items-center gap-2 rounded-pill border border-brand-100 bg-surface/80 px-3 py-1 text-xs font-semibold text-brand-700 shadow-card backdrop-blur">

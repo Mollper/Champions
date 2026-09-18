@@ -39,7 +39,7 @@ export function HowItWorks() {
 
   return (
     <section id="how" className="scroll-mt-20 bg-surface py-16 sm:py-24">
-      <div className="container-page grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="container-page grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <Reveal className="lg:sticky lg:top-28 lg:self-start">
           <p className="text-sm font-semibold text-brand-600">Как это работает</p>
           <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">

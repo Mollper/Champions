@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Bot, CalendarClock, Check, PartyPopper, Play } from "lucide-react";
+import { ArrowRight, CalendarClock, Check, PartyPopper, Play } from "lucide-react";
+import { ChatSparkIcon } from "@/components/brand/mascot";
 import Link from "next/link";
 import { pickNextAction } from "@/lib/engine/roadmap";
 import { daysUntil, formatDate, formatDaysLeft } from "@/lib/format";
@@ -86,7 +87,7 @@ export function NextActionCard({ steps, onStatus, universityName, compact = fals
                 onClick={() => window.dispatchEvent(new CustomEvent("assistant:ask", { detail: `Помоги со шагом: «${next.title}». С чего начать?` }))}
                 className="inline-flex h-11 items-center gap-2 rounded-xl px-3 text-[15px] font-semibold text-white/90 hover:bg-white/10"
               >
-                <Bot className="size-4" aria-hidden /> Спросить помощника
+                <ChatSparkIcon className="size-4" /> Спросить Юни
               </button>
             </div>
           </motion.div>

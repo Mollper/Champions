@@ -82,3 +82,45 @@ export type RoadmapStep = Omit<Tables<"roadmap_steps">, "category" | "status" | 
 };
 
 export type ChatMessage = Omit<Tables<"chat_messages">, "role"> & { role: ChatRole };
+
+// ---------------------------------------------------------------- AI university profiles
+
+export type UniversityProfileContent = {
+  tagline: string;
+  overview: string[];
+  strengths: { title: string; text: string }[];
+  programs: { name: string; why: string }[];
+  student_life: string;
+  careers: string;
+  admission_tips: string[];
+  good_fit: string[];
+  not_for: string[];
+  facts: { label: string; value: string }[];
+};
+
+export type UniversityProfile = { content: UniversityProfileContent; model: string | null; generated_at: string };
+
+// ---------------------------------------------------------------- AI planner
+
+export type PlanKind = "admission" | "exam" | "study" | "portfolio" | "essay" | "custom";
+export type PlanHorizon = "2w" | "1m" | "3m" | "6m";
+export type PlanTaskCategory = "study" | "exam" | "documents" | "application" | "activity" | "essay" | "rest";
+
+export type PlanTask = { key: string; title: string; details: string; minutes: number; category: PlanTaskCategory };
+export type PlanPeriod = { key: string; label: string; start: string; end: string; focus: string; tasks: PlanTask[] };
+export type PlanContent = {
+  summary: string;
+  periods: PlanPeriod[];
+  milestones: { periodKey: string; title: string }[];
+  tips: string[];
+};
+export type PlanParams = {
+  horizon: PlanHorizon;
+  hoursPerWeek: number;
+  exam?: ExamEntry["type"];
+  target?: number;
+  goal?: string;
+  wishes?: string;
+};
+
+export type Plan = Omit<Tables<"plans">, "kind" | "params" | "content"> & { kind: PlanKind; params: PlanParams; content: PlanContent };

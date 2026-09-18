@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronRight, Lock, LogOut, Menu, X } from "lucide-react";
+import { Check, ChevronRight, Lock, LogOut, Menu, MoreHorizontal, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -9,6 +9,7 @@ import { signOut } from "@/app/login/actions";
 import { Logo } from "@/components/brand/logo";
 import type { JourneyState } from "@/lib/data/journey";
 import { cn } from "@/lib/utils";
+import { DeleteAccountDialog } from "./delete-account-dialog";
 import { isActive, JOURNEY, MOBILE_NAV, NAV } from "./nav-config";
 
 type Props = {
@@ -20,11 +21,14 @@ type Props = {
 export function AppShell({ account, journey, children }: Props) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  // null until first opened, so the dialog never renders on the server
+  const [deleteOpen, setDeleteOpen] = useState<boolean | null>(null);
   const locked = !journey.profileComplete;
   const initials = (account.full_name || account.email || "?").trim().charAt(0).toUpperCase();
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[260px_1fr]">
+    <div className="min-h-dvh lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
       {/* ---------- desktop sidebar ---------- */}
       <aside className="sticky top-0 hidden h-dvh flex-col border-r border-line bg-surface px-4 py-5 lg:flex">
         <Logo href="/dashboard" className="px-2" />
@@ -68,17 +72,53 @@ export function AppShell({ account, journey, children }: Props) {
           </div>
         )}
 
-        <div className="flex items-center gap-3 border-t border-line px-2 pt-4">
+        <div className="relative flex items-center gap-3 border-t border-line px-2 pt-4">
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">{initials}</span>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold">{account.full_name || "Абитуриент"}</p>
             <p className="truncate text-xs text-muted">{account.email}</p>
           </div>
-          <form action={signOut}>
-            <button type="submit" className="grid size-9 place-items-center rounded-lg text-muted hover:bg-canvas hover:text-danger-700" aria-label="Выйти">
-              <LogOut className="size-4" />
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={() => setAccountOpen((v) => !v)}
+            className="grid size-9 place-items-center rounded-lg text-muted hover:bg-canvas hover:text-ink"
+            aria-label="Аккаунт"
+            aria-expanded={accountOpen}
+            aria-haspopup="menu"
+          >
+            <MoreHorizontal className="size-4" />
+          </button>
+          <AnimatePresence>
+            {accountOpen && (
+              <>
+                <button type="button" aria-hidden tabIndex={-1} className="fixed inset-0 z-40 cursor-default" onClick={() => setAccountOpen(false)} />
+                <motion.div
+                  role="menu"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  className="absolute bottom-full right-0 z-50 mb-2 w-56 rounded-2xl border border-line bg-surface p-1.5 shadow-card"
+                >
+                  <form action={signOut}>
+                    <button type="submit" role="menuitem" className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-ink-soft hover:bg-canvas hover:text-ink">
+                      <LogOut className="size-4" aria-hidden /> Выйти
+                    </button>
+                  </form>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setAccountOpen(false);
+                      setDeleteOpen(true);
+                    }}
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-danger-700 hover:bg-danger-50"
+                  >
+                    <Trash2 className="size-4" aria-hidden /> Удалить аккаунт
+                  </button>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </div>
       </aside>
 
@@ -126,14 +166,26 @@ export function AppShell({ account, journey, children }: Props) {
                   );
                 })}
               </nav>
-              <div className="mt-3 flex items-center gap-3 border-t border-line pt-3">
-                <span className="grid size-9 place-items-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">{initials}</span>
-                <p className="min-w-0 flex-1 truncate text-sm text-muted">{account.email}</p>
-                <form action={signOut}>
-                  <button type="submit" className="flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-danger-700 hover:bg-danger-50">
-                    <LogOut className="size-4" aria-hidden /> Выйти
-                  </button>
-                </form>
+              <div className="mt-3 border-t border-line pt-3">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">{initials}</span>
+                  <p className="min-w-0 flex-1 truncate text-sm text-muted">{account.email}</p>
+                  <form action={signOut}>
+                    <button type="submit" className="flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-ink-soft hover:bg-canvas">
+                      <LogOut className="size-4" aria-hidden /> Выйти
+                    </button>
+                  </form>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setDeleteOpen(true);
+                  }}
+                  className="mt-2 flex h-10 w-full items-center gap-2 rounded-xl px-3 text-sm font-medium text-danger-700 hover:bg-danger-50"
+                >
+                  <Trash2 className="size-4" aria-hidden /> Удалить аккаунт
+                </button>
               </div>
             </motion.div>
           )}
@@ -143,6 +195,8 @@ export function AppShell({ account, journey, children }: Props) {
         <JourneyBar journey={journey} pathname={pathname} />
 
         <main className="flex-1 pb-28 lg:pb-12">{children}</main>
+
+        {deleteOpen !== null && <DeleteAccountDialog open={deleteOpen} onClose={() => setDeleteOpen(false)} email={account.email} />}
 
         {/* ---------- mobile bottom nav ---------- */}
         <nav

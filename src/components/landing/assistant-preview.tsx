@@ -1,8 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, CalendarDays, HandCoins, PenLine, Target, Trophy } from "lucide-react";
+import { CalendarDays, HandCoins, PenLine, Target, Trophy } from "lucide-react";
 import { useState } from "react";
+import { MascotAvatar } from "@/components/brand/mascot";
 import { Reveal } from "@/components/motion/reveal";
 import { cn } from "@/lib/utils";
 
@@ -48,7 +49,7 @@ export function AssistantPreview() {
 
   return (
     <section id="assistant" className="scroll-mt-20 bg-ink py-16 text-white sm:py-24">
-      <div className="container-page grid items-center gap-12 lg:grid-cols-2">
+      <div className="container-page grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
         <Reveal>
           <p className="text-sm font-semibold text-brand-300">AI-помощник</p>
           <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -58,7 +59,7 @@ export function AssistantPreview() {
             Спроси про эссе, экзамены или активности — помощник отвечает с учётом твоей анкеты, выбранных вузов и
             плана. И общается в удобном тебе стиле.
           </p>
-          <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+          <ul className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {SKILLS.map(({ icon: Icon, text }) => (
               <li key={text} className="flex items-center gap-3 text-sm text-white/85">
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/10 text-brand-300">
@@ -73,11 +74,9 @@ export function AssistantPreview() {
         <Reveal delay={0.1}>
           <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.06] p-4 shadow-2xl backdrop-blur sm:p-6">
             <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-              <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-route-500">
-                <Bot className="size-5" aria-hidden />
-              </span>
+              <MascotAvatar className="size-11" />
               <div>
-                <p className="font-semibold">Помощник UniRoute</p>
+                <p className="font-semibold">Юни · ИИ-помощник</p>
                 <p className="text-xs text-white/60">Стиль общения можно менять</p>
               </div>
             </div>

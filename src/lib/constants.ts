@@ -154,3 +154,6 @@ export function startYearOptions(now = new Date()): number[] {
   const first = now.getMonth() >= 7 ? now.getFullYear() + 1 : now.getFullYear();
   return [first, first + 1, first + 2, first + 3];
 }
+
+/** The word a student types to confirm deleting their account (checked on the server too). */
+export const DELETE_CONFIRMATION = "удалить";

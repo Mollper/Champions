@@ -1,6 +1,5 @@
-import { google } from "@ai-sdk/google";
-import { groq } from "@ai-sdk/groq";
-import { streamText, type LanguageModel, type ModelMessage } from "ai";
+import { streamText, type ModelMessage } from "ai";
+import { textModels } from "@/lib/ai/models";
 import { BUDGETS, CONSTRAINTS, COUNTRY_NAME, FIELD_LABEL, GRADE_LABEL } from "@/lib/constants";
 import { gpaTo4 } from "@/lib/engine/normalize";
 import { TIER_LABEL } from "@/lib/engine/match";
@@ -12,30 +11,7 @@ import type { Answer } from "./compose";
 import type { AssistantContext } from "./context";
 import { mentionedCountries, mentionedFields, mentionedUniversities } from "./mentions";
 
-type Candidate = { id: string; model: LanguageModel; providerOptions?: Parameters<typeof streamText>[0]["providerOptions"] };
-
-/**
- * Free models in order of preference. Groq answers fastest but allows ~8k tokens per
- * minute per model, so a busy minute falls through to the next model and then to Gemini.
- */
-function candidates(): Candidate[] {
-  const list: Candidate[] = [];
-  if (process.env.GROQ_API_KEY) {
-    list.push(
-      { id: "groq/gpt-oss-120b", model: groq("openai/gpt-oss-120b"), providerOptions: { groq: { reasoningEffort: "low" } } },
-      { id: "groq/gpt-oss-20b", model: groq("openai/gpt-oss-20b"), providerOptions: { groq: { reasoningEffort: "low" } } },
-    );
-  }
-  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    list.push(
-      { id: "google/gemini-3.1-flash-lite", model: google("gemini-3.1-flash-lite-preview"), providerOptions: { google: { thinkingConfig: { thinkingLevel: "minimal" } } } },
-      { id: "google/gemini-flash-lite", model: google("gemini-flash-lite-latest") },
-    );
-  }
-  return list;
-}
-
-export const llmConfigured = () => candidates().length > 0;
+export const llmConfigured = () => textModels().length > 0;
 
 const STYLE_RULES: Record<AssistantStyle, string> = {
   friendly: "Тон — старший друг: тепло, на «ты», поддерживай и подбадривай, 1–2 эмодзи на ответ максимум. 80–180 слов.",
@@ -73,7 +49,7 @@ function universityLine(m: MatchResult): string {
     .join("\n");
 }
 
-function studentSummary(ctx: AssistantContext): string {
+export function studentSummary(ctx: Pick<AssistantContext, "draft" | "name">): string {
   const d = ctx.draft;
   const gpa4 = gpaTo4(d.gpa, d.gpa_scale);
   const lines = [
@@ -120,7 +96,7 @@ export function buildSystemPrompt(message: string, style: AssistantStyle, ctx: A
   const scholarships = ctx.scholarshipMatches.filter((s) => s.status !== "not").slice(0, 3);
   const countryCount = new Set(ctx.universities.map((u) => u.country_code)).size;
 
-  return `Ты — ИИ-помощник UniRoute: помогаешь школьникам 9–11 классов из Казахстана и стран СНГ спланировать поступление в зарубежные и казахстанские вузы.
+  return `Ты — Юни, ИИ-помощник UniRoute (маскот сервиса — аниме-парень в выпускной шапочке): помогаешь школьникам 9–11 классов из Казахстана и стран СНГ спланировать поступление в зарубежные и казахстанские вузы.
 
 ${STYLE_RULES[style]}
 
@@ -172,7 +148,7 @@ export async function streamLlmReply(
   { system, messages, signal }: { system: string; messages: ModelMessage[]; signal?: AbortSignal },
   onDelta: (text: string) => void,
 ): Promise<string | null> {
-  for (const candidate of candidates()) {
+  for (const candidate of textModels()) {
     let started = false;
     try {
       const result = streamText({

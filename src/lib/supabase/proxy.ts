@@ -6,6 +6,8 @@ import { isSupabaseConfigured, supabasePublishableKey, supabaseUrl } from "./env
 /** Routes that require a signed-in user. */
 const PROTECTED_PREFIXES = [
   "/dashboard",
+  "/universities",
+  "/planner",
   "/profile",
   "/overview",
   "/recommendations",

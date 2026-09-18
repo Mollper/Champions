@@ -1,3 +1,4 @@
+import { CheckCircle2 } from "lucide-react";
 import { AssistantPreview } from "@/components/landing/assistant-preview";
 import { Features, FinalCta, SiteFooter } from "@/components/landing/features-and-cta";
 import { Hero } from "@/components/landing/hero";
@@ -10,7 +11,8 @@ import { getScholarships, getUniversities } from "@/lib/data/reference";
 
 const SHOWCASE_SLUGS = ["mit", "tum", "kaist", "polimi", "nazarbayev", "toronto"];
 
-export default async function LandingPage() {
+export default async function LandingPage({ searchParams }: PageProps<"/">) {
+  const deleted = (await searchParams).deleted === "1";
   const [userId, universities, scholarships] = await Promise.all([
     getCurrentUserId(),
     getUniversities(),
@@ -28,6 +30,11 @@ export default async function LandingPage() {
     <>
       <SiteHeader isSignedIn={isSignedIn} />
       <main className="flex-1">
+        {deleted && (
+          <p role="status" className="container-page mt-3 flex items-center gap-2 rounded-xl bg-success-50 px-4 py-3 text-sm font-medium text-success-700">
+            <CheckCircle2 className="size-4 shrink-0" aria-hidden /> Аккаунт удалён вместе со всеми данными. Спасибо, что пользовались UniRoute!
+          </p>
+        )}
         <Hero
           ctaHref={ctaHref}
           universityCount={universities.length}

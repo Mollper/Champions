@@ -124,7 +124,7 @@ export async function downloadPreview(url: string): Promise<Uint8Array | null> {
 export async function wikipediaExtract(title: string | null): Promise<Page | null> {
   if (!title) return null;
   const url = new URL("https://en.wikipedia.org/w/api.php");
-  Object.entries({ action: "query", format: "json", formatversion: "2", prop: "extracts", explaintext: "1", exsectionformat: "plain", titles: title }).forEach(([k, v]) =>
+  Object.entries({ action: "query", format: "json", formatversion: "2", prop: "extracts", explaintext: "1", exsectionformat: "plain", redirects: "1", titles: title }).forEach(([k, v]) =>
     url.searchParams.set(k, v),
   );
   try {

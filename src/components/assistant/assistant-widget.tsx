@@ -1,11 +1,12 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp, Bot, Loader2, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowUp, Loader2, Sparkles, Trash2, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { saveAssistantStyle } from "@/app/(app)/assistant-actions";
 import { ASSISTANT_STYLES } from "@/lib/constants";
+import { ChatSparkIcon, MascotAvatar } from "@/components/brand/mascot";
 import { cn } from "@/lib/utils";
 import type { AssistantStyle } from "@/types/models";
 import { MessageText } from "./message-text";
@@ -155,17 +156,19 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={cn(
-              "fixed right-4 z-40 flex h-14 items-center gap-2 rounded-full bg-gradient-to-br from-brand-600 to-brand-500 pl-4 pr-5 text-white shadow-lift lg:bottom-6 lg:right-6",
+              "fixed right-4 z-40 flex h-14 items-center gap-2.5 rounded-full bg-gradient-to-br from-brand-600 to-brand-500 p-1.5 text-white shadow-lift sm:pr-5 lg:bottom-6 lg:right-6",
               // the questionnaire has its own sticky action bar above the bottom nav
               pathname.startsWith("/profile") ? "bottom-[152px]" : "bottom-[84px]",
             )}
             aria-label="Открыть ИИ-помощника"
           >
             <span className="relative">
-              <Bot className="size-6" aria-hidden />
-              <span className="absolute -right-1 -top-1 size-2.5 rounded-full bg-route-400 ring-2 ring-brand-600" />
+              <MascotAvatar className="size-11 ring-2 ring-white/70" />
+              <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full bg-white text-brand-600 shadow-sm">
+                <ChatSparkIcon className="size-3.5" />
+              </span>
             </span>
-            <span className="hidden text-sm font-semibold sm:inline">Помощник</span>
+            <span className="hidden text-sm font-semibold sm:inline">Спросить Юни</span>
           </motion.button>
         )}
       </AnimatePresence>
@@ -175,7 +178,7 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
           <motion.div
             role="dialog"
             aria-modal="false"
-            aria-label="AI-помощник"
+            aria-label="ИИ-помощник Юни"
             initial={{ opacity: 0, y: 24, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.98 }}
@@ -185,11 +188,11 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
             {/* header */}
             <div className="border-b border-line px-4 pb-3 pt-[max(env(safe-area-inset-top),12px)] sm:pt-3">
               <div className="flex items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-brand-600 to-route-500 text-white">
-                  <Bot className="size-5" aria-hidden />
-                </span>
+                <MascotAvatar className="size-11" />
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold">ИИ-помощник</p>
+                  <p className="font-semibold">
+                    Юни <span className="font-normal text-muted">· ИИ-помощник</span>
+                  </p>
                   <p className="text-xs text-muted">Знает твою анкету, вузы и маршрут</p>
                 </div>
                 {messages.length > 0 && (
@@ -232,7 +235,7 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
                     <Sparkles className="size-4 text-brand-600" aria-hidden /> {name ? `Привет, ${name}!` : "Привет!"}
                   </p>
                   <p className="mt-1.5">
-                    Я помогу скорректировать маршрут, разобрать эссе, подобрать активности и стипендии. Могу посчитать сценарий:
+                    Я Юни, твой ИИ-помощник. Помогу скорректировать маршрут, разобрать эссе, подобрать активности и стипендии. Могу посчитать сценарий:
                     «а если сдам IELTS 7?»
                   </p>
                 </div>

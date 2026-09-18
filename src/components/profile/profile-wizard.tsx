@@ -213,7 +213,7 @@ export function ProfileWizard({ initial, isComplete, universities, scholarships,
   const progress = ((step + 1) / STEPS.length) * 100;
 
   return (
-    <div className="container-page grid gap-8 py-6 sm:py-10 lg:grid-cols-[1fr_300px]">
+    <div className="container-page grid grid-cols-1 gap-8 py-6 sm:py-10 lg:grid-cols-[minmax(0,1fr)_300px]">
       <div className="min-w-0">
         {/* header */}
         <div className="flex flex-wrap items-end justify-between gap-3">

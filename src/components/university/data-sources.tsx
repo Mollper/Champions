@@ -69,7 +69,7 @@ export function DataSources({ university }: { university: University }) {
         Предложено ИИ: данные и фото собраны из Wikidata, сайта вуза и открытых источников
         {university.enriched_at && <span className="font-normal text-muted"> · обновлено {new Date(university.enriched_at).toLocaleDateString("ru-RU")}</span>}
       </p>
-      <ul className="grid gap-1.5 text-xs sm:grid-cols-2">
+      <ul className="grid grid-cols-1 gap-1.5 text-xs sm:grid-cols-2">
         {rows.map(({ key, label, source }) => {
           const { text, tone } = describe(source);
           return (

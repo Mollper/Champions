@@ -29,7 +29,7 @@ export function ScholarshipsContent({ list }: { list: ScholarshipMatch[] }) {
       />
       <DemoNote />
 
-      <Stagger className="grid gap-4 lg:grid-cols-2">
+      <Stagger className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {list.map(({ scholarship: s, university, status, pros, gaps, deadline, relevance }) => {
           const days = deadline ? daysUntil(deadline.date) : null;
           return (

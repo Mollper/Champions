@@ -83,7 +83,7 @@ export function InterestsStep({ draft, update }: StepProps) {
   return (
     <div className="space-y-8">
       <QuestionBlock title="Что тебе интересно?" hint={`Выбери от 1 до ${max} направлений — по ним подберём программы.`}>
-        <div className="grid gap-2.5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {FIELDS.map((f) => {
             const Icon = FIELD_ICON[f.id];
             const selected = draft.interests.includes(f.id);
@@ -175,7 +175,7 @@ export function AcademicsStep({ draft, update }: StepProps) {
       </QuestionBlock>
 
       <QuestionBlock title="Чем занимаешься кроме учёбы?" hint="Олимпиады и проекты заметно повышают шансы в сильных вузах.">
-        <div className="grid gap-2.5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {ACTIVITY_KINDS.map((k) => {
             const current = activityOf(k.kind);
             return (
@@ -311,7 +311,7 @@ export function CountriesStep({ draft, update, countryCounts }: StepProps) {
         <Chip selected={any} onClick={() => update({ target_countries: [] })}>
           Любая страна
         </Chip>
-        <div className="grid gap-2.5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {COUNTRIES.filter((c) => (countryCounts[c.code] ?? 0) > 0 || draft.target_countries.includes(c.code)).map((c) => (
             <OptionCard
               key={c.code}
@@ -337,7 +337,7 @@ export function BudgetStep({ draft, update, startYears }: StepProps) {
   return (
     <div className="space-y-8">
       <QuestionBlock title="Бюджет на год" hint="Обучение + проживание. Сумма, которую семья готова тратить без учёта стипендий.">
-        <div className="grid gap-2.5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {BUDGETS.map((b) => (
             <OptionCard
               key={b.value}
@@ -420,7 +420,7 @@ export function GoalStep({ draft, update }: StepProps) {
       </QuestionBlock>
 
       <QuestionBlock title="Как с тобой общаться AI-помощнику?">
-        <div className="grid gap-2.5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {ASSISTANT_STYLES.map((s) => (
             <OptionCard key={s.id} role="radio" selected={draft.assistant_style === s.id} onClick={() => update({ assistant_style: s.id })} title={s.label} description={s.description} />
           ))}

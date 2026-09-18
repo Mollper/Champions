@@ -213,7 +213,9 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
                           <X className="size-4" />
                         </button>
                       </div>
-                      <p className="mt-2 font-semibold leading-snug">{m.university.name}</p>
+                      <Link href={`/universities/${m.university.slug}`} className="mt-2 block font-semibold leading-snug hover:text-brand-700 hover:underline">
+                        {m.university.name}
+                      </Link>
                       <a href={m.university.website_url} target="_blank" rel="noreferrer" className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:underline">
                         сайт <ExternalLink className="size-3" aria-hidden />
                       </a>

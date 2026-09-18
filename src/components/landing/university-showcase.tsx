@@ -31,7 +31,7 @@ export function UniversityShowcase({ universities }: { universities: University[
           <DemoNote compact className="self-start md:self-auto" />
         </Reveal>
 
-        <Stagger className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Stagger className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {universities.map((u) => (
             <StaggerItem key={u.id}>
               <article className="group h-full overflow-hidden rounded-card border border-line bg-surface shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">

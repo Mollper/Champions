@@ -1,10 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ArrowRight, Eye, EyeOff, Loader2, MailCheck } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, Eye, EyeOff, Loader2, MailCheck, RotateCw } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useState } from "react";
-import { signIn, signUp, type AuthState } from "@/app/login/actions";
+import { useActionState, useEffect, useState, useTransition } from "react";
+import { resendCode, signIn, signUp, verifyCode, type AuthState } from "@/app/login/actions";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -51,7 +51,7 @@ export function AuthForm({ initialMode, next, linkError }: { initialMode: Mode; 
       {linkError && (
         <p className="mt-4 flex items-start gap-2 rounded-xl bg-danger-50 px-3 py-2.5 text-sm text-danger-700">
           <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
-          Ссылка из письма устарела или уже использована. Войдите или запросите новое письмо, зарегистрировавшись ещё раз.
+          Ссылка из письма устарела или уже использована. Войдите с паролем — если email не подтверждён, мы пришлём новый код.
         </p>
       )}
 
@@ -79,9 +79,14 @@ export function AuthForm({ initialMode, next, linkError }: { initialMode: Mode; 
 
 function SignInForm({ next }: { next: string }) {
   const [state, action, pending] = useActionState(signIn, initial);
+  const [editing, setEditing] = useState(false);
+
+  if (state.status === "verify" && state.email && !editing) {
+    return <VerifyCodeForm email={state.email} notice={state.notice} onBack={() => setEditing(true)} />;
+  }
 
   return (
-    <form action={action} className="mt-6 space-y-4" noValidate>
+    <form action={action} onSubmit={() => setEditing(false)} className="mt-6 space-y-4" noValidate>
       <input type="hidden" name="next" value={next} />
       <Field label="Email" htmlFor="signin-email">
         <Input
@@ -96,7 +101,7 @@ function SignInForm({ next }: { next: string }) {
         />
       </Field>
       <PasswordField id="signin-password" autoComplete="current-password" />
-      <FormError state={state} />
+      <FormError state={editing ? initial : state} />
       <Button type="submit" size="lg" className="w-full" disabled={pending}>
         {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
         {pending ? "Входим…" : "Войти"}
@@ -108,24 +113,14 @@ function SignInForm({ next }: { next: string }) {
 
 function SignUpForm() {
   const [state, action, pending] = useActionState(signUp, initial);
+  const [editing, setEditing] = useState(false);
 
-  if (state.status === "check-email") {
-    return (
-      <div className="mt-6 rounded-card border border-route-100 bg-route-50 p-6 text-center">
-        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-surface text-route-600 shadow-card">
-          <MailCheck className="size-7" aria-hidden />
-        </span>
-        <h2 className="mt-4 text-lg font-semibold">Проверь почту</h2>
-        <p className="mt-2 text-sm text-ink-soft">
-          Мы отправили письмо на <b className="text-ink">{state.email}</b>. Перейди по ссылке из письма — и сразу
-          попадёшь в анкету. Письмо может прийти в течение пары минут, загляни в «Спам».
-        </p>
-      </div>
-    );
+  if (state.status === "verify" && state.email && !editing) {
+    return <VerifyCodeForm email={state.email} notice={state.notice} onBack={() => setEditing(true)} />;
   }
 
   return (
-    <form action={action} className="mt-6 space-y-4" noValidate>
+    <form action={action} onSubmit={() => setEditing(false)} className="mt-6 space-y-4" noValidate>
       <Field label="Как тебя зовут" htmlFor="signup-name" hint="Необязательно">
         <Input id="signup-name" name="full_name" autoComplete="given-name" placeholder="Алия" />
       </Field>
@@ -142,12 +137,108 @@ function SignUpForm() {
         />
       </Field>
       <PasswordField id="signup-password" autoComplete="new-password" hint="Минимум 8 символов" />
-      <FormError state={state} />
+      <FormError state={editing ? initial : state} />
       <Button type="submit" size="lg" className="w-full" disabled={pending}>
         {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
         {pending ? "Создаём аккаунт…" : "Создать аккаунт"}
         {!pending && <ArrowRight aria-hidden />}
       </Button>
+    </form>
+  );
+}
+
+const RESEND_SECONDS = 60;
+
+/**
+ * Second step of sign-up: the 6–10 digit code from the letter. One plain numeric
+ * field (paste and SMS/Mail autofill work), resend with the same 60-second
+ * cooldown Supabase enforces, and the link in the letter keeps working too.
+ */
+export function VerifyCodeForm({ email, notice, onBack }: { email: string; notice?: string; onBack: () => void }) {
+  const [state, action, pending] = useActionState(verifyCode, { status: "verify", email } as AuthState);
+  const [code, setCode] = useState("");
+  const [cooldown, setCooldown] = useState(RESEND_SECONDS);
+  const [resendNote, setResendNote] = useState<{ ok: boolean; message: string } | null>(null);
+  const [resending, startResend] = useTransition();
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
+
+  const resend = () =>
+    startResend(async () => {
+      const result = await resendCode(email);
+      setResendNote({ ok: result.ok, message: result.message });
+      setCooldown(result.ok ? RESEND_SECONDS : (result.ok === false && result.retryIn) || 0);
+      if (result.ok) setCode("");
+    });
+
+  const digits = code.replace(/\D/g, "");
+
+  return (
+    <form action={action} className="mt-6 space-y-5" noValidate>
+      <div className="rounded-card border border-route-100 bg-route-50 p-5 text-center">
+        <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-surface text-route-600 shadow-card">
+          <MailCheck className="size-6" aria-hidden />
+        </span>
+        <h2 className="mt-3 text-lg font-semibold">Подтверди почту</h2>
+        <p className="mt-1.5 text-sm text-ink-soft">
+          {notice ?? "Мы отправили письмо с кодом."} Код пришёл на <b className="break-all text-ink">{email}</b>. Письмо может идти пару минут — загляни и в «Спам».
+        </p>
+      </div>
+
+      <input type="hidden" name="email" value={email} />
+      <Field label="Код из письма" htmlFor="signup-code" hint="6–10 цифр">
+        <Input
+          id="signup-code"
+          name="code"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          autoFocus
+          maxLength={14}
+          placeholder="123456"
+          value={code}
+          onChange={(e) => setCode(e.target.value.replace(/[^\d\s-]/g, ""))}
+          aria-invalid={Boolean(state.message)}
+          className="h-14 text-center font-display text-2xl font-semibold tracking-[0.35em] placeholder:tracking-[0.35em]"
+        />
+      </Field>
+
+      {state.message && (
+        <p role="alert" className="flex items-start gap-2 rounded-xl bg-danger-50 px-3 py-2.5 text-sm text-danger-700">
+          <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
+          {state.message}
+        </p>
+      )}
+      {resendNote && (
+        <p role="status" className={cn("flex items-start gap-2 rounded-xl px-3 py-2.5 text-sm", resendNote.ok ? "bg-success-50 text-success-700" : "bg-warn-50 text-warn-700")}>
+          {resendNote.ok ? <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden /> : <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />}
+          {resendNote.message}
+        </p>
+      )}
+
+      <Button type="submit" size="lg" className="w-full" disabled={pending || digits.length < 6}>
+        {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
+        {pending ? "Проверяем…" : "Подтвердить"}
+        {!pending && <ArrowRight aria-hidden />}
+      </Button>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+        <button type="button" onClick={onBack} className="inline-flex items-center gap-1 font-medium text-ink-soft hover:text-ink">
+          <ArrowLeft className="size-4" aria-hidden /> Другой email
+        </button>
+        <button
+          type="button"
+          onClick={resend}
+          disabled={cooldown > 0 || resending}
+          className="inline-flex items-center gap-1.5 font-semibold text-brand-700 hover:underline disabled:cursor-not-allowed disabled:text-muted disabled:no-underline"
+        >
+          {resending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <RotateCw className="size-4" aria-hidden />}
+          {cooldown > 0 ? `Новый код через ${cooldown} с` : "Отправить код ещё раз"}
+        </button>
+      </div>
     </form>
   );
 }
