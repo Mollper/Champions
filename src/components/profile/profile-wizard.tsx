@@ -23,6 +23,7 @@ import { saveProfile } from "@/app/(app)/profile/actions";
 import { Button } from "@/components/ui/button";
 import { matchUniversities } from "@/lib/engine/match";
 import type { ProfileDraft } from "@/lib/engine/types";
+import { firstExamError } from "@/lib/exams";
 import { cn } from "@/lib/utils";
 import type { Scholarship, University } from "@/types/models";
 import { LivePreview } from "./live-preview";
@@ -80,9 +81,7 @@ const STEPS: StepDef[] = [
     validate: (d) =>
       !d.languages.some((l) => l.language === "Английский")
         ? "Отметь уровень английского"
-        : d.exams.some((e) => !Number.isFinite(e.score))
-          ? "Укажи балл для отмеченных экзаменов"
-          : null,
+        : firstExamError(d.exams),
   },
   {
     id: "countries",

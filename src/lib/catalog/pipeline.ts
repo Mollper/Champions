@@ -34,7 +34,11 @@ export async function enrichUniversity(qid: string, log: (message: string) => vo
   const previews = (await Promise.all(candidates.map(async (candidate) => ({ candidate, image: await downloadPreview(candidate.previewUrl) })))).filter(
     (c): c is { candidate: (typeof candidates)[number]; image: Uint8Array } => c.image !== null,
   );
-  const chosen = await pickPhoto(facts.nameEn, previews);
+  // the photo choice is a nicety: a quota error here must not lose the whole record
+  const chosen = await pickPhoto(facts.nameEn, previews).catch((error) => {
+    log(`  photo choice skipped: ${error instanceof Error ? error.message.slice(0, 120) : error}`);
+    return null;
+  });
   const photo = chosen != null ? previews[chosen].candidate : (candidates[0] ?? null);
   log(`  photo: ${photo?.title ?? "none"}${chosen == null && photo ? " (fallback)" : ""}`);
 

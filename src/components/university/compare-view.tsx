@@ -11,6 +11,7 @@ import type { MatchResult } from "@/lib/engine/types";
 import { formatDate, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { TierBadge } from "./chance";
+import { AiBadge } from "./data-sources";
 import { useShortlist } from "./use-shortlist";
 
 type Better = "high" | "low" | null;
@@ -196,6 +197,11 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
                         {winner?.id === m.university.id && (
                           <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-pill bg-brand-600 px-2 py-0.5 text-[11px] font-bold text-white">
                             <Crown className="size-3" aria-hidden /> лучший выбор
+                          </span>
+                        )}
+                        {m.university.origin === "ai" && (
+                          <span className="absolute bottom-2 left-2">
+                            <AiBadge />
                           </span>
                         )}
                         <button

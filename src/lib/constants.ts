@@ -44,6 +44,13 @@ export const COUNTRIES = [
   { code: "CN", name: "Китай", hint: "Стипендии CSC, сильные технические вузы" },
   { code: "MY", name: "Малайзия", hint: "Недорого, филиалы британских вузов" },
   { code: "AE", name: "ОАЭ", hint: "Кампусы международных вузов, английский" },
+  { code: "AT", name: "Австрия", hint: "Низкая плата, обучение в основном на немецком" },
+  { code: "SE", name: "Швеция", hint: "Сильные технические вузы, стипендии Swedish Institute" },
+  { code: "FI", name: "Финляндия", hint: "Программы на английском и стипендии вузов" },
+  { code: "BE", name: "Бельгия", hint: "Невысокая плата, центр Европы" },
+  { code: "PT", name: "Португалия", hint: "Недорогая жизнь и тёплый климат" },
+  { code: "NZ", name: "Новая Зеландия", hint: "Спокойная страна, работа во время учёбы" },
+  { code: "UZ", name: "Узбекистан", hint: "Филиалы британских и корейских вузов, недорого" },
 ] as const;
 
 export const COUNTRY_NAME: Record<string, string> = Object.fromEntries(COUNTRIES.map((c) => [c.code, c.name]));
@@ -92,13 +99,14 @@ export const EXAMS: {
   min: number;
   max: number;
   step: number;
+  example: string;
 }[] = [
-  { type: "IELTS", label: "IELTS", hint: "Английский, 0–9", min: 0, max: 9, step: 0.5 },
-  { type: "TOEFL", label: "TOEFL iBT", hint: "Английский, 0–120", min: 0, max: 120, step: 1 },
-  { type: "Duolingo", label: "Duolingo English Test", hint: "Английский, 10–160", min: 10, max: 160, step: 5 },
-  { type: "SAT", label: "SAT", hint: "Математика + английский, 400–1600", min: 400, max: 1600, step: 10 },
-  { type: "NUET", label: "NUET", hint: "Экзамен Назарбаев Университета, 0–240", min: 0, max: 240, step: 1 },
-  { type: "UNT", label: "ЕНТ", hint: "Единое национальное тестирование, 0–140", min: 0, max: 140, step: 1 },
+  { type: "IELTS", label: "IELTS", hint: "Английский, 0–9, шаг 0.5", min: 0, max: 9, step: 0.5, example: "6.5" },
+  { type: "TOEFL", label: "TOEFL iBT", hint: "Английский, 0–120", min: 0, max: 120, step: 1, example: "95" },
+  { type: "Duolingo", label: "Duolingo English Test", hint: "Английский, 10–160, шаг 5", min: 10, max: 160, step: 5, example: "120" },
+  { type: "SAT", label: "SAT", hint: "Математика + английский, 400–1600, шаг 10", min: 400, max: 1600, step: 10, example: "1350" },
+  { type: "NUET", label: "NUET", hint: "Экзамен Назарбаев Университета, 0–240", min: 0, max: 240, step: 1, example: "180" },
+  { type: "UNT", label: "ЕНТ", hint: "Единое национальное тестирование, 0–140", min: 0, max: 140, step: 1, example: "110" },
 ];
 
 export const ACTIVITY_KINDS = [

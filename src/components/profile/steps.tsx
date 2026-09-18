@@ -25,6 +25,7 @@ import { Chip, OptionCard, QuestionBlock, Segmented, Switch } from "@/components
 import { Input, Textarea } from "@/components/ui/input";
 import type { ActivityEntry, ExamEntry, LanguageEntry } from "@/types/models";
 import { FIELD_ICON } from "./icons";
+import { ExamScoreInput } from "./exam-score-input";
 
 export type StepProps = {
   draft: ProfileDraft;
@@ -285,21 +286,11 @@ export function LanguagesStep({ draft, update }: StepProps) {
                   />
                 </div>
                 {exam && (
-                  <div className="mt-3 flex items-center gap-3">
-                    <label htmlFor={`exam-${meta.type}`} className="text-sm text-ink-soft">
+                  <div className="mt-3 flex items-start gap-3">
+                    <label htmlFor={`exam-${meta.type}`} className="mt-2.5 shrink-0 text-sm text-ink-soft">
                       {exam.status === "taken" ? "Балл" : "Целевой балл"}
                     </label>
-                    <Input
-                      id={`exam-${meta.type}`}
-                      type="number"
-                      inputMode="decimal"
-                      min={meta.min}
-                      max={meta.max}
-                      step={meta.step}
-                      className="h-10 max-w-28"
-                      value={Number.isFinite(exam.score) ? exam.score : ""}
-                      onChange={(e) => setExam(meta.type, { score: e.target.value === "" ? NaN : Number(e.target.value) })}
-                    />
+                    <ExamScoreInput id={`exam-${meta.type}`} meta={meta} score={exam.score} onChange={(score) => setExam(meta.type, { score })} />
                   </div>
                 )}
               </div>

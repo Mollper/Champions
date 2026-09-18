@@ -3,8 +3,10 @@ import { isRecommended, lowerFirst, matchUniversities, TIER_LABEL } from "@/lib/
 import type { MatchResult, ProfileDraft } from "@/lib/engine/types";
 import { formatDate, formatDaysLeft, formatUsd } from "@/lib/format";
 import type { AssistantStyle, ExamEntry } from "@/types/models";
+import { examScoreError, formatScore } from "@/lib/exams";
 import { compose, type Answer } from "./compose";
 import type { AssistantContext } from "./context";
+import { COUNTRY_ALIASES, mentionedUniversities } from "./mentions";
 
 const UNIVERSITY_ALIASES: Record<string, RegExp> = {
   mit: /\bmit\b|массачусет/i,
@@ -24,21 +26,6 @@ const UNIVERSITY_ALIASES: Record<string, RegExp> = {
   koc: /ko[cç]\b|коч\b|koç/i,
 };
 
-const COUNTRY_ALIASES: [string, RegExp][] = [
-  ["US", /сша|америк|штаты/i],
-  ["CA", /канад/i],
-  ["GB", /британ|англи[юяи]|великобритан|\buk\b/i],
-  ["DE", /герман/i],
-  ["NL", /нидерланд|голланд/i],
-  ["IT", /итали/i],
-  ["CZ", /чехи|чешск/i],
-  ["KR", /коре/i],
-  ["SG", /сингапур/i],
-  ["HK", /гонконг/i],
-  ["AU", /австрали/i],
-  ["TR", /турци/i],
-  ["KZ", /казахстан/i],
-];
 
 const has = (text: string, re: RegExp) => re.test(text);
 
@@ -109,8 +96,16 @@ function whatIfExam(text: string, ctx: AssistantContext): Answer | null {
   if (!m) return null;
   const type: ExamEntry["type"] = /ielts|айелтс/i.test(m[1]) ? "IELTS" : /toefl|тоефл/i.test(m[1]) ? "TOEFL" : "SAT";
   const score = Number(m[2].replace(",", "."));
+  const invalid = examScoreError(type, score);
+  if (invalid) {
+    return {
+      final: true,
+      headline: `Такого результата ${type} не бывает.`,
+      points: [invalid],
+      steps: [`Спроси ещё раз с реальным баллом, например: «а если ${type} ${formatScore(type, type === "SAT" ? 1400 : type === "IELTS" ? 7 : 100)}?»`],
+    };
+  }
   const draft: ProfileDraft = { ...ctx.draft, exams: [...ctx.draft.exams.filter((e) => e.type !== type), { type, score, status: "taken" }] };
-  const beforeAll = ctx.matches;
   const afterAll = matchUniversities(draft, ctx.universities, ctx.scholarships);
   const after = afterAll.filter((x) => isRecommended(x, draft));
   const changes = ctx.recommended
@@ -120,7 +115,6 @@ function whatIfExam(text: string, ctx: AssistantContext): Answer | null {
       return a.chance !== b.chance ? `${b.university.name}: шанс ${b.chance}% → **${a.chance}%**` : null;
     })
     .filter(Boolean) as string[];
-  void beforeAll;
   return {
     headline: `С ${type} ${score}:`,
     points: [...changes, ...describeDiff(ctx.recommended, after)],
@@ -131,7 +125,7 @@ function whatIfExam(text: string, ctx: AssistantContext): Answer | null {
 
 function findUniversity(text: string, ctx: AssistantContext) {
   const slug = Object.entries(UNIVERSITY_ALIASES).find(([, re]) => re.test(text))?.[0];
-  return slug ? ctx.matches.find((m) => m.university.slug === slug) : undefined;
+  return (slug ? ctx.matches.find((m) => m.university.slug === slug) : undefined) ?? mentionedUniversities(text, ctx.matches, 1)[0];
 }
 
 function chances(text: string, ctx: AssistantContext): Answer | null {
@@ -341,9 +335,23 @@ function fallback(ctx: AssistantContext): Answer {
   };
 }
 
-/** Rule-based reply. Swap for an LLM provider without changing the API contract. */
-export function ruleBasedReply(message: string, style: AssistantStyle, ctx: AssistantContext): string {
+/**
+ * The app's own calculation for a question (what-if scenarios, chances, deadlines…),
+ * or null when no rule recognises it. The LLM receives this as ground truth.
+ */
+export function ruleBasedAnswer(message: string, ctx: AssistantContext): Answer | null {
   const text = message.trim();
+  if (!ctx.profileComplete) return null;
+  const handlers = [essayReview, stepHelp, whatIfExam, whatIfBudget, whatIfCountry, essayHelp, scholarships, activities, chances, (t: string) => routeChange(t), greeting];
+  for (const handler of handlers) {
+    const answer = handler(text, ctx);
+    if (answer) return answer;
+  }
+  return null;
+}
+
+/** Offline reply used when no language model is reachable. */
+export function ruleBasedReply(message: string, style: AssistantStyle, ctx: AssistantContext): string {
   if (!ctx.profileComplete) {
     return compose(style, {
       headline: "Сначала заполни анкету — без неё я не знаю твой профиль.",
@@ -351,10 +359,5 @@ export function ruleBasedReply(message: string, style: AssistantStyle, ctx: Assi
       links: [["Заполнить анкету", "/profile"]],
     });
   }
-  const handlers = [essayReview, stepHelp, whatIfExam, whatIfBudget, whatIfCountry, essayHelp, scholarships, activities, chances, (t: string) => routeChange(t), greeting];
-  for (const handler of handlers) {
-    const answer = handler(text, ctx);
-    if (answer) return compose(style, answer);
-  }
-  return compose(style, fallback(ctx));
+  return compose(style, ruleBasedAnswer(message, ctx) ?? fallback(ctx));
 }

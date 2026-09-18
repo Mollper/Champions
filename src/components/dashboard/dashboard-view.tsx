@@ -7,13 +7,14 @@ import { CATEGORY } from "@/components/roadmap/categories";
 import { NextActionCard } from "@/components/roadmap/next-action-card";
 import { useSteps } from "@/components/roadmap/use-steps";
 import { TierBadge } from "@/components/university/chance";
+import { AiBadge } from "@/components/university/data-sources";
 import { pickNextAction } from "@/lib/engine/roadmap";
 import type { Tier } from "@/lib/engine/types";
 import { daysUntil, formatDate, formatDaysLeft } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { RoadmapStep } from "@/types/models";
 
-export type DashboardUniversity = { id: number; slug: string; name: string; city: string; country: string; image_url: string; chance: number; tier: Tier; score: number };
+export type DashboardUniversity = { id: number; slug: string; name: string; city: string; country: string; image_url: string; origin: "curated" | "ai"; chance: number; tier: Tier; score: number };
 
 type Props = {
   steps: RoadmapStep[];
@@ -123,6 +124,11 @@ export function DashboardView({ steps: initialSteps, top, universities, readines
             <Link key={u.id} href={`/recommendations#u-${u.slug}`} className="group overflow-hidden rounded-card border border-line bg-surface transition hover:-translate-y-0.5 hover:shadow-lift">
               <div className="relative h-28">
                 <Image src={u.image_url} alt="" fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                {u.origin === "ai" && (
+                  <span className="absolute bottom-2 left-2">
+                    <AiBadge />
+                  </span>
+                )}
               </div>
               <div className="p-3.5">
                 <TierBadge tier={u.tier} chance={u.chance} />

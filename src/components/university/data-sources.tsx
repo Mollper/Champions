@@ -34,8 +34,11 @@ function describe(source: FieldSource) {
 
 export function AiBadge() {
   return (
-    <span className="inline-flex items-center gap-1 rounded-pill bg-brand-600/90 px-2 py-0.5 text-[11px] font-bold text-white backdrop-blur" title="Данные собраны автоматически">
-      <Sparkles className="size-3" aria-hidden /> ИИ-каталог
+    <span
+      className="inline-flex items-center gap-1 rounded-pill bg-brand-600/90 px-2 py-0.5 text-[11px] font-bold text-white backdrop-blur"
+      title="Вуз и все данные о нём, включая фото, подобрал ИИ по открытым источникам. Проверяйте детали на сайте вуза."
+    >
+      <Sparkles className="size-3" aria-hidden /> Предложено ИИ
     </span>
   );
 }
@@ -61,9 +64,10 @@ export function DataSources({ university }: { university: University }) {
 
   return (
     <div className="space-y-2">
-      <p className="flex items-center gap-1.5 text-xs font-semibold text-brand-700">
-        <Sparkles className="size-3.5" aria-hidden /> Собрано ИИ из Wikidata, сайта вуза и открытых данных
-        {university.enriched_at && <span className="font-normal text-muted">· {new Date(university.enriched_at).toLocaleDateString("ru-RU")}</span>}
+      <p className="text-xs font-semibold text-brand-700">
+        <Sparkles className="mr-1 inline size-3.5 align-[-3px]" aria-hidden />
+        Предложено ИИ: данные и фото собраны из Wikidata, сайта вуза и открытых источников
+        {university.enriched_at && <span className="font-normal text-muted"> · обновлено {new Date(university.enriched_at).toLocaleDateString("ru-RU")}</span>}
       </p>
       <ul className="grid gap-1.5 text-xs sm:grid-cols-2">
         {rows.map(({ key, label, source }) => {

@@ -2,7 +2,8 @@
  * AI catalog CLI.
  *
  *   npm run catalog -- discover --countries=CH,FR --per-country=2
- *   npm run catalog -- add "ETH Zurich"
+ *   npm run catalog -- add "ETH Zurich" --country=CH
+ *   npm run catalog -- seed                      (curated list in scripts/catalog-seed.ts)
  *   npm run catalog -- link-curated
  *
  * Writes through SUPABASE_SECRET_KEY when it is set, otherwise through the
@@ -18,6 +19,7 @@ import { enrichUniversity } from "../src/lib/catalog/pipeline";
 import { rowsToSql, saveUniversity } from "../src/lib/catalog/store";
 import { discover, searchUniversity } from "../src/lib/catalog/wikidata";
 import { createAdminClient } from "../src/lib/supabase/admin";
+import { SEED } from "./catalog-seed";
 
 const [command, ...rest] = process.argv.slice(2);
 const flags = Object.fromEntries(rest.filter((a) => a.startsWith("--")).map((a) => a.slice(2).split("=") as [string, string]));
@@ -42,14 +44,14 @@ function cliQuery(sql: string): Record<string, unknown>[] {
   }
 }
 
-type Existing = { id: number; name: string; origin: string; wikidata_id: string | null; website_url: string };
+type Existing = { id: number; name: string; origin: string; status: string; wikidata_id: string | null; website_url: string };
 
+/** Universities that are finished: curated ones and published AI ones. AI drafts get another try. */
 async function existingUniversities(): Promise<Existing[]> {
-  if (admin) {
-    const { data } = await admin.from("universities").select("id, name, origin, wikidata_id, website_url");
-    return (data ?? []) as Existing[];
-  }
-  return cliQuery("select id, name, origin, wikidata_id, website_url from public.universities") as Existing[];
+  const rows = admin
+    ? (((await admin.from("universities").select("id, name, origin, status, wikidata_id, website_url")).data ?? []) as Existing[])
+    : (cliQuery("select id, name, origin, status, wikidata_id, website_url from public.universities") as Existing[]);
+  return rows.filter((r) => !(r.origin === "ai" && r.status === "draft"));
 }
 
 async function persist(rows: UniversityRow[]) {
@@ -65,34 +67,38 @@ async function persist(rows: UniversityRow[]) {
 async function enrichAll(qids: string[], countryHint?: string) {
   const existing = await existingUniversities();
   const known = new Set(existing.map((e) => e.wikidata_id).filter(Boolean));
-  const batch: UniversityRow[] = [];
+  const hosts = new Map(existing.map((e) => [hostOf(e.website_url), e.name]));
   const summary = { published: 0, draft: 0, skipped: 0, failed: 0 };
+  const queue = qids.filter((qid) => (known.has(qid) ? (summary.skipped++, false) : true));
 
-  for (const qid of qids) {
-    if (known.has(qid)) {
-      summary.skipped++;
-      continue;
-    }
-    try {
-      const { row, problems } = await enrichUniversity(qid, (m) => console.log(m), countryHint);
-      const duplicate = existing.find((e) => hostOf(e.website_url) && hostOf(e.website_url) === hostOf(row.website_url));
-      if (duplicate) {
-        console.log(`  skip: same website as "${duplicate.name}"`);
-        summary.skipped++;
-        continue;
+  // a few universities at a time: most of the wait is network and model latency, the AI throttle keeps the rate
+  const worker = async () => {
+    for (let qid = queue.shift(); qid; qid = queue.shift()) {
+      const started = Date.now();
+      const lines: string[] = [];
+      try {
+        const { row, problems } = await enrichUniversity(qid, (m) => lines.push(m), countryHint);
+        const duplicate = hosts.get(hostOf(row.website_url));
+        if (duplicate) {
+          lines.push(`  skip: same website as "${duplicate}"`);
+          summary.skipped++;
+          continue;
+        }
+        hosts.set(hostOf(row.website_url), row.name);
+        lines.push(`  → ${row.status}${problems.length ? ` (${problems.join("; ")})` : ""}: $${row.tuition_usd_per_year}/yr, IELTS ${row.min_ielts ?? "—"}, fields ${row.fields?.join(",")}`);
+        summary[row.status === "published" ? "published" : "draft"]++;
+        // save each one right away, so an interrupted run loses nothing
+        await persist([row]);
+      } catch (error) {
+        summary.failed++;
+        lines.push(`  ✗ ${qid}: ${error instanceof Error ? error.message : error}`);
+      } finally {
+        console.log(`${lines.join("\n")}\n  (${Math.round((Date.now() - started) / 1000)}s)`);
       }
-      console.log(`  → ${row.status}${problems.length ? ` (${problems.join("; ")})` : ""}: $${row.tuition_usd_per_year}/yr, IELTS ${row.min_ielts ?? "—"}, fields ${row.fields?.join(",")}`);
-      summary[row.status === "published" ? "published" : "draft"]++;
-      batch.push(row);
-      if (batch.length >= 4) await persist(batch.splice(0));
-    } catch (error) {
-      summary.failed++;
-      console.log(`  ✗ ${qid}: ${error instanceof Error ? error.message : error}`);
-      await sleep(3000);
     }
-  }
-  await persist(batch);
-  console.log("\nDone:", summary);
+  };
+  await Promise.all(Array.from({ length: Number(flags.concurrency ?? 3) }, worker));
+  console.log(`\n${countryHint ?? ""} done:`, summary);
 }
 
 if (command === "discover") {
@@ -110,9 +116,32 @@ if (command === "discover") {
     }
   }
 } else if (command === "add") {
-  const qid = await searchUniversity(positional.join(" "));
+  const country = flags.country?.toUpperCase();
+  const qid = await searchUniversity(positional.join(" "), country);
   if (!qid) throw new Error(`Не нашёл вуз «${positional.join(" ")}» в Wikidata`);
-  await enrichAll([qid]);
+  await enrichAll([qid], country);
+} else if (command === "seed") {
+  // A hand-picked spread of countries, fields and admission difficulty; the AI fills in everything else.
+  const only = flags.countries?.toUpperCase().split(",");
+  const list = SEED.filter((s) => !only || only.includes(s.country));
+  for (const country of [...new Set(list.map((s) => s.country))]) {
+    const qids: string[] = [];
+    for (const { name } of list.filter((s) => s.country === country)) {
+      try {
+        const qid = await searchUniversity(name, country);
+        console.log(`${country} ${name} → ${qid ?? "not found"}`);
+        if (qid) qids.push(qid);
+      } catch (error) {
+        console.log(`${country} ${name} → ✗ ${error instanceof Error ? error.message : error}`);
+      }
+      await sleep(500);
+    }
+    try {
+      await enrichAll(qids, country);
+    } catch (error) {
+      console.log(`${country}: ✗ ${error instanceof Error ? error.message : error}`);
+    }
+  }
 } else if (command === "link-curated") {
   // Give hand-curated universities their Wikidata ids so discovery never duplicates them.
   const existing = (await existingUniversities()).filter((e) => e.origin === "curated" && !e.wikidata_id);
@@ -126,5 +155,5 @@ if (command === "discover") {
     await sleep(800);
   }
 } else {
-  console.log("Usage: catalog discover --countries=CH,FR --per-country=2 | add <name> | link-curated  [--dry-run]");
+  console.log("Usage: catalog discover --countries=CH,FR --per-country=2 | add <name> [--country=XX] | seed [--countries=..] | link-curated  [--dry-run]");
 }

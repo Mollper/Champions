@@ -14,7 +14,7 @@ export type UniversityRow = TablesInsert<"universities">;
 const LIVING_COST: Record<string, number> = {
   US: 18000, CA: 15000, GB: 17000, IE: 16000, AU: 16000, NZ: 14000, DE: 12000, AT: 12000, CH: 22000, NL: 14000, BE: 13000,
   FR: 13000, IT: 12000, ES: 11000, PT: 10000, CZ: 10000, PL: 8000, HU: 8000, SE: 13000, NO: 15000, DK: 14000, FI: 12000,
-  KR: 9000, JP: 12000, CN: 8000, HK: 13000, SG: 14000, MY: 6000, AE: 15000, TR: 8000, KZ: 6000, RU: 7000,
+  KR: 9000, JP: 12000, CN: 8000, HK: 13000, SG: 14000, MY: 6000, AE: 15000, TR: 8000, KZ: 6000, UZ: 5000, RU: 7000,
 };
 
 /** Countries where an 11-year CIS school certificate usually needs a foundation year first. */

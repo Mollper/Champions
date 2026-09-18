@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ArrowRight, ChevronDown, GitCompareArrows, SearchX } from "lucide-react";
+import { AlertCircle, ArrowRight, ChevronDown, GitCompareArrows, Search, SearchX, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Segmented } from "@/components/ui/choice";
@@ -13,6 +13,12 @@ import { UniversityCard } from "./university-card";
 import { useShortlist } from "./use-shortlist";
 
 type Sort = "fit" | "chance" | "cost";
+
+const PAGE = 12;
+
+/** Case-insensitive search over the names a student might type: English, Russian, city, country. */
+const matchesQuery = (m: MatchResult, q: string) =>
+  !q || [m.university.name, m.university.name_ru, m.university.city, m.university.country].some((v) => v?.toLowerCase().includes(q));
 
 export function RecommendationsView({
   recommended,
@@ -27,14 +33,18 @@ export function RecommendationsView({
   const [sort, setSort] = useState<Sort>("fit");
   const [tier, setTier] = useState<Tier | "all">("all");
   const [showOthers, setShowOthers] = useState(recommended.length < 3);
+  const [query, setQuery] = useState("");
+  const [limit, setLimit] = useState(PAGE);
+  const q = query.trim().toLowerCase();
+  const otherList = useMemo(() => others.filter((m) => matchesQuery(m, q)), [others, q]);
 
   const list = useMemo(() => {
-    const filtered = recommended.filter((m) => tier === "all" || m.tier === tier);
+    const filtered = recommended.filter((m) => (tier === "all" || m.tier === tier) && matchesQuery(m, q));
     const sorted = [...filtered];
     if (sort === "chance") sorted.sort((a, b) => b.chance - a.chance);
     if (sort === "cost") sorted.sort((a, b) => a.costs.net - b.costs.net);
     return sorted;
-  }, [recommended, sort, tier]);
+  }, [recommended, sort, tier, q]);
 
   const card = (m: MatchResult, rank?: number) => (
     <motion.div key={m.university.id} layout="position" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.3 }}>
@@ -45,7 +55,21 @@ export function RecommendationsView({
   return (
     <div className="space-y-5">
       {/* controls */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <label className="relative w-full">
+          <span className="sr-only">Найти вуз</span>
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setLimit(PAGE);
+            }}
+            placeholder="Найти вуз, город или страну"
+            className="h-10 w-full rounded-xl border border-line bg-canvas pl-9 pr-3 text-sm outline-none transition placeholder:text-muted focus:border-brand-400 focus:bg-surface focus:ring-4 focus:ring-brand-100"
+          />
+        </label>
         <Segmented
           label="Сортировка"
           value={sort}
@@ -64,7 +88,10 @@ export function RecommendationsView({
                 key={t}
                 type="button"
                 aria-pressed={tier === t}
-                onClick={() => setTier(t)}
+                onClick={() => {
+                  setTier(t);
+                  setLimit(PAGE);
+                }}
                 className={cn(
                   "shrink-0 rounded-pill px-3 py-1.5 text-sm font-medium transition-colors",
                   tier === t ? "bg-ink text-white" : "bg-canvas text-ink-soft hover:bg-line",
@@ -97,40 +124,56 @@ export function RecommendationsView({
       ) : (
         <div className="space-y-4">
           <AnimatePresence mode="popLayout" initial={false}>
-            {list.map((m) => card(m, recommended.indexOf(m) + 1))}
+            {list.slice(0, limit).map((m) => card(m, recommended.indexOf(m) + 1))}
           </AnimatePresence>
-          {list.length === 0 && <p className="py-6 text-center text-sm text-muted">В этой категории пока нет вузов.</p>}
+          {list.length > limit && (
+            <button
+              type="button"
+              onClick={() => setLimit((l) => l + PAGE)}
+              className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface py-3 text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
+            >
+              Показать ещё {Math.min(PAGE, list.length - limit)} из {list.length - limit} <ChevronDown className="size-4" aria-hidden />
+            </button>
+          )}
+          {list.length === 0 && (
+            <p className="py-6 text-center text-sm text-muted">{q ? `В подборке нет вузов по запросу «${query.trim()}» — посмотри среди других ниже.` : "В этой категории пока нет вузов."}</p>
+          )}
         </div>
       )}
 
       {/* other options */}
-      {others.length > 0 && (
+      {otherList.length > 0 && (
         <section className="pt-4">
           <button
             type="button"
             onClick={() => setShowOthers((v) => !v)}
-            aria-expanded={showOthers}
+            aria-expanded={showOthers || Boolean(q)}
             className="flex w-full items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3 text-left"
           >
             <span>
-              <span className="font-semibold">Другие вузы ({others.length})</span>
+              <span className="font-semibold">Другие вузы ({otherList.length})</span>
               <span className="block text-sm text-muted">Не прошли по стране, бюджету, интересам или ограничениям — с объяснением</span>
             </span>
-            <ChevronDown className={cn("size-5 transition-transform", showOthers && "rotate-180")} aria-hidden />
+            <ChevronDown className={cn("size-5 transition-transform", (showOthers || q) && "rotate-180")} aria-hidden />
           </button>
           <AnimatePresence initial={false}>
-            {showOthers && (
+            {(showOthers || Boolean(q)) && (
               <motion.ul
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 className="mt-2 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface"
               >
-                {others.map((m) => (
+                {otherList.map((m) => (
                   <li key={m.university.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center">
                     <div className="min-w-0 flex-1">
                       <p className="font-medium">
                         {m.university.name} <span className="text-sm font-normal text-muted">· {m.university.country}</span>
+                        {m.university.origin === "ai" && (
+                          <Sparkles className="ml-1.5 inline size-3.5 text-brand-600" aria-label="Предложено ИИ">
+                            <title>Предложено ИИ</title>
+                          </Sparkles>
+                        )}
                       </p>
                       <p className="text-sm text-warn-700">{m.blockers[0] ?? m.concerns.find((c) => (c.weight ?? 0) > 0)?.text ?? "Низкое общее совпадение"}</p>
                     </div>

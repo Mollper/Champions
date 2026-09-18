@@ -12,6 +12,8 @@ export type Answer = {
   links?: [string, string][];
   /** Extra text shown for non-concise styles (e.g. an essay outline). */
   details?: string;
+  /** A check with one right answer (an impossible exam score): sent as is, never rephrased by a model. */
+  final?: boolean;
 };
 
 const pick = <T,>(items: T[], seed: string) => items[[...seed].reduce((a, c) => a + c.charCodeAt(0), 0) % items.length];

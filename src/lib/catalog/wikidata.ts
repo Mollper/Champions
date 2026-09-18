@@ -95,8 +95,11 @@ export async function getFacts(qid: string, countryHint?: string): Promise<Wikid
   };
 }
 
-/** Resolve free text ("ETH Zurich", "Карлов университет") to a university item. */
-export async function searchUniversity(query: string): Promise<string | null> {
+/**
+ * Resolve free text ("ETH Zurich", "Карлов университет") to a university item.
+ * @param countryCode keeps only items located in that country (e.g. Monash Malaysia vs Monash).
+ */
+export async function searchUniversity(query: string, countryCode?: string): Promise<string | null> {
   const lang = /[а-яё]/i.test(query) ? "ru" : "en";
   const search = await getJson<{ search: { id: string }[] }>(
     `${API}?action=wbsearchentities&format=json&type=item&limit=8&language=${lang}&uselang=${lang}&search=${encodeURIComponent(query)}`,
@@ -109,6 +112,7 @@ export async function searchUniversity(query: string): Promise<string | null> {
       VALUES ?item { ${ids.map((id) => `wd:${id}`).join(" ")} }
       VALUES ?type { ${UNIVERSITY_TYPES.map((t) => `wd:${t}`).join(" ")} }
       ?item wdt:P31/wdt:P279? ?type .
+      ${countryCode && /^[A-Z]{2}$/.test(countryCode) ? `?item wdt:P17/wdt:P297 "${countryCode}" .` : ""}
     } GROUP BY ?item`);
   const matching = new Set(rows.map((r) => qidOf(r.item.value)));
   // keep Wikidata's relevance order

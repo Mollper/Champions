@@ -34,6 +34,7 @@ export default async function DashboardPage() {
           city: m.university.city,
           country: m.university.country,
           image_url: m.university.image_url,
+          origin: m.university.origin,
           chance: m.chance,
           tier: m.tier,
           score: m.score,

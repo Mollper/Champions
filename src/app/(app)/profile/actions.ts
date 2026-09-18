@@ -18,6 +18,7 @@ import {
 import { isRecommended, matchUniversities } from "@/lib/engine/match";
 import type { ProfileDraft } from "@/lib/engine/types";
 import { toDraft } from "@/lib/data/profile";
+import { firstExamError, isValidScore } from "@/lib/exams";
 import { getScholarships, getUniversities } from "@/lib/data/reference";
 import { createClient } from "@/lib/supabase/server";
 import type { ActivityEntry, ExamEntry, LanguageEntry, Profile } from "@/types/models";
@@ -48,6 +49,7 @@ function sanitize(input: ProfileDraft) {
     .map((e) => {
       const meta = EXAMS.find((x) => x.type === e?.type);
       const score = meta ? num(e?.score, meta.min, meta.max) : null;
+      if (meta && score != null && !isValidScore(meta, score)) return null;
       const status = pick(e?.status, ["taken", "planned"] as const);
       return meta && score != null && status ? { type: meta.type, score, status } : null;
     })
@@ -89,6 +91,10 @@ function sanitize(input: ProfileDraft) {
 export async function saveProfile(input: ProfileDraft, complete: boolean): Promise<SaveResult> {
   const userId = await getCurrentUserId();
   if (!userId) return { ok: false, error: "Сессия истекла — войдите снова." };
+
+  // an impossible score (SAT 1465, IELTS 6.3) would skew chances: refuse instead of guessing
+  const examError = Array.isArray(input.exams) ? firstExamError(input.exams.filter((e) => e && typeof e === "object")) : null;
+  if (examError) return { ok: false, error: examError };
 
   const supabase = await createClient();
   const values = sanitize(input);

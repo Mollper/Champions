@@ -70,14 +70,14 @@ export async function fetchPage(url: string, maxChars = 14_000): Promise<Page | 
     const alternate = html.match(/<link[^>]+hreflang=["']en(?:-[a-zA-Z]+)?["'][^>]*>/i)?.[0].match(/href=["']([^"']+)/i)?.[1];
     let englishUrl: string | null = null;
     try {
-      englishUrl = alternate ? new URL(alternate, finalUrl).toString() : null;
+      englishUrl = alternate ? new URL(decode(alternate), finalUrl).toString() : null;
     } catch {
       englishUrl = null;
     }
     const links: Page["links"] = [];
     for (const m of html.matchAll(/<a\s[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi)) {
       try {
-        const href = new URL(m[1], finalUrl).toString();
+        const href = new URL(decode(m[1]), finalUrl).toString();
         links.push({ href, text: decode(m[2].replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim().slice(0, 80) });
       } catch {
         // ignore malformed links
