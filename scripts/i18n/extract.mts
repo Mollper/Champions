@@ -23,7 +23,6 @@ const SKIP_FILES = [
   /assistant[\\/]rule-based\.ts$/,
   /assistant[\\/]mentions\.ts$/,
   /planner[\\/]generate\.ts$/,
-  /telegram-auth\.ts$/,
 ];
 
 function walk(dir: string): string[] {
@@ -51,6 +50,13 @@ function fromCode() {
       // JSX text and attributes wrap them directly; constants (labels, hints, error
       // messages) are strings a component later calls t(SOME_LABEL[key]) on.
       if (ts.isStringLiteral(n) || ts.isNoSubstitutionTemplateLiteral(n)) add(n.text);
+      // `Бюджет: ${x}` reaches t() already filled in; the translator matches it against
+      // the "Бюджет: {0}" key and translates the filled-in parts separately
+      else if (ts.isTemplateExpression(n)) {
+        let key = n.head.text;
+        n.templateSpans.forEach((span, i) => (key += `{${i}}${span.literal.text}`));
+        if (/[А-Яа-яЁё]/.test(key.replace(/\{\d+\}/g, ""))) add(key);
+      }
       ts.forEachChild(n, visit);
     };
     visit(sf);

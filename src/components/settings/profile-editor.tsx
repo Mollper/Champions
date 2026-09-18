@@ -165,7 +165,7 @@ export function ProfileEditor({
           </div>
         </Field>
         <Status result={nameResult} />
-        {email && !email.endsWith(".invalid") && (
+        {email && (
           <p className="text-sm text-muted">
             {t("Почта")}: <span className="font-medium text-ink">{email}</span>
           </p>
@@ -192,7 +192,7 @@ export function ProfileEditor({
         <p className="flex items-center gap-2 font-semibold">
           <KeyRound className="size-4 text-brand-600" aria-hidden /> {t(needsCurrentPassword ? "Сменить пароль" : "Задать пароль")}
         </p>
-        {!needsCurrentPassword && <p className="text-sm text-muted">{t("Вы вошли через Google или Telegram. С паролем можно будет входить и по почте.")}</p>}
+        {!needsCurrentPassword && <p className="text-sm text-muted">{t("У аккаунта ещё нет пароля — задайте его, чтобы входить по почте.")}</p>}
         {/* lets password managers attach the new password to the right account */}
         <input type="text" name="username" autoComplete="username" value={email ?? ""} readOnly hidden />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

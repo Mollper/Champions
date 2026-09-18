@@ -3,6 +3,8 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { safeNext } from "@/lib/auth";
+import { homeAfterSignIn } from "@/lib/auth-redirect";
+import { checkEmailDomain, suggestEmail } from "@/lib/email-check";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthState = {
@@ -48,22 +50,8 @@ async function origin() {
   return h.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 }
 
-/**
- * Where a signed-in person starts: admins in the panel, mentors in their cabinet, a would-be
- * mentor on the application form, students in the questionnaire until it is finished.
- */
 async function redirectAfterSignIn(supabase: Awaited<ReturnType<typeof createClient>>, user: { id: string; user_metadata?: Record<string, unknown> }, next: string): Promise<never> {
-  const [{ data: account }, { data: profile }] = await Promise.all([
-    supabase.from("users").select("role").eq("id", user.id).maybeSingle(),
-    supabase.from("profiles").select("completed_at").eq("user_id", user.id).maybeSingle(),
-  ]);
-  if (account?.role === "admin") redirect(next || "/admin");
-  if (account?.role === "mentor") redirect(next || "/mentor");
-  if (user.user_metadata?.intended_role === "mentor") {
-    const { count } = await supabase.from("mentor_applications").select("id", { count: "exact", head: true }).eq("user_id", user.id);
-    if (!count) redirect("/mentor/apply");
-  }
-  redirect(profile?.completed_at ? next || "/dashboard" : "/profile");
+  redirect(await homeAfterSignIn(supabase, user, next));
 }
 
 export async function signIn(_prev: AuthState, formData: FormData): Promise<AuthState> {
@@ -75,7 +63,7 @@ export async function signIn(_prev: AuthState, formData: FormData): Promise<Auth
   if (error) {
     // Signed up but never entered the code: send a fresh one and go straight to the code step.
     if (/email not confirmed/i.test(error.message)) {
-      const resent = await supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: `${await origin()}/auth/callback?next=/profile` } });
+      const resent = await supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: `${await origin()}/auth/callback` } });
       return {
         status: "verify",
         email,
@@ -101,13 +89,20 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { status: "error", message: "Проверьте адрес почты.", email };
   if (password.length < 8) return { status: "error", message: "Пароль должен быть не короче 8 символов.", email };
 
+  // a made-up or throwaway address could never receive the code: refuse it before sending
+  const suggestion = suggestEmail(email);
+  if (suggestion) return { status: "error", message: `Похоже на опечатку — может, вы имели в виду ${suggestion}?`, email };
+  const domain = await checkEmailDomain(email);
+  if (domain === "no-mail") return { status: "error", message: "Такой почты не существует — проверьте адрес после «@».", email };
+  if (domain === "disposable") return { status: "error", message: "Временная почта не подойдёт — укажите свой постоянный адрес.", email };
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       // the letter carries both a code and a link; either one confirms the address
-      emailRedirectTo: `${await origin()}/auth/callback?next=/profile`,
+      emailRedirectTo: `${await origin()}/auth/callback`,
       data: { ...(fullName ? { full_name: fullName } : {}), intended_role: intendedRole },
     },
   });
@@ -145,22 +140,10 @@ export async function resendCode(email: string): Promise<ResendResult> {
   const address = email.trim().toLowerCase();
   if (!address) return { ok: false, message: "Не хватает адреса почты." };
   const supabase = await createClient();
-  const { error } = await supabase.auth.resend({ type: "signup", email: address, options: { emailRedirectTo: `${await origin()}/auth/callback?next=/profile` } });
+  const { error } = await supabase.auth.resend({ type: "signup", email: address, options: { emailRedirectTo: `${await origin()}/auth/callback` } });
   if (!error) return { ok: true, message: "Новый код отправлен. Проверь «Входящие» и «Спам»." };
   const retryIn = cooldownOf(error.message);
   return retryIn ? { ok: false, retryIn, message: `Новый код можно запросить через ${retryIn} сек.` } : { ok: false, message: translate(error.message) };
-}
-
-/** "Continue with Google": Supabase sends the student to Google and back to /auth/callback. */
-export async function signInWithGoogle(formData: FormData) {
-  const next = safeNext(formData.get("next"), "");
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo: `${await origin()}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ""}` },
-  });
-  if (error || !data.url) redirect("/login?error=oauth");
-  redirect(data.url);
 }
 
 export async function signOut() {

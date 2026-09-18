@@ -55,7 +55,14 @@ export function createTranslator(locale: Locale, messages: Messages): Translate 
     if (depth > 1 || !/[а-яё]/i.test(text)) return text;
     for (const p of [...(buckets.get(text.slice(0, 4)) ?? []), ...loose]) {
       const m = text.match(p.regex);
-      if (m) return fill(p.target, m.slice(1).map((part) => lookup(part, depth + 1)));
+      if (!m) continue;
+      const raw = m.slice(1);
+      const parts = raw.map((part) => lookup(part, depth + 1));
+      // a Russian fragment the dictionary can't translate means this isn't really the
+      // pattern's sentence (or it can't be finished): keep the original, not a half-translation.
+      // "Unchanged" rather than "Cyrillic": Kazakh translations are Cyrillic too.
+      if (raw.some((part, i) => /[а-яё]/i.test(part) && parts[i] === part)) continue;
+      return fill(p.target, parts);
     }
     return text;
   };

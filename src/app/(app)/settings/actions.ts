@@ -52,8 +52,8 @@ export async function saveAvatar(path: string | null): Promise<ActionResult> {
 }
 
 /**
- * Accounts created with email and password confirm the current one first. Google and
- * Telegram accounts have no password yet and can set one right away.
+ * Accounts created with email and password confirm the current one first; an account
+ * created some other way (by an admin, or an older social sign-in) has none to confirm.
  */
 export async function changePassword(current: string, next: string): Promise<ActionResult> {
   const supabase = await createClient();

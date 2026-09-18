@@ -8,25 +8,13 @@ import { useActionState, useEffect, useState, useTransition } from "react";
 import { resendCode, signIn, signUp, verifyCode, type AuthState } from "@/app/login/actions";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
-import type { AuthProviders } from "@/lib/auth-providers";
 import { cn } from "@/lib/utils";
-import { SocialLogin } from "./social-login";
 
 type Mode = "signin" | "signup";
 
 const initial: AuthState = { status: "idle" };
 
-export function AuthForm({
-  initialMode,
-  next,
-  linkError,
-  providers = { google: false, telegramBotId: null },
-}: {
-  initialMode: Mode;
-  next: string;
-  linkError: "link" | "oauth" | null;
-  providers?: AuthProviders;
-}) {
+export function AuthForm({ initialMode, next, linkError }: { initialMode: Mode; next: string; linkError: boolean }) {
   const t = useT();
   const [mode, setMode] = useState<Mode>(initialMode);
 
@@ -56,11 +44,7 @@ export function AuthForm({
       {linkError && (
         <p className="mt-4 flex items-start gap-2 rounded-xl bg-danger-50 px-3 py-2.5 text-sm text-danger-700">
           <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
-          {t(
-            linkError === "oauth"
-              ? "Не получилось войти через внешний сервис. Попробуйте ещё раз или войдите по email."
-              : "Ссылка из письма устарела или уже использована. Войдите с паролем — если email не подтверждён, мы пришлём новый код.",
-          )}
+          {t("Ссылка из письма устарела или уже использована. Войдите с паролем — если email не подтверждён, мы пришлём новый код.")}
         </p>
       )}
 
@@ -69,8 +53,6 @@ export function AuthForm({
           {mode === "signin" ? <SignInForm next={next} /> : <SignUpForm />}
         </motion.div>
       </AnimatePresence>
-
-      <SocialLogin providers={providers} next={next} />
 
       <p className="mt-8 text-center text-xs text-muted">
         {t("Продолжая, вы соглашаетесь с обработкой данных анкеты для построения рекомендаций.")}{" "}
@@ -238,7 +220,7 @@ export function VerifyCodeForm({ email, notice, onBack }: { email: string; notic
           autoFocus
           maxLength={14}
           placeholder="123456"
-          value={t(code)}
+          value={code}
           onChange={(e) => setCode(e.target.value.replace(/[^\d\s-]/g, ""))}
           aria-invalid={Boolean(state.message)}
           className="h-14 text-center font-display text-2xl font-semibold tracking-[0.35em] placeholder:tracking-[0.35em]"
@@ -278,7 +260,7 @@ export function VerifyCodeForm({ email, notice, onBack }: { email: string; notic
           className="inline-flex items-center gap-1.5 font-semibold text-brand-700 hover:underline disabled:cursor-not-allowed disabled:text-muted disabled:no-underline"
         >
           {resending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <RotateCw className="size-4" aria-hidden />}
-          {t(cooldown > 0 ? `Новый код через ${cooldown} с` : "Отправить код ещё раз")}
+          {cooldown > 0 ? t("Новый код через {0} с", cooldown) : t("Отправить код ещё раз")}
         </button>
       </div>
     </form>

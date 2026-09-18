@@ -56,8 +56,13 @@ async function main() {
   console.log(`${source.length} source strings, models: ${structuredModels().map((m) => m.id).join(", ") || "none configured"}`);
 
   for (const lang of langs) {
-    const dict = loadExisting(lang);
+    const file = path.join(ROOT, `src/i18n/messages/${lang}.json`);
+    const save = (d: Record<string, string>) => fs.writeFileSync(file, JSON.stringify(d, Object.keys(d).sort(), 2) + "\n");
+    const known = new Set(source);
+    // strings removed from the code since the last run
+    const dict = Object.fromEntries(Object.entries(loadExisting(lang)).filter(([key]) => known.has(key)));
     const todo = source.filter((s) => !(s in dict));
+    save(dict);
     console.log(`\n[${lang}] ${todo.length} to translate (${source.length - todo.length} already cached)`);
 
     for (let i = 0; i < todo.length; i += BATCH) {
@@ -75,7 +80,7 @@ async function main() {
         }
       }
       batch.forEach((original, j) => (dict[original] = translated[j] ?? original));
-      fs.writeFileSync(path.join(ROOT, `src/i18n/messages/${lang}.json`), JSON.stringify(dict, Object.keys(dict).sort(), 2) + "\n");
+      save(dict);
       console.log(`  ${Math.min(i + BATCH, todo.length)}/${todo.length}`);
     }
   }
