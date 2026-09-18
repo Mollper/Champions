@@ -1160,6 +1160,7 @@
   "Не получилось": "Something went wrong",
   "Не получилось обновить шаг": "Could not update step",
   "Не получилось ответить. Попробуй ещё раз через минуту.": "Could not reply. Try again in a minute.",
+  "Не получилось отправить письмо с кодом — сервис почты временно недоступен. Попробуйте через несколько минут.": "We couldn't send the code email—the mail service is temporarily unavailable. Please try again in a few minutes.",
   "Не получилось составить план. Попробуй ещё раз через минуту.": "Could not create plan. Try again in a minute.",
   "Не получилось составить профиль. Попробуй ещё раз.": "Could not create profile. Try again.",
   "Не получилось. Попробуй ещё раз.": "Something went wrong. Try again.",

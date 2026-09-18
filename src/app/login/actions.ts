@@ -22,6 +22,8 @@ const ERRORS: [RegExp, string][] = [
   [/invalid login credentials/i, "Неверный email или пароль."],
   [/already registered|already been registered|user already exists/i, "Этот email уже зарегистрирован — войдите."],
   [/token has expired|otp.?expired|expired or is invalid|invalid.*(otp|token)/i, "Код неверный или устарел. Проверь цифры или запроси новый код."],
+  // the mail server (SMTP) rejected the letter: a settings problem, not the visitor's
+  [/error sending .*e?mail/i, "Не получилось отправить письмо с кодом — сервис почты временно недоступен. Попробуйте через несколько минут."],
   [/email address not authorized/i, "Почта проекта пока не может отправлять письма на этот адрес. Попробуйте позже или напишите в поддержку."],
   [/email rate limit|over_email_send_rate_limit/i, "Лимит писем на сейчас исчерпан. Введите код из последнего письма или попробуйте через час."],
   [/rate limit|too many/i, "Слишком много попыток. Подождите пару минут и попробуйте снова."],
@@ -31,7 +33,10 @@ const ERRORS: [RegExp, string][] = [
 ];
 
 function translate(message: string): string {
-  return ERRORS.find(([re]) => re.test(message))?.[1] ?? "Что-то пошло не так. Попробуйте ещё раз.";
+  const known = ERRORS.find(([re]) => re.test(message))?.[1];
+  // unknown errors reach Vercel's logs verbatim, so the cause is visible without guessing
+  if (!known || /sending/i.test(message)) console.error("[auth]", message);
+  return known ?? "Что-то пошло не так. Попробуйте ещё раз.";
 }
 
 /** "For security purposes, you can only request this after 42 seconds." → 42 */
