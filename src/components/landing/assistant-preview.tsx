@@ -78,7 +78,9 @@ export function AssistantPreview() {
                   onClick={() => setStyle(s.id)}
                   className={cn(
                     "relative rounded-pill px-3.5 py-1.5 text-sm font-medium transition-colors",
-                    s.id === style ? "text-ink" : "text-white/70 hover:text-white",
+                    // the pill under the active label is white in every theme, so its text is too:
+                    // text-ink turns white in the dark theme and vanished into the pill
+                    s.id === style ? "text-night" : "text-white/70 hover:text-white",
                   )}
                 >
                   {s.id === style && <motion.span layoutId="style-pill" className="absolute inset-0 rounded-pill bg-white" />}
