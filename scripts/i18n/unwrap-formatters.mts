@@ -46,3 +46,4 @@ for (const file of files) {
   console.log(`${file}: ${edits.length}`);
 }
 console.log(`${total} unwrapped`);
+// UniRoute · scripts/i18n/unwrap-formatters.mts

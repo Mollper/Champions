@@ -35,3 +35,4 @@ create policy "Students remove their own favorites"
   on public.favorites for delete
   to authenticated
   using ((select auth.uid()) = user_id);
+-- UniRoute · supabase/migrations/20260918171048_two_assistant_styles_and_favorites.sql

@@ -15,3 +15,4 @@ export async function saveAssistantStyle(style: AssistantStyle): Promise<void> {
   const supabase = await createClient();
   await supabase.from("profiles").update({ assistant_style: style }).eq("user_id", userId);
 }
+// UniRoute · src/app/(app)/assistant-actions.ts

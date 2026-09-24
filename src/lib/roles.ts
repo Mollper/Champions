@@ -39,3 +39,4 @@ export async function requireRole(roles: Role[], next: string): Promise<Account>
   if (!roles.includes(account.role)) redirect(homeFor(account.role));
   return account;
 }
+// UniRoute · src/lib/roles.ts

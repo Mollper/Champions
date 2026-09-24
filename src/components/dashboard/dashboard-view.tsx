@@ -217,3 +217,4 @@ export function DashboardView({ steps: initialSteps, top, universities, readines
     </div>
   );
 }
+// UniRoute · src/components/dashboard/dashboard-view.tsx

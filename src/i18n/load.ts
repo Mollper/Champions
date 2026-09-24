@@ -25,3 +25,4 @@ export function loadMessages(locale: Locale): Promise<Messages> {
   }
   return promise!;
 }
+// UniRoute · src/i18n/load.ts

@@ -46,3 +46,4 @@ export function UniversityPhoto({
     </div>
   );
 }
+// UniRoute · src/components/university/university-photo.tsx

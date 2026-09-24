@@ -10,3 +10,4 @@ export default async function ArenaPage() {
   const images = Object.fromEntries(["nazarbayev", "tum", "kaist", "mit"].map((slug) => [slug, universities.find((u) => u.slug === slug)?.image_url ?? null]));
   return <AdmissionArena images={images} />;
 }
+// UniRoute · src/app/games/arena/page.tsx

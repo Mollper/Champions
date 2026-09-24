@@ -25,3 +25,4 @@ export async function toggleFavorite(universityId: number, add: boolean): Promis
   revalidatePath("/favorites");
   return { ok: true };
 }
+// UniRoute · src/app/(app)/favorites/actions.ts

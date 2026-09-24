@@ -22,3 +22,4 @@ export function I18nProvider({ locale, children }: { locale: Locale; children: R
 
 export const useT = () => useContext(I18nContext).t;
 export const useLocale = () => useContext(I18nContext).locale;
+// UniRoute · src/i18n/client.tsx

@@ -26,3 +26,4 @@ export function Badge({ tone = "neutral", className, ...props }: ComponentProps<
     />
   );
 }
+// UniRoute · src/components/ui/badge.tsx

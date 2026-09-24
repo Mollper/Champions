@@ -11,3 +11,4 @@ export function createAdminClient() {
   if (!supabaseUrl || !key) return null;
   return createClient<Database>(supabaseUrl, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
+// UniRoute · src/lib/supabase/admin.ts

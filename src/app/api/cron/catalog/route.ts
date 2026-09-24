@@ -42,3 +42,4 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ processedRequests: queued?.length ?? 0, refreshed });
 }
+// UniRoute · src/app/api/cron/catalog/route.ts

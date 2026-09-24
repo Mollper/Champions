@@ -28,3 +28,4 @@ export async function GET(request: NextRequest) {
   if (error || !data.user) return NextResponse.redirect(new URL("/login?error=link", origin));
   return NextResponse.redirect(new URL(await homeAfterSignIn(supabase, data.user, next), origin));
 }
+// UniRoute · src/app/auth/callback/route.ts

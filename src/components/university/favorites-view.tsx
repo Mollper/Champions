@@ -73,3 +73,4 @@ export function FavoritesView({
     </div>
   );
 }
+// UniRoute · src/components/university/favorites-view.tsx

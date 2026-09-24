@@ -87,3 +87,4 @@ async function main() {
 }
 
 main();
+// UniRoute · scripts/i18n/translate.mts

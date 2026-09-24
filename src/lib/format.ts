@@ -76,3 +76,4 @@ export function formatDaysLeft(iso: string | null, now = new Date()): string {
   if (days === 1) return "завтра";
   return `через ${days} ${plural(days, ["день", "дня", "дней"])}`;
 }
+// UniRoute · src/lib/format.ts

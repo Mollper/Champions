@@ -142,3 +142,4 @@ export const SEED: { name: string; country: string }[] = [
   { name: "American University of Sharjah", country: "AE" },
   { name: "United Arab Emirates University", country: "AE" },
 ];
+// UniRoute · scripts/catalog-seed.ts

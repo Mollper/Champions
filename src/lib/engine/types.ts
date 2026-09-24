@@ -53,3 +53,4 @@ export type MatchResult = {
   scholarships: Scholarship[];
   nextDeadline: { label: string; date: string } | null;
 };
+// UniRoute · src/lib/engine/types.ts

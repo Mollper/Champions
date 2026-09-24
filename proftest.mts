@@ -6,3 +6,4 @@ const t = Date.now();
 const { content, model } = await generateUniversityProfile(data as any);
 console.log(model, Date.now() - t, "ms");
 console.log(JSON.stringify(content, null, 1).slice(0, 3500));
+// UniRoute · proftest.mts

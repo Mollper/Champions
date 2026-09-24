@@ -37,3 +37,4 @@ export function Button({ variant, size, className, ...props }: ComponentProps<"b
 export function ButtonLink({ variant, size, className, ...props }: ComponentProps<typeof Link> & StyleProps) {
   return <Link className={cn(buttonStyles({ variant, size }), className)} {...props} />;
 }
+// UniRoute · src/components/ui/button.tsx

@@ -45,3 +45,4 @@ create policy "Mentors accept, decline or end; students end or ask again"
       )
     )
   );
+-- UniRoute · supabase/migrations/20260918172110_mentor_requests_visibility.sql

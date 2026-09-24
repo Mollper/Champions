@@ -27,3 +27,4 @@ export function useShortlist(initialIds: number[]) {
 
   return { ids, toggle, pendingId, error };
 }
+// UniRoute · src/components/university/use-shortlist.ts

@@ -46,3 +46,4 @@ export async function enrichUniversity(qid: string, log: (message: string) => vo
   const { row, problems } = buildRow({ facts, extraction, pages, photo, scorecard: us, rates });
   return { row, problems, pagesUsed: pages.map((p) => p.url) };
 }
+// UniRoute · src/lib/catalog/pipeline.ts

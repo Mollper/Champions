@@ -116,3 +116,4 @@ create policy "Owners add reviews of their own essays"
 -- students to correct the value the next time they save the questionnaire.
 alter table public.profiles drop constraint if exists profiles_age_check;
 alter table public.profiles add constraint profiles_age_check check (age between 15 and 150) not valid;
+-- UniRoute · supabase/migrations/20260918220351_avatars_and_essays.sql

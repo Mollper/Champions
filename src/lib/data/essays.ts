@@ -17,3 +17,4 @@ export const getEssayReviews = cache(async (essayId: string): Promise<EssayRevie
   if (error) throw new Error(`Не удалось загрузить проверки: ${error.message}`);
   return (data ?? []) as EssayReview[];
 });
+// UniRoute · src/lib/data/essays.ts

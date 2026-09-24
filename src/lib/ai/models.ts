@@ -95,3 +95,4 @@ export async function generateObject<T>({
   }
   throw new NoModelAvailableError(lastError);
 }
+// UniRoute · src/lib/ai/models.ts

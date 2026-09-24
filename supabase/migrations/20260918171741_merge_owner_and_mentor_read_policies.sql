@@ -58,3 +58,4 @@ create policy "Students and their mentor read plans"
   on public.plans for select
   to authenticated
   using ((select auth.uid()) = user_id or private.is_mentor_of(user_id));
+-- UniRoute · supabase/migrations/20260918171741_merge_owner_and_mentor_read_policies.sql

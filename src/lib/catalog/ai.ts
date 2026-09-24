@@ -199,3 +199,4 @@ export async function pickPhoto(universityName: string, candidates: { candidate:
   const index = output.best_index;
   return index != null && Number.isInteger(index) && index >= 0 && index < candidates.length ? index : null;
 }
+// UniRoute · src/lib/catalog/ai.ts

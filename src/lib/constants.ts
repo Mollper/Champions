@@ -165,3 +165,4 @@ export function startYearOptions(now = new Date()): number[] {
 
 /** The word a student types to confirm deleting their account (checked on the server too). */
 export const DELETE_CONFIRMATION = "удалить";
+// UniRoute · src/lib/constants.ts

@@ -35,3 +35,4 @@ export function Confetti({ pieces = 90 }: { pieces?: number }) {
     </div>
   );
 }
+// UniRoute · src/components/games/confetti.tsx

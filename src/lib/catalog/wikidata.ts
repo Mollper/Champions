@@ -168,3 +168,4 @@ export async function discover(countryCode: string, limit: number): Promise<{ qi
     .filter((r) => (seen.has(r.qid) ? false : (seen.add(r.qid), true)))
     .slice(0, limit);
 }
+// UniRoute · src/lib/catalog/wikidata.ts

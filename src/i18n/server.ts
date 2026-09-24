@@ -18,3 +18,4 @@ export const getT = cache(async () => {
   setFormatLocale(locale);
   return createTranslator(locale, await loadMessages(locale));
 });
+// UniRoute · src/i18n/server.ts

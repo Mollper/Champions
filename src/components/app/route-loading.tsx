@@ -35,3 +35,4 @@ export function PanelLoading({ className }: { className?: string }) {
     </div>
   );
 }
+// UniRoute · src/components/app/route-loading.tsx

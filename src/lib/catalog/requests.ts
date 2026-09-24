@@ -42,3 +42,4 @@ export async function processRequest(admin: Admin, requestId: number) {
     await update({ status: "failed", message: `Не получилось собрать данные: ${error instanceof Error ? error.message.slice(0, 160) : "ошибка"}` });
   }
 }
+// UniRoute · src/lib/catalog/requests.ts

@@ -46,3 +46,4 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ request: data, processing: Boolean(admin) }, { status: 202 });
 }
+// UniRoute · src/app/api/catalog/requests/route.ts

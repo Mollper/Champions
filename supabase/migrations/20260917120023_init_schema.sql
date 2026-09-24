@@ -475,3 +475,4 @@ create policy "Users can clear their own messages"
   on public.chat_messages for delete
   to authenticated
   using ((select auth.uid()) = user_id);
+-- UniRoute · supabase/migrations/20260917120023_init_schema.sql

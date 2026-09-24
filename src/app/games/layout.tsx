@@ -33,3 +33,4 @@ export default async function GamesLayout({ children }: LayoutProps<"/games">) {
     </>
   );
 }
+// UniRoute · src/app/games/layout.tsx

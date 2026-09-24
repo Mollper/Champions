@@ -119,3 +119,4 @@ export function toIso(d: Date): string {
 export function defaultStartYear(today = new Date()) {
   return today.getMonth() >= 7 ? today.getFullYear() + 1 : today.getFullYear();
 }
+// UniRoute · src/lib/engine/normalize.ts

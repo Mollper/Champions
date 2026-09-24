@@ -247,3 +247,4 @@ create policy "Students read their mentor's account"
 
 revoke execute on function private.is_mentor_of(uuid) from public, anon;
 grant execute on function private.is_mentor_of(uuid) to authenticated;
+-- UniRoute · supabase/migrations/20260918171607_roles_mentors_chat.sql

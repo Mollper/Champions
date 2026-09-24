@@ -18,3 +18,4 @@ export const localeInfo = (locale: Locale) => LOCALES.find((l) => l.code === loc
 
 /** The language name to put into model prompts ("answer in …"). */
 export const promptLanguage = (locale: Locale) => ({ ru: "Russian", en: "English", kk: "Kazakh (Cyrillic script)" })[locale];
+// UniRoute · src/i18n/config.ts

@@ -87,3 +87,4 @@ export async function generateUniversityProfile(u: University): Promise<{ conten
     },
   };
 }
+// UniRoute · src/lib/catalog/profile.ts

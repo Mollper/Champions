@@ -20,3 +20,4 @@ export async function requireUserId(next = "/dashboard"): Promise<string> {
 export function safeNext(next: unknown, fallback = "/dashboard"): string {
   return typeof next === "string" && next.startsWith("/") && !next.startsWith("//") ? next : fallback;
 }
+// UniRoute · src/lib/auth.ts

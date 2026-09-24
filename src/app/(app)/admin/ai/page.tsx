@@ -116,3 +116,4 @@ async function Model({ ok, name }: { ok: boolean; name: string }) {
     </span>
   );
 }
+// UniRoute · src/app/(app)/admin/ai/page.tsx

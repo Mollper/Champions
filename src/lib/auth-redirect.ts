@@ -21,3 +21,4 @@ export async function homeAfterSignIn(supabase: Supabase, user: { id: string; us
   }
   return profile?.completed_at ? next || "/dashboard" : "/profile";
 }
+// UniRoute · src/lib/auth-redirect.ts

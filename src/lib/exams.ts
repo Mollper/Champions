@@ -41,3 +41,4 @@ export const firstExamError = (exams: Pick<ExamEntry, "type" | "score">[]) =>
   exams.map((e) => examScoreError(e.type, e.score)).find((m) => m !== null) ?? null;
 
 export const formatScore = (type: ExamEntry["type"], score: number) => format(score, examMeta(type)?.step ?? 1);
+// UniRoute · src/lib/exams.ts

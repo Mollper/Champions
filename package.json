@@ -1,6 +1,7 @@
 {
   "name": "uniroute",
   "version": "0.1.0",
+  "description": "UniRoute — university admissions planner with AI assistant, mentors and roadmap",
   "private": true,
   "scripts": {
     "dev": "next dev",

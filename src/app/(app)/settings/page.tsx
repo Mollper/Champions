@@ -87,3 +87,4 @@ async function Section({ icon: Icon, title, children }: { icon: typeof Palette; 
     </section>
   );
 }
+// UniRoute · src/app/(app)/settings/page.tsx

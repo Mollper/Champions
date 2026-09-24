@@ -210,3 +210,4 @@ function templatePlan(kind: PlanKind, params: PlanParams, ctx: AssistantContext,
   };
   return { title: PLAN_KINDS.find((k) => k.kind === kind)!.title, content, model: "template" };
 }
+// UniRoute · src/lib/planner/generate.ts

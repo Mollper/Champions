@@ -13,3 +13,4 @@ export default async function ScholarshipsPage() {
   const { draft, scholarships, matches } = await getUserMatches("/scholarships");
   return <ScholarshipsContent list={matchScholarships(draft, scholarships, matches)} />;
 }
+// UniRoute · src/app/(app)/scholarships/page.tsx

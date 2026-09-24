@@ -65,3 +65,4 @@ create policy "Students delete their own plans"
   on public.plans for delete
   to authenticated
   using ((select auth.uid()) = user_id);
+-- UniRoute · supabase/migrations/20260918134758_planner_and_university_profiles.sql

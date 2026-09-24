@@ -17,3 +17,4 @@ begin
   return new;
 end;
 $$;
+-- UniRoute · supabase/migrations/20260917132514_profile_version_on_meaningful_change.sql

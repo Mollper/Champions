@@ -160,3 +160,4 @@ export function ThemeControls({ initial, compact = false }: { initial: Theme; co
     </div>
   );
 }
+// UniRoute · src/components/settings/theme-controls.tsx

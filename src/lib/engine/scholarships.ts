@@ -102,3 +102,4 @@ export function matchScholarships(
       (a.deadline?.date ?? "9999").localeCompare(b.deadline?.date ?? "9999"),
   );
 }
+// UniRoute · src/lib/engine/scholarships.ts

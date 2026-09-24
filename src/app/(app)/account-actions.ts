@@ -34,3 +34,4 @@ export async function deleteAccount(_prev: DeleteAccountState, formData: FormDat
 
   redirect("/?deleted=1");
 }
+// UniRoute · src/app/(app)/account-actions.ts

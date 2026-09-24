@@ -116,3 +116,4 @@ export function LanguageMenu({ className }: { className?: string }) {
     </div>
   );
 }
+// UniRoute · src/components/settings/language-switcher.tsx

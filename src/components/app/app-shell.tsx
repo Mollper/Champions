@@ -296,3 +296,4 @@ function JourneyBar({ journey, pathname }: { journey: JourneyState; pathname: st
     </div>
   );
 }
+// UniRoute · src/components/app/app-shell.tsx

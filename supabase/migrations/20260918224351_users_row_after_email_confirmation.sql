@@ -22,3 +22,4 @@ create trigger on_auth_user_confirmed
   for each row
   when (old.email_confirmed_at is null and new.email_confirmed_at is not null)
   execute function private.handle_new_user();
+-- UniRoute · supabase/migrations/20260918224351_users_row_after_email_confirmation.sql

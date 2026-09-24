@@ -15,3 +15,4 @@ export function UserAvatar({ src, name, className }: { src?: string | null; name
     </span>
   );
 }
+// UniRoute · src/components/ui/user-avatar.tsx

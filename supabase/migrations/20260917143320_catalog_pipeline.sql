@@ -61,3 +61,4 @@ create policy "Users can request a university"
   on public.catalog_requests for insert
   to authenticated
   with check ((select auth.uid()) = user_id and status = 'queued' and university_id is null and attempts = 0);
+-- UniRoute · supabase/migrations/20260917143320_catalog_pipeline.sql
