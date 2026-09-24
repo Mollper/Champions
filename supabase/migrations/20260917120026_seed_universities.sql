@@ -398,4 +398,3 @@ from (values
   eligible_citizenships, min_gpa_4, min_ielts, need_based, deadline, description, url
 )
 left join public.universities u on u.slug = s.university_slug;
--- UniRoute · supabase/migrations/20260917120026_seed_universities.sql

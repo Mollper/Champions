@@ -39,4 +39,3 @@ export function DemoNote({ className, compact = false, aiCount = 0 }: { classNam
     </p>
   );
 }
-// UniRoute · src/components/ui/demo-note.tsx

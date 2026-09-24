@@ -45,4 +45,3 @@ export default async function UniversityPage({ params }: PageProps<"/universitie
     />
   );
 }
-// UniRoute · src/app/(app)/universities/[slug]/page.tsx

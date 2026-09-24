@@ -136,4 +136,3 @@ export function StepItem({ step, isNext, universityName, onStatus }: Props) {
     </motion.li>
   );
 }
-// UniRoute · src/components/roadmap/step-item.tsx

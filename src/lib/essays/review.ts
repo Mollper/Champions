@@ -60,4 +60,3 @@ export async function reviewEssay({ kind, target, prompt, content, locale = "ru"
   const score = Math.round(clarity + structure + specificity + authenticity + impact);
   return { review: { summary, scores, strengths, weaknesses, suggestions, cliches }, score, modelId };
 }
-// UniRoute · src/lib/essays/review.ts

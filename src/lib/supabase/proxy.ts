@@ -60,4 +60,3 @@ export async function updateSession(request: NextRequest) {
 
   return response;
 }
-// UniRoute · src/lib/supabase/proxy.ts

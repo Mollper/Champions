@@ -335,4 +335,3 @@ export function ProfileWizard({ initial, isComplete, universities, scholarships,
     </div>
   );
 }
-// UniRoute · src/components/profile/profile-wizard.tsx

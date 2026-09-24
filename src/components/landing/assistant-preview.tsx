@@ -112,4 +112,3 @@ export function AssistantPreview() {
     </section>
   );
 }
-// UniRoute · src/components/landing/assistant-preview.tsx

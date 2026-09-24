@@ -6,4 +6,3 @@ export const metadata: Metadata = { title: "The Dean's Seat" };
 export default function DeanPage() {
   return <DeansSeat />;
 }
-// UniRoute · src/app/games/dean/page.tsx

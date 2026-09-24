@@ -105,4 +105,3 @@ export function ChatSparkIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-// UniRoute · src/components/brand/mascot.tsx

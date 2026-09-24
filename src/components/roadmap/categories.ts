@@ -12,4 +12,3 @@ export const CATEGORY: Record<RoadmapStepCategory, { label: string; icon: Lucide
 };
 
 export const CATEGORY_ORDER: RoadmapStepCategory[] = ["application", "exam", "document", "scholarship", "academic", "activity", "deadline"];
-// UniRoute · src/components/roadmap/categories.ts

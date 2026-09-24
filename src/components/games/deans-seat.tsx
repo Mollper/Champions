@@ -564,4 +564,3 @@ function Report({ pool, decisions, onRestart }: { pool: Candidate[]; decisions: 
     </motion.section>
   );
 }
-// UniRoute · src/components/games/deans-seat.tsx

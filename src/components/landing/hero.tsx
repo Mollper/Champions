@@ -93,4 +93,3 @@ export function Hero({ ctaHref, universityCount, countryCount, scholarshipCount,
     </section>
   );
 }
-// UniRoute · src/components/landing/hero.tsx

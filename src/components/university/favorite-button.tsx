@@ -34,4 +34,3 @@ export function FavoriteButton({ active, onToggle, className, label = false }: {
     </button>
   );
 }
-// UniRoute · src/components/university/favorite-button.tsx

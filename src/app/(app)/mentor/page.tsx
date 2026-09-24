@@ -25,4 +25,3 @@ export default async function MentorHome() {
     </div>
   );
 }
-// UniRoute · src/app/(app)/mentor/page.tsx

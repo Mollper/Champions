@@ -46,4 +46,3 @@ export async function loadAssistantContext(userId: string): Promise<AssistantCon
     steps: (stepsRes.data ?? []) as RoadmapStep[],
   };
 }
-// UniRoute · src/lib/assistant/context.ts

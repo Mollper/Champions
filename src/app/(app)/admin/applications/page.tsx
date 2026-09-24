@@ -76,4 +76,3 @@ export default async function ApplicationsPage() {
     </div>
   );
 }
-// UniRoute · src/app/(app)/admin/applications/page.tsx

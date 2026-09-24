@@ -19,4 +19,3 @@ export const getScholarships = cache(async (): Promise<Scholarship[]> => {
   if (error) throw new Error(`Не удалось загрузить стипендии: ${error.message}`);
   return data as Scholarship[];
 });
-// UniRoute · src/lib/data/reference.ts

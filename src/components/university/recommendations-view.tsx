@@ -244,4 +244,3 @@ export function RecommendationsView({
     </div>
   );
 }
-// UniRoute · src/components/university/recommendations-view.tsx

@@ -143,4 +143,3 @@ export type EssayReviewContent = {
 
 export type Essay = Omit<Tables<"essays">, "kind"> & { kind: EssayKind };
 export type EssayReview = Omit<Tables<"essay_reviews">, "review"> & { review: EssayReviewContent };
-// UniRoute · src/types/models.ts

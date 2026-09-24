@@ -344,4 +344,3 @@ export function AssistantWidget({ initialStyle, name }: { initialStyle: Assistan
     </>
   );
 }
-// UniRoute · src/components/assistant/assistant-widget.tsx

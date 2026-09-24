@@ -84,4 +84,3 @@ export async function changePassword(current: string, next: string): Promise<Act
   }
   return { ok: true, message: "Пароль обновлён" };
 }
-// UniRoute · src/app/(app)/settings/actions.ts

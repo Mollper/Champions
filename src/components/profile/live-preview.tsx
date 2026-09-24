@@ -101,4 +101,3 @@ export function LivePreview({ matches, profile, compact = false }: Props) {
     </div>
   );
 }
-// UniRoute · src/components/profile/live-preview.tsx

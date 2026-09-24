@@ -32,4 +32,3 @@ export const FIELD_ICON: Record<string, LucideIcon> = {
   arts: Theater,
   media: Clapperboard,
 };
-// UniRoute · src/components/profile/icons.ts

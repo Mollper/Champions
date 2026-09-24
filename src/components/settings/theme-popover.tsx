@@ -52,4 +52,3 @@ export function ThemePopover({ initial }: { initial: Theme }) {
     </div>
   );
 }
-// UniRoute · src/components/settings/theme-popover.tsx

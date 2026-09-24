@@ -262,4 +262,3 @@ async function Row({ label, value, strong, tone }: { label: string; value: strin
     </div>
   );
 }
-// UniRoute · src/components/university/university-page-view.tsx

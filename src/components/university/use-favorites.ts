@@ -24,4 +24,3 @@ export function useFavorites(initialIds: number[]) {
 
   return { ids, toggle, error };
 }
-// UniRoute · src/components/university/use-favorites.ts

@@ -297,4 +297,3 @@ function FormError({ state }: { state: AuthState }) {
     </p>
   );
 }
-// UniRoute · src/components/auth/auth-form.tsx

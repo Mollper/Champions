@@ -32,4 +32,3 @@ export const CATEGORY_LABEL: Record<PlanTaskCategory, string> = {
 /** Plans a student may generate per day and keep in total: free models are shared by everyone. */
 export const PLANS_PER_DAY = 10;
 export const MAX_PLANS = 30;
-// UniRoute · src/lib/planner/options.ts

@@ -215,4 +215,3 @@ async function Fact({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-// UniRoute · src/app/(app)/mentor/students/[id]/page.tsx

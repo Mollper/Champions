@@ -35,4 +35,3 @@ export default async function MentorsPage() {
     </div>
   );
 }
-// UniRoute · src/app/(app)/mentors/page.tsx

@@ -105,4 +105,3 @@ export function DataSources({ university }: { university: University }) {
     </div>
   );
 }
-// UniRoute · src/components/university/data-sources.tsx

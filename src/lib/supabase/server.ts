@@ -22,4 +22,3 @@ export async function createClient() {
     },
   });
 }
-// UniRoute · src/lib/supabase/server.ts

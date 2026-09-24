@@ -295,4 +295,3 @@ for (const sf of sources) {
 console.log(`\n${changedFiles} files${DRY ? " (dry run)" : ""}`);
 if (orphans.length) console.log(`\nText outside components (translate by hand):\n  ${orphans.join("\n  ")}`);
 if (sharedFiles.length) console.log(`\nMarked "use client" (were shared):\n  ${sharedFiles.join("\n  ")}`);
-// UniRoute · scripts/i18n/wrap.mts

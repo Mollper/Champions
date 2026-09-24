@@ -38,4 +38,3 @@ select ${cols.join(", ")} from jsonb_populate_recordset(null::public.universitie
 on conflict (wikidata_id) do update set ${updates}
 where public.universities.origin = 'ai';`;
 }
-// UniRoute · src/lib/catalog/store.ts

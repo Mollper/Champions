@@ -29,4 +29,3 @@ export default async function FavoritesPage() {
     </div>
   );
 }
-// UniRoute · src/app/(app)/favorites/page.tsx

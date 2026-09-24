@@ -98,4 +98,3 @@ export async function submitMentorApplication(form: { full_name: string; headlin
   revalidatePath("/mentor/apply");
   return { ok: true };
 }
-// UniRoute · src/app/(app)/mentorship-actions.ts

@@ -3,4 +3,3 @@ export const supabasePublishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHAB
 
 /** False until .env.local is filled in — lets the app render without a backend. */
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabasePublishableKey);
-// UniRoute · src/lib/supabase/env.ts

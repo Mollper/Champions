@@ -101,4 +101,3 @@ export async function checkEmailDomain(email: string): Promise<EmailDomainCheck>
   if (hosts.some((h) => h.status === "fulfilled" && h.value.length > 0)) return "ok";
   return hosts.every((h) => h.status === "rejected" && MISSING.has(code(h.reason) ?? "")) ? "no-mail" : "ok";
 }
-// UniRoute · src/lib/email-check.ts

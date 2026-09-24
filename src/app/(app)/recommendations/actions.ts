@@ -26,4 +26,3 @@ export async function toggleShortlist(universityId: number, add: boolean): Promi
   revalidatePath("/", "layout");
   return { ok: true };
 }
-// UniRoute · src/app/(app)/recommendations/actions.ts

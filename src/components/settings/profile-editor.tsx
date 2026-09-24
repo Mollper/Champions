@@ -229,4 +229,3 @@ export function ProfileEditor({
     </div>
   );
 }
-// UniRoute · src/components/settings/profile-editor.tsx

@@ -94,4 +94,3 @@ async function main() {
 }
 
 main();
-// UniRoute · scripts/i18n/extract.mts

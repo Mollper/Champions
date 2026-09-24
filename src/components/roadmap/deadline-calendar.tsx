@@ -174,4 +174,3 @@ export function DeadlineCalendar({ steps, universityName }: { steps: RoadmapStep
     </div>
   );
 }
-// UniRoute · src/components/roadmap/deadline-calendar.tsx

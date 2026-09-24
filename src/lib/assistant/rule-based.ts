@@ -361,4 +361,3 @@ export function ruleBasedReply(message: string, style: AssistantStyle, ctx: Assi
   }
   return compose(style, ruleBasedAnswer(message, ctx) ?? fallback(ctx));
 }
-// UniRoute · src/lib/assistant/rule-based.ts

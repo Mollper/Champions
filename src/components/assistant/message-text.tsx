@@ -67,4 +67,3 @@ function Inline({ text }: { text: string }) {
     </>
   );
 }
-// UniRoute · src/components/assistant/message-text.tsx

@@ -32,4 +32,3 @@ export async function GET(request: NextRequest) {
   for (const id of stale) if (!(await admin.auth.admin.deleteUser(id)).error) deleted++;
   return NextResponse.json({ ok: true, deleted, found: stale.length });
 }
-// UniRoute · src/app/api/cron/cleanup/route.ts

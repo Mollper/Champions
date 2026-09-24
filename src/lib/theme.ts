@@ -81,4 +81,3 @@ export const themeAttributes = (t: Theme) => ({
   "data-radius": t.radius,
   "data-text": t.text,
 });
-// UniRoute · src/lib/theme.ts

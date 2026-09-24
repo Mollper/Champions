@@ -5,4 +5,3 @@ import { supabasePublishableKey, supabaseUrl } from "./env";
 export function createClient() {
   return createBrowserClient<Database>(supabaseUrl, supabasePublishableKey);
 }
-// UniRoute · src/lib/supabase/client.ts

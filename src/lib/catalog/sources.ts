@@ -210,4 +210,3 @@ export async function usdRates(): Promise<Record<string, number>> {
   }
   return { USD: 1, EUR: 0.9, GBP: 0.77, CAD: 1.37, AUD: 1.5, CHF: 0.87, JPY: 147, CNY: 7.2, KRW: 1370, SGD: 1.34, HKD: 7.8, TRY: 34, KZT: 500, CZK: 23, HUF: 360, PLN: 3.9, SEK: 10.5, MYR: 4.5, AED: 3.67 };
 }
-// UniRoute · src/lib/catalog/sources.ts

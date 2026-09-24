@@ -140,4 +140,3 @@ export function AddUniversity({ initialRequests, processingEnabled }: { initialR
     </section>
   );
 }
-// UniRoute · src/components/university/add-university.tsx

@@ -78,4 +78,3 @@ export function ExamScoreInput({ id, meta, score, onChange }: { id: string; meta
     </div>
   );
 }
-// UniRoute · src/components/profile/exam-score-input.tsx

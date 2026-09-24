@@ -194,4 +194,3 @@ if (command === "discover") {
 } else {
   console.log("Usage: catalog discover --countries=CH,FR --per-country=2 | add <name> [--country=XX] | seed [--countries=..] | link-curated  [--dry-run]");
 }
-// UniRoute · scripts/catalog.mts

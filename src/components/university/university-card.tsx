@@ -242,4 +242,3 @@ function Stat({ label, value, hint, highlight }: { label: string; value: string;
     </div>
   );
 }
-// UniRoute · src/components/university/university-card.tsx

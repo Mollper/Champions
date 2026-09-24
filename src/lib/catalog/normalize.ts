@@ -177,4 +177,3 @@ export function buildRow({ facts, extraction: x, pages, photo, scorecard, rates 
 
   return { row, problems };
 }
-// UniRoute · src/lib/catalog/normalize.ts

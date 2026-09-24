@@ -45,4 +45,3 @@ export function compose(style: AssistantStyle, a: Answer): string {
 
   return parts.join("\n\n") + links;
 }
-// UniRoute · src/lib/assistant/compose.ts

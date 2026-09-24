@@ -137,4 +137,3 @@ export function NextActionCard({ steps, onStatus, universityName, compact = fals
     </section>
   );
 }
-// UniRoute · src/components/roadmap/next-action-card.tsx

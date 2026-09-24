@@ -156,4 +156,3 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/");
 }
-// UniRoute · src/app/login/actions.ts

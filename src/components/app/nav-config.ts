@@ -81,4 +81,3 @@ export function isActive(pathname: string, href: string, nav: NavItem[] = STUDEN
   const match = (h: string) => pathname === h || (!nested && pathname.startsWith(`${h}/`));
   return match(href) || (nav.find((n) => n.href === href)?.also ?? []).some((h) => pathname === h || pathname.startsWith(`${h}/`));
 }
-// UniRoute · src/components/app/nav-config.ts

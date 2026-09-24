@@ -330,4 +330,3 @@ export function CompareView({ matches, shortlistIds, suggestions }: { matches: M
     </div>
   );
 }
-// UniRoute · src/components/university/compare-view.tsx

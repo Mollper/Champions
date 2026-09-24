@@ -34,4 +34,3 @@ export default async function ComparePage() {
     </div>
   );
 }
-// UniRoute · src/app/(app)/compare/page.tsx

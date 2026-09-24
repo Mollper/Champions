@@ -101,4 +101,3 @@ export async function ScholarshipsContent({ list }: { list: ScholarshipMatch[] }
     </div>
   );
 }
-// UniRoute · src/components/scholarships/scholarships-content.tsx

@@ -114,4 +114,3 @@ const FIELD_ALIASES: [string, RegExp][] = [
 ];
 
 export const mentionedFields = (text: string) => FIELD_ALIASES.filter(([, re]) => re.test(text)).map(([id]) => id);
-// UniRoute · src/lib/assistant/mentions.ts

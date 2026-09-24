@@ -35,4 +35,3 @@ export const getShortlistIds = cache(async (userId: string): Promise<number[]> =
   const { data } = await supabase.from("shortlist").select("university_id").eq("user_id", userId).order("created_at");
   return (data ?? []).map((r) => r.university_id);
 });
-// UniRoute · src/lib/data/matches.ts

@@ -42,4 +42,3 @@ export async function POST(_req: NextRequest, ctx: RouteContext<"/api/universiti
     return NextResponse.json({ error: error instanceof NoModelAvailableError ? "busy" : "failed" }, { status: 503 });
   }
 }
-// UniRoute · src/app/api/universities/[slug]/profile/route.ts

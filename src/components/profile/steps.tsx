@@ -465,4 +465,3 @@ export function GoalStep({ draft, update }: StepProps) {
     </div>
   );
 }
-// UniRoute · src/components/profile/steps.tsx

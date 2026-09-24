@@ -89,4 +89,3 @@ export function ChanceFactors({ factors }: { factors: ChanceFactor[] }) {
     </ul>
   );
 }
-// UniRoute · src/components/university/chance.tsx
